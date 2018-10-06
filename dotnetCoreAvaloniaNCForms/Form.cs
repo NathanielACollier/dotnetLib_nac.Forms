@@ -24,12 +24,22 @@ namespace dotnetCoreAvaloniaNCForms
             {
                 try
                 {
+                    var app = new Application();
+                    AppBuilder.Configure(app)
+                        .UsePlatformDetect()
+                        .SetupWithoutStarting();
+
                     var win = new Window();
                     win.Height = height;
                     win.Width = width;
                     win.Content = this.Host;
-                    win.ShowDialog();
-                    promise.SetResult(this);
+                    win.Closed += (_sender, _args) =>
+                    {
+                        promise.SetResult(this);
+                    };
+                    win.Show();
+                    app.Run(win);
+                    
                 }
                 catch(Exception ex)
                 {
