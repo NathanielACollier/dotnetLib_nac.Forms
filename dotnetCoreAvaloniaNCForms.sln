@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28010.2041
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotnetCoreAvaloniaNCForms", "dotnetCoreAvaloniaNCForms\dotnetCoreAvaloniaNCForms.csproj", "{61DBB845-4B7D-4A6D-AF93-88EB0F2FC76A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{AA354920-AA9C-4D18-A1A0-2AE9C6F17449}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{61DBB845-4B7D-4A6D-AF93-88EB0F2FC76A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{61DBB845-4B7D-4A6D-AF93-88EB0F2FC76A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{61DBB845-4B7D-4A6D-AF93-88EB0F2FC76A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA354920-AA9C-4D18-A1A0-2AE9C6F17449}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA354920-AA9C-4D18-A1A0-2AE9C6F17449}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA354920-AA9C-4D18-A1A0-2AE9C6F17449}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA354920-AA9C-4D18-A1A0-2AE9C6F17449}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
