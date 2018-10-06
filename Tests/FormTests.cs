@@ -6,8 +6,10 @@ namespace Tests
     public class FormTests
     {
         [TestMethod]
-        public void TestMethod1()
+        public void TestDisplay()
         {
+            new dotnetCoreAvaloniaNCForms.Form()
+                .Display();
         }
     }
 }
