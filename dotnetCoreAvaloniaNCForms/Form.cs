@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Threading;
 
 namespace dotnetCoreAvaloniaNCForms
 {
@@ -24,7 +25,13 @@ namespace dotnetCoreAvaloniaNCForms
             {
                 try
                 {
+                    // followed some stuff here: http://reedcopsey.com/2011/11/28/launching-a-wpf-window-in-a-separate-thread-part-1/
+                    SynchronizationContext.SetSynchronizationContext(
+                        new Avalonia.Threading.AvaloniaSynchronizationContext()         
+                        );
+
                     var app = new Application();
+                    
                     AppBuilder.Configure(app)
                         .UsePlatformDetect()
                         .SetupWithoutStarting();
@@ -47,7 +54,8 @@ namespace dotnetCoreAvaloniaNCForms
                     promise.SetException(ex);
                 }
             });
-            t.ApartmentState = ApartmentState.STA;
+            t.TrySetApartmentState(ApartmentState.STA);
+            t.IsBackground = true;
             t.Start();
 
             return promise.Task;
