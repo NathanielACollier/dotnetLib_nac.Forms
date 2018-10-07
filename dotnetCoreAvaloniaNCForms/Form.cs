@@ -46,8 +46,7 @@ namespace dotnetCoreAvaloniaNCForms
                 log("Window closed");
                 promise.SetResult(this);
             };
-            win.Show();
-
+            builder.Start(win);
 
             return promise.Task;
         }
@@ -61,10 +60,6 @@ namespace dotnetCoreAvaloniaNCForms
                 try
                 {
                     log("Starting NCForm Display");
-                    Avalonia.Threading.AvaloniaSynchronizationContext.InstallIfNeeded();
-                    
-                    Avalonia.Threading.Dispatcher.UIThread.VerifyAccess();
-
                     var appBuilder = BuildAvaloniaApp();
 
                     log("Constructing window");
@@ -72,14 +67,15 @@ namespace dotnetCoreAvaloniaNCForms
                     win.Height = height;
                     win.Width = width;
                     win.Content = this.Host;
+                    var cancelToken = new CancellationToken();
                     win.Closed += (_sender, _args) =>
                     {
                         log("Window closed");
                         promise.SetResult(this);
                     };
                     win.Show();
-                    var token = new CancellationToken();
-                    Avalonia.Threading.Dispatcher.UIThread.MainLoop(token);
+
+                    Avalonia.Threading.Dispatcher.UIThread.MainLoop(cancelToken);
                 }
                 catch(Exception ex)
                 {
@@ -87,8 +83,6 @@ namespace dotnetCoreAvaloniaNCForms
                     promise.SetException(ex);
                 }
             });
-            t.TrySetApartmentState(ApartmentState.STA);
-            t.IsBackground = true;
             t.Start();
 
             return promise.Task;
