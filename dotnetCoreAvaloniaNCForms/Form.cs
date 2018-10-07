@@ -1,21 +1,34 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Logging.Serilog;
 using Avalonia.Threading;
 
 namespace dotnetCoreAvaloniaNCForms
 {
     public class Form
     {
+        static void log(string message)
+        {
+            Debug.WriteLine($"[{DateTime.Now:hh_mm_tt]}:{message}");
+        }
         private StackPanel Host { get; set; }
 
         public Form()
         {
             this.Host = new StackPanel();
         }
-
+        
+        static AppBuilder BuildAvaloniaApp()
+            => AppBuilder
+            .Configure<App>()
+            .LogToDebug(Avalonia.Logging.LogEventLevel.Verbose)
+            .UsePlatformDetect()
+            .SetupWithoutStarting()
+            ;
 
         public Task<Form> Display(int height = 600, int width = 800)
         {
@@ -25,17 +38,14 @@ namespace dotnetCoreAvaloniaNCForms
             {
                 try
                 {
-                    // followed some stuff here: http://reedcopsey.com/2011/11/28/launching-a-wpf-window-in-a-separate-thread-part-1/
-                    SynchronizationContext.SetSynchronizationContext(
-                        new Avalonia.Threading.AvaloniaSynchronizationContext()         
-                        );
-
-                    var app = new Application();
+                    log("Starting NCForm Display");
+                    Avalonia.Threading.AvaloniaSynchronizationContext.InstallIfNeeded();
                     
-                    AppBuilder.Configure(app)
-                        .UsePlatformDetect()
-                        .SetupWithoutStarting();
+                    Avalonia.Threading.Dispatcher.UIThread.VerifyAccess();
 
+                    var appBuilder = BuildAvaloniaApp();
+
+                    log("Constructing window");
                     var win = new Window();
                     win.Height = height;
                     win.Width = width;
@@ -45,7 +55,8 @@ namespace dotnetCoreAvaloniaNCForms
                         promise.SetResult(this);
                     };
                     win.Show();
-                    app.Run(win);
+
+                    appBuilder.Start(win);
                     
                 }
                 catch(Exception ex)
