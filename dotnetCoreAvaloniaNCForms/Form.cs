@@ -78,7 +78,8 @@ namespace dotnetCoreAvaloniaNCForms
                         promise.SetResult(this);
                     };
                     win.Show();
-                    
+                    var token = new CancellationToken();
+                    Avalonia.Threading.Dispatcher.UIThread.MainLoop(token);
                 }
                 catch(Exception ex)
                 {
