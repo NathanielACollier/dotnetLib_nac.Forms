@@ -1,5 +1,6 @@
 using Avalonia;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading.Tasks;
 
 namespace Tests
 {
@@ -7,9 +8,9 @@ namespace Tests
     public class FormTests
     {
         [TestMethod]
-        public void TestDisplay()
+        public async Task TestDisplay()
         {
-            new dotnetCoreAvaloniaNCForms.Form()
+            await new dotnetCoreAvaloniaNCForms.Form()
                 .Display();
         }
 
@@ -29,9 +30,9 @@ namespace Tests
 
 
         [TestMethod]
-        public void TestDisplayFormWithNoThread()
+        public async Task TestDisplayFormWithNoThread()
         {
-            new dotnetCoreAvaloniaNCForms.Form()
+            await new dotnetCoreAvaloniaNCForms.Form()
                 .DisplayNoThread();
         }
     }

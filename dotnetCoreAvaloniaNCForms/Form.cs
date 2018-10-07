@@ -31,8 +31,9 @@ namespace dotnetCoreAvaloniaNCForms
             ;
 
 
-        public Form DisplayNoThread(int height = 600, int width = 800)
+        public Task<Form> DisplayNoThread(int height = 600, int width = 800)
         {
+            var promise = new TaskCompletionSource<Form>();
             log("Starting with no thread");
 
             var builder = BuildAvaloniaApp();
@@ -43,11 +44,12 @@ namespace dotnetCoreAvaloniaNCForms
             win.Closed += (_sender, _args) =>
             {
                 log("Window closed");
+                promise.SetResult(this);
             };
             win.Show();
 
 
-            return this;
+            return promise.Task;
         }
 
         public Task<Form> Display(int height = 600, int width = 800)
