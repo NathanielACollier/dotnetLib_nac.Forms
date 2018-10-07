@@ -26,5 +26,13 @@ namespace Tests
             dialog.Show();
             app.Run(dialog);
         }
+
+
+        [TestMethod]
+        public void TestDisplayFormWithNoThread()
+        {
+            new dotnetCoreAvaloniaNCForms.Form()
+                .DisplayNoThread();
+        }
     }
 }
