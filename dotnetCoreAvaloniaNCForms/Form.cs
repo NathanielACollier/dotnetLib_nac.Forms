@@ -9,17 +9,20 @@ using Avalonia.Threading;
 
 namespace dotnetCoreAvaloniaNCForms
 {
-    public class Form
+    public partial class Form
     {
         static void log(string message)
         {
             Debug.WriteLine($"[{DateTime.Now:hh_mm_tt]}:{message}");
         }
         private StackPanel Host { get; set; }
+        public lib.BindableDynamicDictionary Model { get; set; }
 
         public Form()
         {
             this.Host = new StackPanel();
+            this.Model = new lib.BindableDynamicDictionary();
+            this.Host.Orientation = Orientation.Vertical;
         }
         
         static AppBuilder BuildAvaloniaApp()
