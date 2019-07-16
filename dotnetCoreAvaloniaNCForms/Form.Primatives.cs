@@ -12,7 +12,7 @@ namespace dotnetCoreAvaloniaNCForms
 		public Form TextFor(string modelFieldName, string defaultValue = null)
         {
             var label = new TextBlock();
-
+			
             return this;
         }
 

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Logging.Serilog;
 using Avalonia.Threading;
+using Avalonia.Reactive;
 
 namespace dotnetCoreAvaloniaNCForms
 {
@@ -23,6 +25,27 @@ namespace dotnetCoreAvaloniaNCForms
             this.Host = new StackPanel();
             this.Model = new lib.BindableDynamicDictionary();
             this.Host.Orientation = Orientation.Vertical;
+        }
+
+
+        private void AddBinding<T>(string modelFieldName,
+            IAvaloniaObject control,
+            AvaloniaProperty property,
+            bool isTwoWayDataBinding = false)
+        {
+            // (ideas from here)[http://avaloniaui.net/docs/binding/binding-from-code]
+            var bindingSource = new Subject<T>();
+            control.Bind(property, bindingSource);
+            // Default we grab all changes to model field and apply them to property
+            this.Model.PropertyChanged += (_s, _args) =>
+            {
+                if( string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase))
+                {
+                    // field value has changed
+                }
+            };
+            // If they say two way then we setup a watch on the property observable and apply the values back to the model
+
         }
         
         static AppBuilder BuildAvaloniaApp()
