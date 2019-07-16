@@ -38,14 +38,18 @@ namespace dotnetCoreAvaloniaNCForms
             this.Host.Children.Add(row);
         }
 
-        private void AddBinding(string modelFieldName,
+        private void AddBinding<T>(string modelFieldName,
             AvaloniaObject control,
             AvaloniaProperty property,
             bool isTwoWayDataBinding = false)
         {
             // (ideas from here)[http://avaloniaui.net/docs/binding/binding-from-code]
-            var bindingSource = new Subject<object>();
-            var bindingSourceObservable = bindingSource.AsObservable();
+            var bindingSource = new Subject<T>();
+            var bindingSourceObservable = bindingSource.AsObservable()
+                .Select(i =>
+                {
+                    return (object)i;
+                });
             control.Bind(property, bindingSourceObservable);
             // Default we grab all changes to model field and apply them to property
             this.Model.PropertyChanged += (_s, _args) =>
@@ -53,7 +57,18 @@ namespace dotnetCoreAvaloniaNCForms
                 if( string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase))
                 {
                     // field value has changed
-                    bindingSource.OnNext(this.Model[modelFieldName]);
+                    if(this.Model[modelFieldName] is T newVal)
+                    {
+                        bindingSource.OnNext(newVal);
+                    }else
+                    {
+                        if( lib.Util.CanChangeType<T>(
+                            this.Model[modelFieldName], out T newVal2))
+                        {
+                            bindingSource.OnNext(newVal2);
+                        }
+                    }
+                    
                 }
             };
             // If they say two way then we setup a watch on the property observable and apply the values back to the model
