@@ -28,8 +28,17 @@ namespace dotnetCoreAvaloniaNCForms
         }
 
 
+        private void AddRowToHost(IControl ctrl)
+        {
+            DockPanel row = new DockPanel();
+
+            row.Children.Add(ctrl);
+
+            this.Host.Children.Add(row);
+        }
+
         private void AddBinding<T>(string modelFieldName,
-            IAvaloniaObject control,
+            AvaloniaObject control,
             AvaloniaProperty property,
             bool isTwoWayDataBinding = false)
         {
@@ -42,10 +51,24 @@ namespace dotnetCoreAvaloniaNCForms
                 if( string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase))
                 {
                     // field value has changed
+                    if( this.Model[modelFieldName] is T newVal)
+                    {
+                        bindingSource.OnNext(newVal);
+                    }
+                    
                 }
             };
             // If they say two way then we setup a watch on the property observable and apply the values back to the model
+            if(isTwoWayDataBinding)
+            {
+                // monitor for Property changes on control
+                var controlValueChangesObservable = control.GetObservable(property);
 
+                controlValueChangesObservable.Subscribe(newVal =>
+                {
+                    this.Model[modelFieldName] = newVal;
+                });
+            }
         }
         
         static AppBuilder BuildAvaloniaApp()

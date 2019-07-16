@@ -12,7 +12,9 @@ namespace dotnetCoreAvaloniaNCForms
 		public Form TextFor(string modelFieldName, string defaultValue = null)
         {
             var label = new TextBlock();
-			
+            AddBinding<string>(modelFieldName, label, TextBlock.TextProperty);
+
+            AddRowToHost(label);
             return this;
         }
 
@@ -20,7 +22,13 @@ namespace dotnetCoreAvaloniaNCForms
         {
             var btn = new Button();
 
-			
+            btn.Content = displayText;
+
+            btn.Click += (_s, _args) =>
+            {
+                onClick(null);
+            };
+            AddRowToHost(btn);
             return this;
         }
     }

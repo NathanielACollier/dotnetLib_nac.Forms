@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Dynamic;
 using System.Text;
+using System.Linq;
 
 namespace dotnetCoreAvaloniaNCForms.lib
 {
@@ -33,6 +34,23 @@ namespace dotnetCoreAvaloniaNCForms.lib
         {
             _dictionary = new Dictionary<string, object>(source);
         }
+
+        public T GetOrDefault<T>(string key, T defaultValue)
+        {
+            if(GetDynamicMemberNames().Contains(key))
+            {
+                if( this[key] is T curVal)
+                {
+                    return curVal;
+                }else
+                {
+                    return defaultValue;
+                }
+            }
+
+            return defaultValue;
+        }
+
         /// <summary>
         /// You can still use this as a dictionary.
         /// </summary>

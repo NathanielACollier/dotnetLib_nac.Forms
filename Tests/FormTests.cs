@@ -1,6 +1,7 @@
 using Avalonia;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Tests
 {
@@ -34,6 +35,20 @@ namespace Tests
         {
             await new dotnetCoreAvaloniaNCForms.Form()
                 .DisplayNoThread();
+        }
+
+        [TestMethod]
+        public void FormWithButtonClickCount()
+        {
+            var f = new dotnetCoreAvaloniaNCForms.Form();
+                f.TextFor("txt1")
+                .Button("Click Me!", arg =>
+                {
+                    var current = f.Model.GetOrDefault<int>("txt1", 0);
+                    ++current;
+                    f.Model["txt1"] = current;
+                })
+                .Display();
         }
     }
 }
