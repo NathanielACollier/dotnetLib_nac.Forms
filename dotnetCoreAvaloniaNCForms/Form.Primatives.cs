@@ -12,7 +12,12 @@ namespace dotnetCoreAvaloniaNCForms
 		public Form TextFor(string modelFieldName, string defaultValue = null)
         {
             var label = new TextBlock();
-            AddBinding<string>(modelFieldName, label, TextBlock.TextProperty);
+            AddBinding(modelFieldName, label, TextBlock.TextProperty);
+
+			if( defaultValue != null)
+            {
+                this.Model[modelFieldName] = defaultValue;
+            }
 
             AddRowToHost(label);
             return this;
