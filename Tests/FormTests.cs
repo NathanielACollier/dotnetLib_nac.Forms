@@ -38,10 +38,10 @@ namespace Tests
         }
 
         [TestMethod]
-        public void FormWithButtonClickCount()
+        public async Task FormWithButtonClickCount()
         {
             var f = new dotnetCoreAvaloniaNCForms.Form();
-                f.TextFor("txt1")
+            await f.TextFor("txt1")
                 .Button("Click Me!", arg =>
                 {
                     var current = f.Model.GetOrDefault<int>("txt1", 0);

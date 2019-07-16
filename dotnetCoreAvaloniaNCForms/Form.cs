@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reactive.Subjects;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
@@ -44,7 +45,12 @@ namespace dotnetCoreAvaloniaNCForms
         {
             // (ideas from here)[http://avaloniaui.net/docs/binding/binding-from-code]
             var bindingSource = new Subject<T>();
-            control.Bind(property, bindingSource);
+            var bindingSourceObservable = bindingSource.AsObservable()
+                        .Select(i =>
+                        {
+                            return (object)i;
+                        });
+            control.Bind(property, bindingSourceObservable);
             // Default we grab all changes to model field and apply them to property
             this.Model.PropertyChanged += (_s, _args) =>
             {
