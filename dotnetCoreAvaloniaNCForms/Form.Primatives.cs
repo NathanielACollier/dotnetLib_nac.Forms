@@ -23,6 +23,16 @@ namespace dotnetCoreAvaloniaNCForms
             return this;
         }
 
+		public Form TextBoxFor(string modelFieldName)
+        {
+            var tb = new TextBox();
+            AddBinding<string>(modelFieldName, tb, TextBox.TextProperty,
+				isTwoWayDataBinding: true);
+
+            AddRowToHost(tb);
+            return this;
+        }
+
 		public Form Button(string displayText, Action<object> onClick)
         {
             var btn = new Button();

@@ -50,5 +50,15 @@ namespace Tests
                 })
                 .Display();
         }
+
+
+        [TestMethod]
+        public async Task FormThatDisplaysTypedText()
+        {
+            var f = new dotnetCoreAvaloniaNCForms.Form();
+            await f.TextFor("txt2", "Type here")
+                .TextBoxFor("txt2")
+                .Display();
+        }
     }
 }
