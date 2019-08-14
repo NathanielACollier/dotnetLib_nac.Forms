@@ -46,5 +46,24 @@ namespace dotnetCoreAvaloniaNCForms
             AddRowToHost(btn);
             return this;
         }
+
+        public Form SimpleDropDown<T>(List<T> items, Action<T> onItemSelected = null)
+            where T: class
+        {
+            var dropdown = new ComboBox();
+
+            dropdown.SelectionChanged += (_s, _args) =>
+            {
+                if( onItemSelected != null)
+                {
+                    onItemSelected(_args.AddedItems[0] as T);
+                }
+            };
+
+            dropdown.Items = items;
+
+            AddRowToHost(dropdown);
+            return this;
+        }
     }
 }
