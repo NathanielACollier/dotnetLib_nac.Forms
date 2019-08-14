@@ -93,7 +93,7 @@ namespace dotnetCoreAvaloniaNCForms
             ;
 
 
-        public Task<Form> DisplayNoThread(int height = 600, int width = 800)
+        public Task<Form> Display(int height = 600, int width = 800)
         {
             var promise = new TaskCompletionSource<Form>();
             log("Starting with no thread");
@@ -108,46 +108,12 @@ namespace dotnetCoreAvaloniaNCForms
                 log("Window closed");
                 promise.SetResult(this);
             };
-            builder.Start(win);
+            win.Show();
+            builder.Instance.Run(win);
 
             return promise.Task;
         }
 
-        public Task<Form> Display(int height = 600, int width = 800)
-        {
-            var promise = new TaskCompletionSource<Form>();
 
-            var t = new Thread(() =>
-            {
-                try
-                {
-                    log("Starting NCForm Display");
-                    var appBuilder = BuildAvaloniaApp();
-
-                    log("Constructing window");
-                    var win = new Window();
-                    win.Height = height;
-                    win.Width = width;
-                    win.Content = this.Host;
-                    var cancelToken = new CancellationToken();
-                    win.Closed += (_sender, _args) =>
-                    {
-                        log("Window closed");
-                        promise.SetResult(this);
-                    };
-                    win.Show();
-
-                    Avalonia.Threading.Dispatcher.UIThread.MainLoop(cancelToken);
-                }
-                catch(Exception ex)
-                {
-                    // save this error where the user can retrieve it from Form
-                    promise.SetException(ex);
-                }
-            });
-            t.Start();
-
-            return promise.Task;
-        }
     }
 }

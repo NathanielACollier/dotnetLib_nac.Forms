@@ -15,28 +15,6 @@ namespace Tests
                 .Display();
         }
 
-
-        [TestMethod]
-        public void TestAvalonia()
-        {
-            var app = new Application();
-            AppBuilder.Configure(app)
-                .UsePlatformDetect()
-                .SetupWithoutStarting();
-
-            var dialog = new Avalonia.Controls.Window();
-            dialog.Show();
-            app.Run(dialog);
-        }
-
-
-        [TestMethod]
-        public async Task TestDisplayFormWithNoThread()
-        {
-            await new dotnetCoreAvaloniaNCForms.Form()
-                .DisplayNoThread();
-        }
-
         [TestMethod]
         public async Task FormWithButtonClickCount()
         {
