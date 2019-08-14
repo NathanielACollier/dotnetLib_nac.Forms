@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Logging.Serilog;
+
 using Avalonia.Threading;
 using Avalonia.Reactive;
 
@@ -20,11 +20,31 @@ namespace dotnetCoreAvaloniaNCForms
         }
         private StackPanel Host { get; set; }
         public lib.BindableDynamicDictionary Model { get; set; }
+        private Application app;
+        private Window win;
+        private bool isMainForm;
+        private bool isDisplayed;
 
-        public Form()
+        public Form(Application __app=null, lib.BindableDynamicDictionary _model = null)
         {
+            if( __app == null)
+            {
+                // parent form
+                this.app = AvaloniaManager.startAvaloniaApp();
+                this.Model = new lib.BindableDynamicDictionary();
+                this.isMainForm = true;
+            }
+            else
+            {
+                // child form
+                this.app = __app;
+                this.Model = _model;
+                this.isMainForm = false;
+            }
+            this.isDisplayed = false;
+            this.win = new Window();
             this.Host = new StackPanel();
-            this.Model = new lib.BindableDynamicDictionary();
+            
             this.Host.Orientation = Orientation.Vertical;
         }
 
@@ -84,34 +104,50 @@ namespace dotnetCoreAvaloniaNCForms
             }
         }
         
-        static AppBuilder BuildAvaloniaApp()
-            => AppBuilder
-            .Configure<App>()
-            .LogToDebug(Avalonia.Logging.LogEventLevel.Verbose)
-            .UsePlatformDetect()
-            .SetupWithoutStarting()
-            ;
 
-
-        public Task<Form> Display(int height = 600, int width = 800)
+        public void DisplayChildForm(Action<Form> setupChildForm, int height = 600, int width = 800,
+            Action onClosing = null)
         {
-            var promise = new TaskCompletionSource<Form>();
-            log("Starting with no thread");
+            var childForm = new Form(this.app, this.Model);
 
-            var builder = BuildAvaloniaApp();
-            var win = new Window();
+            setupChildForm(childForm);
+
+            childForm.Display_Internal(height: height, width: width, onClosing: onClosing);
+        }
+
+        private void Display_Internal(int height, int width,
+            Action onClosing = null)
+        {
             win.Height = height;
             win.Width = width;
             win.Content = this.Host;
-            win.Closed += (_sender, _args) =>
+            win.Closing += (_sender, _args) =>
             {
-                log("Window closed");
-                promise.SetResult(this);
+                log("Window is closing");
+                if( onClosing != null)
+                {
+                    onClosing();
+                }
             };
             win.Show();
-            builder.Instance.Run(win);
+        }
 
-            return promise.Task;
+        public void Display(int height = 600, int width = 800,
+            Action onClosing = null)
+        {
+            if( this.isDisplayed)
+            {
+                throw new Exception("Cannot call Display twice on Form.  Display has already been called on this form.");
+            }
+
+            if(!this.isMainForm)
+            {
+                throw new Exception("Cannot call Display on child form.  If you already have a main form, you must call DisplayChildForm.  Main form manages the avalonia app.");
+            }
+
+            this.Display_Internal(height: height, width: width, onClosing: onClosing);
+
+            this.app.Run(win);
         }
 
 

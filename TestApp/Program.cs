@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Avalonia;
 
 namespace TestApp
 {
@@ -7,7 +8,7 @@ namespace TestApp
     class TestEntry
     {
         public string Name { get; set; }
-        public Action CodeToRun { get; set; }
+        public Action<dotnetCoreAvaloniaNCForms.Form> CodeToRun { get; set; }
 
         public override string ToString()
         {
@@ -15,13 +16,17 @@ namespace TestApp
         }
     }
 
-
     class Program
     {
+        
         static void Main(string[] args)
         {
             var f = new dotnetCoreAvaloniaNCForms.Form();
+            mainUI(f);
+        }
 
+        static void mainUI(dotnetCoreAvaloniaNCForms.Form f)
+        {
             // setup test methods
             var methods = new List<TestEntry>
             {
@@ -34,27 +39,29 @@ namespace TestApp
             f.SimpleDropDown(methods, (i) => {
                 try
                 {
-                    i.CodeToRun();
+                    i.CodeToRun(f);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine($"Error, trying [{i.Name}].  Exception: {ex}");
                 }
-                
+
             });
             f.Display();
         }
 
 
-        static void Test1()
+        static void Test1(dotnetCoreAvaloniaNCForms.Form parentForm)
         {
-            var f = new dotnetCoreAvaloniaNCForms.Form();
-            f.TextBoxFor("txt")
+            parentForm.DisplayChildForm(child =>
+            {
+                child.TextBoxFor("txt")
                 .Button("Click Me!", (_args) =>
                 {
 
-                })
-                .Display();
+                });
+            });
+
         }
     }
 }
