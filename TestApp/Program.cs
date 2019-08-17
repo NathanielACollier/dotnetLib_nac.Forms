@@ -40,6 +40,11 @@ namespace TestApp
                 {
                     Name = "Test Button with click count",
                     CodeToRun = Test2_ButtonWithClickCount
+                },
+                new TestEntry
+                {
+                    Name = "Test Display what is typed",
+                    CodeToRun = Test3_DisplayWhatIsTyped
                 }
             };
             f.SimpleDropDown(methods, (i) => {
@@ -54,6 +59,15 @@ namespace TestApp
 
             });
             f.Display();
+        }
+
+        private static void Test3_DisplayWhatIsTyped(Form obj)
+        {
+            obj.DisplayChildForm(child =>
+            {
+                child.TextFor("txt2", "Type here")
+                    .TextBoxFor("txt2");
+            });
         }
 
         static void Test2_ButtonWithClickCount(Form obj)
