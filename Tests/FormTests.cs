@@ -9,17 +9,17 @@ namespace Tests
     public class FormTests
     {
         [TestMethod]
-        public async Task TestDisplay()
+        public void TestDisplay()
         {
-            await new dotnetCoreAvaloniaNCForms.Form()
+            new dotnetCoreAvaloniaNCForms.Form()
                 .Display();
         }
 
         [TestMethod]
-        public async Task FormWithButtonClickCount()
+        public void FormWithButtonClickCount()
         {
             var f = new dotnetCoreAvaloniaNCForms.Form();
-            await f.TextFor("txt1", "When you click button I'll change to count!")
+            f.TextFor("txt1", "When you click button I'll change to count!")
                 .Button("Click Me!", arg =>
                 {
                     var current = f.Model.GetOrDefault<int>("txt1", 0);
@@ -31,10 +31,10 @@ namespace Tests
 
 
         [TestMethod]
-        public async Task FormThatDisplaysTypedText()
+        public void FormThatDisplaysTypedText()
         {
             var f = new dotnetCoreAvaloniaNCForms.Form();
-            await f.TextFor("txt2", "Type here")
+            f.TextFor("txt2", "Type here")
                 .TextBoxFor("txt2")
                 .Display();
         }
