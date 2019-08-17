@@ -1,91 +1,155 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reactive.Subjects;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Logging.Serilog;
+
 using Avalonia.Threading;
+using Avalonia.Reactive;
 
 namespace dotnetCoreAvaloniaNCForms
 {
-    public class Form
+    public partial class Form
     {
         static void log(string message)
         {
             Debug.WriteLine($"[{DateTime.Now:hh_mm_tt]}:{message}");
         }
         private StackPanel Host { get; set; }
+        public lib.BindableDynamicDictionary Model { get; set; }
+        private Application app;
+        private Window win;
+        private bool isMainForm;
+        private bool isDisplayed;
 
-        public Form()
+        public Form(Application __app=null, lib.BindableDynamicDictionary _model = null)
         {
+            if( __app == null)
+            {
+                // parent form
+                this.app = AvaloniaManager.startAvaloniaApp();
+                this.Model = new lib.BindableDynamicDictionary();
+                this.isMainForm = true;
+            }
+            else
+            {
+                // child form
+                this.app = __app;
+                this.Model = _model;
+                this.isMainForm = false;
+            }
+            this.isDisplayed = false;
+            this.win = new Window();
             this.Host = new StackPanel();
+            
+            this.Host.Orientation = Orientation.Vertical;
+        }
+
+
+        private void AddRowToHost(IControl ctrl)
+        {
+            DockPanel row = new DockPanel();
+
+            row.Children.Add(ctrl);
+
+            this.Host.Children.Add(row);
+        }
+
+        private void AddBinding<T>(string modelFieldName,
+            AvaloniaObject control,
+            AvaloniaProperty property,
+            bool isTwoWayDataBinding = false)
+        {
+            // (ideas from here)[http://avaloniaui.net/docs/binding/binding-from-code]
+            var bindingSource = new Subject<T>();
+            var bindingSourceObservable = bindingSource.AsObservable()
+                .Select(i =>
+                {
+                    return (object)i;
+                });
+            control.Bind(property, bindingSourceObservable);
+            // Default we grab all changes to model field and apply them to property
+            this.Model.PropertyChanged += (_s, _args) =>
+            {
+                if( string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase))
+                {
+                    // field value has changed
+                    if(this.Model[modelFieldName] is T newVal)
+                    {
+                        bindingSource.OnNext(newVal);
+                    }else
+                    {
+                        if( lib.Util.CanChangeType<T>(
+                            this.Model[modelFieldName], out T newVal2))
+                        {
+                            bindingSource.OnNext(newVal2);
+                        }
+                    }
+                    
+                }
+            };
+            // If they say two way then we setup a watch on the property observable and apply the values back to the model
+            if(isTwoWayDataBinding)
+            {
+                // monitor for Property changes on control
+                var controlValueChangesObservable = control.GetObservable(property);
+
+                controlValueChangesObservable.Subscribe(newVal =>
+                {
+                    this.Model[modelFieldName] = newVal;
+                });
+            }
         }
         
-        static AppBuilder BuildAvaloniaApp()
-            => AppBuilder
-            .Configure<App>()
-            .LogToDebug(Avalonia.Logging.LogEventLevel.Verbose)
-            .UsePlatformDetect()
-            .SetupWithoutStarting()
-            ;
 
-
-        public Task<Form> DisplayNoThread(int height = 600, int width = 800)
+        public void DisplayChildForm(Action<Form> setupChildForm, int height = 600, int width = 800,
+            Action onClosing = null)
         {
-            var promise = new TaskCompletionSource<Form>();
-            log("Starting with no thread");
+            var childForm = new Form(this.app, this.Model);
 
-            var builder = BuildAvaloniaApp();
-            var win = new Window();
+            setupChildForm(childForm);
+
+            childForm.Display_Internal(height: height, width: width, onClosing: onClosing);
+        }
+
+        private void Display_Internal(int height, int width,
+            Action onClosing = null)
+        {
             win.Height = height;
             win.Width = width;
             win.Content = this.Host;
-            win.Closed += (_sender, _args) =>
+            win.Closing += (_sender, _args) =>
             {
-                log("Window closed");
-                promise.SetResult(this);
+                log("Window is closing");
+                if( onClosing != null)
+                {
+                    onClosing();
+                }
             };
-            builder.Start(win);
-
-            return promise.Task;
+            win.Show();
         }
 
-        public Task<Form> Display(int height = 600, int width = 800)
+        public void Display(int height = 600, int width = 800,
+            Action onClosing = null)
         {
-            var promise = new TaskCompletionSource<Form>();
-
-            var t = new Thread(() =>
+            if( this.isDisplayed)
             {
-                try
-                {
-                    log("Starting NCForm Display");
-                    var appBuilder = BuildAvaloniaApp();
+                throw new Exception("Cannot call Display twice on Form.  Display has already been called on this form.");
+            }
 
-                    log("Constructing window");
-                    var win = new Window();
-                    win.Height = height;
-                    win.Width = width;
-                    win.Content = this.Host;
-                    var cancelToken = new CancellationToken();
-                    win.Closed += (_sender, _args) =>
-                    {
-                        log("Window closed");
-                        promise.SetResult(this);
-                    };
-                    win.Show();
+            if(!this.isMainForm)
+            {
+                throw new Exception("Cannot call Display on child form.  If you already have a main form, you must call DisplayChildForm.  Main form manages the avalonia app.");
+            }
 
-                    Avalonia.Threading.Dispatcher.UIThread.MainLoop(cancelToken);
-                }
-                catch(Exception ex)
-                {
-                    // save this error where the user can retrieve it from Form
-                    promise.SetException(ex);
-                }
-            });
-            t.Start();
+            this.Display_Internal(height: height, width: width, onClosing: onClosing);
 
-            return promise.Task;
+            this.app.Run(win);
         }
+
+
     }
 }
