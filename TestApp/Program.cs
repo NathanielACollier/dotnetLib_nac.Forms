@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Avalonia;
+using dotnetCoreAvaloniaNCForms;
 
 namespace TestApp
 {
@@ -34,6 +35,11 @@ namespace TestApp
                 {
                     Name = "Test1",
                     CodeToRun = Test1
+                },
+                new TestEntry
+                {
+                    Name = "Test Button with click count",
+                    CodeToRun = Test2_ButtonWithClickCount
                 }
             };
             f.SimpleDropDown(methods, (i) => {
@@ -50,6 +56,19 @@ namespace TestApp
             f.Display();
         }
 
+        static void Test2_ButtonWithClickCount(Form obj)
+        {
+            obj.DisplayChildForm(child =>
+            {
+                child.TextFor("txt1", "When you click button I'll change to count!")
+                .Button("Click Me!", arg =>
+                {
+                    var current = child.Model.GetOrDefault<int>("txt1", 0);
+                    ++current;
+                    child.Model["txt1"] = current;
+                });
+            });
+        }
 
         static void Test1(dotnetCoreAvaloniaNCForms.Form parentForm)
         {
