@@ -48,6 +48,11 @@ namespace dotnetCoreAvaloniaNCForms
             this.Host.Orientation = Orientation.Vertical;
         }
 
+        public Form(Form _parentForm) : this(__app: _parentForm.app, _model: _parentForm.Model)
+        {
+            
+        }
+
 
         private void AddRowToHost(IControl ctrl)
         {

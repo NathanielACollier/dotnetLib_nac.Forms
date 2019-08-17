@@ -9,6 +9,15 @@ namespace dotnetCoreAvaloniaNCForms
     public partial class Form
     {
 
+        public Form Text( string textToDisplay)
+        {
+            var label = new TextBlock();
+            label.Text = textToDisplay;
+
+            AddRowToHost(label);
+            return this;
+        }
+
 		public Form TextFor(string modelFieldName, string defaultValue = null)
         {
             var label = new TextBlock();

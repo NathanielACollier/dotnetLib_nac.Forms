@@ -45,6 +45,11 @@ namespace TestApp
                 {
                     Name = "Test Display what is typed",
                     CodeToRun = Test3_DisplayWhatIsTyped
+                },
+                new TestEntry
+                {
+                    Name = "Test Layout: Simple Horizontal",
+                    CodeToRun = TestLayout1_SimpleHorizontal
                 }
             };
             f.SimpleDropDown(methods, (i) => {
@@ -59,6 +64,24 @@ namespace TestApp
 
             });
             f.Display();
+        }
+
+        private static void TestLayout1_SimpleHorizontal(Form obj)
+        {
+            obj.DisplayChildForm(child =>
+            {
+                child.HorizontalGroup(hori =>
+                {
+                    hori.Text("Click Count: ")
+                        .TextBoxFor("clickCount")
+                        .Button("Click Me!", arg =>
+                        {
+                            var current = child.Model.GetOrDefault<int>("clickCount", 0);
+                            ++current;
+                            hori.Model["clickCount"] = current;
+                        });
+                });
+            });
         }
 
         private static void Test3_DisplayWhatIsTyped(Form obj)
