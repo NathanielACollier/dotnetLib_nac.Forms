@@ -9,7 +9,7 @@ namespace dotnetCoreAvaloniaNCForms
         static AppBuilder BuildAvaloniaApp()
             => AppBuilder
             .Configure<App>()
-            .LogToDebug(Avalonia.Logging.LogEventLevel.Verbose)
+            //.LogToDebug(Avalonia.Logging.LogEventLevel.Verbose)
             .UsePlatformDetect()
             .SetupWithoutStarting()
             ;
