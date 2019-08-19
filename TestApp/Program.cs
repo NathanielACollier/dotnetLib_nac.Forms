@@ -28,6 +28,7 @@ namespace TestApp
 
         static void mainUI(dotnetCoreAvaloniaNCForms.Form f)
         {
+            TestEntry selectedTestEntry = null;
             // setup test methods
             var methods = new List<TestEntry>
             {
@@ -55,15 +56,35 @@ namespace TestApp
             f.SimpleDropDown(methods, (i) => {
                 try
                 {
+                    selectedTestEntry = i;
                     i.CodeToRun(f);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error, trying [{i.Name}].  Exception: {ex}");
+                    writeLineError($"Error, trying [{i.Name}].  Exception: {ex}");
                 }
 
-            });
-            f.Display();
+            })
+            .Button("Run", _args =>
+            {
+                try
+                {
+                    selectedTestEntry.CodeToRun(f);
+                }catch(Exception ex)
+                {
+                    writeLineError($"Error, manually running {selectedTestEntry?.Name ?? "NULL"}.  Exception: {ex}");
+                }
+            })
+            .Display();
+        }
+
+
+        private static void writeLineError(string message)
+        {
+            var originalForeground = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(message);
+            Console.ForegroundColor = originalForeground;
         }
 
         private static void TestLayout1_SimpleHorizontal(Form obj)
