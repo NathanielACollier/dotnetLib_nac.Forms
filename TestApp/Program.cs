@@ -51,6 +51,11 @@ namespace TestApp
                 {
                     Name = "Test Layout: Simple Horizontal",
                     CodeToRun = TestLayout1_SimpleHorizontal
+                },
+                new TestEntry
+                {
+                    Name = "Test List: Simple Items Control",
+                    CodeToRun = TestCollections_SimpleItemsControl
                 }
             };
             f.SimpleDropDown(methods, (i) => {
@@ -140,5 +145,35 @@ namespace TestApp
             });
 
         }
+
+
+
+
+        static void TestCollections_SimpleItemsControl(dotnetCoreAvaloniaNCForms.Form parentForm)
+        {
+            parentForm.DisplayChildForm(child =>
+            {
+                child.Model["items"] = new[]
+                {
+                    new
+                    {
+                        Prop1 = "Fish"
+                    },
+                    new
+                    {
+                        Prop1 = "Blanket"
+                    }
+                };
+
+                child.Text("Simple List")
+                .List("items", (itemForm) =>
+                {
+                    itemForm.Text("Here is an item");
+                });
+            });
+        }
+
+
+
     }
 }
