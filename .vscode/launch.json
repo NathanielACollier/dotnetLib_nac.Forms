@@ -16,6 +16,17 @@
             "stopAtEntry": false
         },
         {
+            "name": ".NET Core TestApp",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/TestApp/bin/Debug/netcoreapp2.1/TestApp.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/TestApp",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach",

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Avalonia;
 using Avalonia.Controls;
@@ -63,9 +64,13 @@ namespace dotnetCoreAvaloniaNCForms
 
             dropdown.SelectionChanged += (_s, _args) =>
             {
-                if( onItemSelected != null)
+                if( onItemSelected != null && 
+                    _args.AddedItems.Count > 0 &&
+                    _args.AddedItems[0] is T itemSelected &&
+                    itemSelected != null
+                )
                 {
-                    onItemSelected(_args.AddedItems[0] as T);
+                    onItemSelected(itemSelected);
                 }
             };
 
