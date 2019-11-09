@@ -9,6 +9,7 @@ using Avalonia.Controls;
 
 using Avalonia.Threading;
 using Avalonia.Reactive;
+using System.Linq;
 
 namespace dotnetCoreAvaloniaNCForms
 {
@@ -63,6 +64,26 @@ namespace dotnetCoreAvaloniaNCForms
             this.Host.Children.Add(row);
         }
 
+
+        private void FireOnNext<T>(Subject<T> bindingSource, string modelFieldName)
+        {
+            // field value has changed
+            if (this.Model[modelFieldName] is T newVal)
+            {
+                bindingSource.OnNext(newVal);
+            }
+            else
+            {
+                if (lib.Util.CanChangeType<T>(
+                    this.Model[modelFieldName], out T newVal2))
+                {
+                    bindingSource.OnNext(newVal2);
+                }
+            }
+        }
+
+
+
         private void AddBinding<T>(string modelFieldName,
             AvaloniaObject control,
             AvaloniaProperty property,
@@ -76,24 +97,21 @@ namespace dotnetCoreAvaloniaNCForms
                     return (object)i;
                 });
             control.Bind(property, bindingSourceObservable);
+
+            // need to fire what it is now if there is anything there
+            if(this.Model.GetDynamicMemberNames().Contains(modelFieldName))
+            {
+                // fire OnNext
+                FireOnNext<T>(bindingSource, modelFieldName);
+            }
+
+
             // Default we grab all changes to model field and apply them to property
             this.Model.PropertyChanged += (_s, _args) =>
             {
                 if( string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase))
                 {
-                    // field value has changed
-                    if(this.Model[modelFieldName] is T newVal)
-                    {
-                        bindingSource.OnNext(newVal);
-                    }else
-                    {
-                        if( lib.Util.CanChangeType<T>(
-                            this.Model[modelFieldName], out T newVal2))
-                        {
-                            bindingSource.OnNext(newVal2);
-                        }
-                    }
-                    
+                    FireOnNext<T>(bindingSource, modelFieldName);                 
                 }
             };
             // If they say two way then we setup a watch on the property observable and apply the values back to the model

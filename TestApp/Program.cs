@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Avalonia;
 using dotnetCoreAvaloniaNCForms;
 
@@ -153,7 +154,7 @@ namespace TestApp
         {
             parentForm.DisplayChildForm(child =>
             {
-                child.Model["items"] = new[]
+                child.Model["items"] = new ObservableCollection<object>
                 {
                     new
                     {
@@ -166,7 +167,7 @@ namespace TestApp
                 };
 
                 child.Text("Simple List")
-                .List("items", (itemForm) =>
+                .List<string>("items", (itemForm) =>
                 {
                     itemForm.Text("Here is an item");
                 });
