@@ -167,7 +167,7 @@ namespace TestApp
                 };
 
                 child.Text("Simple List")
-                .List<string>("items", (itemForm) =>
+                .List<object>("items", (itemForm) =>
                 {
                     itemForm.Text("Here is an item");
                 });

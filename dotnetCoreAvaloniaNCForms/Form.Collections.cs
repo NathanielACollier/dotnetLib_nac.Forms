@@ -18,6 +18,7 @@ namespace dotnetCoreAvaloniaNCForms
 
             var itemsCtrl = new ListBox();
 
+            // this is documented here: https://avaloniaui.net/docs/templates/datatemplates-in-code
             itemsCtrl.ItemTemplate = new FuncDataTemplate<T>((itemModel) =>
             {
                 //return grid;
@@ -38,6 +39,7 @@ namespace dotnetCoreAvaloniaNCForms
             AddRowToHost(itemsCtrl);
 
             var debugTest = itemsCtrl.Items;
+            var debugTemplate = itemsCtrl.ItemTemplate;
 
             itemsCtrl.Height = 500;
             itemsCtrl.Width = 300;
