@@ -8,7 +8,7 @@ namespace dotnetCoreAvaloniaNCForms
 {
     public partial class Form
     {
-        public Form List<T>(string itemSourcePropertyName, Action<Form> populateItemRow)
+        public Form List(string itemSourcePropertyName, Action<Form> populateItemRow)
         {
             var horizontalGroupForm = new Form(_parentForm: this);
 
@@ -19,7 +19,7 @@ namespace dotnetCoreAvaloniaNCForms
             var itemsCtrl = new ListBox();
 
             // this is documented here: https://avaloniaui.net/docs/templates/datatemplates-in-code
-            itemsCtrl.ItemTemplate = new FuncDataTemplate<T>((itemModel) =>
+            itemsCtrl.ItemTemplate = new FuncDataTemplate<object>((itemModel) =>
             {
                 //return grid;
                 return new TextBlock

@@ -167,9 +167,21 @@ namespace TestApp
                 };
 
                 child.Text("Simple List")
-                .List<object>("items", (itemForm) =>
+                .List("items", (itemForm) =>
                 {
                     itemForm.Text("Here is an item");
+                })
+                .HorizontalGroup((hgChild) =>
+                {
+                    hgChild.Text("Click this button to add to list")
+                            .Button("add", (_args) =>
+                            {
+                                var items = child.Model["items"] as ObservableCollection<object>;
+                                items.Add(new
+                                {
+                                    Prop1 = "Frog Prince"
+                                });
+                            });
                 });
             });
         }
