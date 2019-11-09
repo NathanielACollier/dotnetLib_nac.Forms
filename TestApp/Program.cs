@@ -57,6 +57,11 @@ namespace TestApp
                 {
                     Name = "Test List: Simple Items Control",
                     CodeToRun = TestCollections_SimpleItemsControl
+                },
+                new TestEntry
+                {
+                    Name = "Test Vertical Group 1",
+                    CodeToRun = TestVerticalGroup_Simple1
                 }
             };
             f.SimpleDropDown(methods, (i) => {
@@ -182,6 +187,33 @@ namespace TestApp
                                     Prop1 = "Frog Prince"
                                 });
                             });
+                });
+            });
+        }
+
+
+        static void TestVerticalGroup_Simple1(dotnetCoreAvaloniaNCForms.Form parentForm)
+        {
+            parentForm.DisplayChildForm(mainForm =>
+            {
+                mainForm.HorizontalGroup((hgForm) =>
+                {
+                    hgForm.VerticalGroup((vg1) =>
+                    {
+                        vg1.Text("Here is a column of controls in a vertical group")
+                            .Button("Click Me!", (_args)=>
+                            {
+
+                            });
+                    })
+                    .VerticalGroup((vg2) =>
+                    {
+                        vg2.Text("Here is a second column of controls")
+                            .Button("Click me 2!!", (_args) =>
+                            {
+
+                            });
+                    });
                 });
             });
         }

@@ -40,5 +40,39 @@ namespace dotnetCoreAvaloniaNCForms
             AddRowToHost(horiontalGroup);
             return this;
         }
+
+
+
+        public Form VerticalGroup(Action<Form> populateVerticalGroup,
+            string isVisiblePropertyName = null)
+        {
+            var vertGroupForm = new Form(_parentForm: this);
+
+            populateVerticalGroup(vertGroupForm);
+
+            var vertGroup = new DockPanel();
+            /*
+            if (!string.IsNullOrWhiteSpace(isVisiblePropertyName))
+            {
+                addVisibilityTrigger(vertGroup, isVisiblePropertyName);
+            }
+            */
+            var childControls = vertGroupForm.Host.Children.ToList();
+            foreach (var child in childControls)
+            {
+                vertGroupForm.Host.Children.Remove(child); // get the child out of the form so we can move it to the grid
+                DockPanel.SetDock((Avalonia.Controls.Control)child, Dock.Top);
+                vertGroup.Children.Add(child);
+            }
+
+            AddRowToHost(vertGroup);
+            return this;
+        }
+
+
+
+
+
+
     }
 }
