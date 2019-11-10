@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Logging.Serilog;
 
 using Avalonia.Threading;
 using Avalonia.Reactive;
@@ -26,22 +27,21 @@ namespace dotnetCoreAvaloniaNCForms
         private bool isMainForm;
         private bool isDisplayed;
 
-        public Form(Application __app=null, lib.BindableDynamicDictionary _model = null)
+        public Form(Application __app, lib.BindableDynamicDictionary _model=null)
         {
-            if( __app == null)
+            if( _model == null)
             {
                 // parent form
-                this.app = AvaloniaManager.startAvaloniaApp();
                 this.Model = new lib.BindableDynamicDictionary();
                 this.isMainForm = true;
             }
             else
             {
                 // child form
-                this.app = __app;
                 this.Model = _model;
                 this.isMainForm = false;
             }
+            this.app = __app;
             this.isDisplayed = false;
             this.win = new Window();
             this.Host = new StackPanel();

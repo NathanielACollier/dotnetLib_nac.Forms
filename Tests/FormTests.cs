@@ -3,6 +3,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using System.Linq;
 
+using dotnetCoreAvaloniaNCForms;
+
 namespace Tests
 {
     [TestClass]
@@ -11,14 +13,17 @@ namespace Tests
         [TestMethod]
         public void TestDisplay()
         {
-            new dotnetCoreAvaloniaNCForms.Form()
+            Avalonia.AppBuilder.Configure<dotnetCoreAvaloniaNCForms.App>()
+                .NewForm()
                 .Display();
         }
 
         [TestMethod]
         public void FormWithButtonClickCount()
         {
-            var f = new dotnetCoreAvaloniaNCForms.Form();
+            var f = Avalonia.AppBuilder.Configure<dotnetCoreAvaloniaNCForms.App>()
+                .NewForm();
+
             f.TextFor("txt1", "When you click button I'll change to count!")
                 .Button("Click Me!", arg =>
                 {
@@ -33,7 +38,9 @@ namespace Tests
         [TestMethod]
         public void FormThatDisplaysTypedText()
         {
-            var f = new dotnetCoreAvaloniaNCForms.Form();
+            var f = Avalonia.AppBuilder.Configure<dotnetCoreAvaloniaNCForms.App>()
+                .NewForm();
+
             f.TextFor("txt2", "Type here")
                 .TextBoxFor("txt2")
                 .Display();

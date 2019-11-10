@@ -23,7 +23,9 @@ namespace TestApp
         
         static void Main(string[] args)
         {
-            var f = new dotnetCoreAvaloniaNCForms.Form();
+            var f = Avalonia.AppBuilder.Configure<dotnetCoreAvaloniaNCForms.App>()
+                                .NewForm();
+
             mainUI(f);
         }
 
