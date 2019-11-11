@@ -64,6 +64,11 @@ namespace TestApp
                 {
                     Name = "Test Vertical Group 1",
                     CodeToRun = TestVerticalGroup_Simple1
+                },
+                new TestEntry
+                {
+                    Name = "Test Visibility of Horizontal and Vertical Groups",
+                    CodeToRun = TestControllingVisibilityOfControls
                 }
             };
             f.SimpleDropDown(methods, (i) => {
@@ -221,6 +226,23 @@ namespace TestApp
         }
 
 
+
+        static void TestControllingVisibilityOfControls(dotnetCoreAvaloniaNCForms.Form parentForm)
+        {
+            parentForm.DisplayChildForm(mainForm =>
+            {
+                mainForm.Model["isTextVisible"] = false;
+
+                mainForm.HorizontalGroup(hg =>
+                {
+                    hg.Text("This text is visible");
+                }, isVisiblePropertyName: "isTextVisible")
+                .Button("Show or Hide Text", (_args) =>
+                {
+                    mainForm.Model["isTextVisible"] = !(mainForm.Model["isTextVisible"] as bool? ?? false);
+                });
+            });
+        }
 
     }
 }

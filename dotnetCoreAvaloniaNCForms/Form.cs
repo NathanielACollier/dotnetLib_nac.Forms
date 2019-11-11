@@ -83,6 +83,40 @@ namespace dotnetCoreAvaloniaNCForms
         }
 
 
+        private void AddVisibilityTrigger(Visual control, string isVisibleModelName)
+        {
+            notifyOnModelChange(isVisibleModelName, (val) =>
+            {
+                if( val is bool isVisible)
+                {
+                    control.IsVisible = isVisible;
+                }
+            });
+        }
+
+
+
+        private void notifyOnModelChange(string modelFieldName, Action<object> codeToRunOnChange)
+        {
+            // need to fire what it is now if there is anything there
+            if (this.Model.GetDynamicMemberNames().Contains(modelFieldName))
+            {
+                // fire OnNext
+                codeToRunOnChange(this.Model[modelFieldName]);
+            }
+
+
+            // Default we grab all changes to model field and apply them to property
+            this.Model.PropertyChanged += (_s, _args) =>
+            {
+                if (string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase))
+                {
+                    codeToRunOnChange(this.Model[modelFieldName]);
+                }
+            };
+        }
+
+
 
         private void AddBinding<T>(string modelFieldName,
             AvaloniaObject control,
@@ -98,22 +132,11 @@ namespace dotnetCoreAvaloniaNCForms
                 });
             control.Bind(property, bindingSourceObservable);
 
-            // need to fire what it is now if there is anything there
-            if(this.Model.GetDynamicMemberNames().Contains(modelFieldName))
+            notifyOnModelChange(modelFieldName, (val) =>
             {
-                // fire OnNext
                 FireOnNext<T>(bindingSource, modelFieldName);
-            }
+            });
 
-
-            // Default we grab all changes to model field and apply them to property
-            this.Model.PropertyChanged += (_s, _args) =>
-            {
-                if( string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase))
-                {
-                    FireOnNext<T>(bindingSource, modelFieldName);                 
-                }
-            };
             // If they say two way then we setup a watch on the property observable and apply the values back to the model
             if(isTwoWayDataBinding)
             {

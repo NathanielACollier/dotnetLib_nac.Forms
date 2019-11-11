@@ -8,7 +8,8 @@ namespace dotnetCoreAvaloniaNCForms
     public partial class Form
     {
 
-        public Form HorizontalGroup(Action<Form> populateHorizontalGroup)
+        public Form HorizontalGroup(Action<Form> populateHorizontalGroup,
+            string isVisiblePropertyName = null)
         {
             var horizontalGroupForm = new Form(_parentForm: this);
 
@@ -16,6 +17,12 @@ namespace dotnetCoreAvaloniaNCForms
 
             // take all the child items of host and put them in a grid with equal space between?
             Grid horiontalGroup = new Grid();
+
+            if (!string.IsNullOrWhiteSpace(isVisiblePropertyName))
+            {
+                AddVisibilityTrigger(horiontalGroup, isVisiblePropertyName);
+            }
+
             var gridRow = new RowDefinition();
             horiontalGroup.RowDefinitions.Add(gridRow);
             int rowIndex = 0;
@@ -51,12 +58,12 @@ namespace dotnetCoreAvaloniaNCForms
             populateVerticalGroup(vertGroupForm);
 
             var vertGroup = new DockPanel();
-            /*
+            
             if (!string.IsNullOrWhiteSpace(isVisiblePropertyName))
             {
-                addVisibilityTrigger(vertGroup, isVisiblePropertyName);
+                AddVisibilityTrigger(vertGroup, isVisiblePropertyName);
             }
-            */
+            
             var childControls = vertGroupForm.Host.Children.ToList();
             foreach (var child in childControls)
             {
