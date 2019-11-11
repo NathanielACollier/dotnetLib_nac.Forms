@@ -6,9 +6,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Logging.Serilog;
 
 using Avalonia.Threading;
 using Avalonia.Reactive;
+using System.Linq;
 
 namespace dotnetCoreAvaloniaNCForms
 {
@@ -25,27 +27,31 @@ namespace dotnetCoreAvaloniaNCForms
         private bool isMainForm;
         private bool isDisplayed;
 
-        public Form(Application __app=null, lib.BindableDynamicDictionary _model = null)
+        public Form(Application __app, lib.BindableDynamicDictionary _model=null)
         {
-            if( __app == null)
+            if( _model == null)
             {
                 // parent form
-                this.app = AvaloniaManager.startAvaloniaApp();
                 this.Model = new lib.BindableDynamicDictionary();
                 this.isMainForm = true;
             }
             else
             {
                 // child form
-                this.app = __app;
                 this.Model = _model;
                 this.isMainForm = false;
             }
+            this.app = __app;
             this.isDisplayed = false;
             this.win = new Window();
             this.Host = new StackPanel();
             
             this.Host.Orientation = Orientation.Vertical;
+        }
+
+        public Form(Form _parentForm) : this(__app: _parentForm.app, _model: _parentForm.Model)
+        {
+            
         }
 
 
@@ -57,6 +63,60 @@ namespace dotnetCoreAvaloniaNCForms
 
             this.Host.Children.Add(row);
         }
+
+
+        private void FireOnNext<T>(Subject<T> bindingSource, string modelFieldName)
+        {
+            // field value has changed
+            if (this.Model[modelFieldName] is T newVal)
+            {
+                bindingSource.OnNext(newVal);
+            }
+            else
+            {
+                if (lib.Util.CanChangeType<T>(
+                    this.Model[modelFieldName], out T newVal2))
+                {
+                    bindingSource.OnNext(newVal2);
+                }
+            }
+        }
+
+
+        private void AddVisibilityTrigger(Visual control, string isVisibleModelName)
+        {
+            notifyOnModelChange(isVisibleModelName, (val) =>
+            {
+                if( val is bool isVisible)
+                {
+                    control.IsVisible = isVisible;
+                }
+            });
+        }
+
+
+
+        private void notifyOnModelChange(string modelFieldName, Action<object> codeToRunOnChange)
+        {
+            // need to fire what it is now if there is anything there
+            if (this.Model.GetDynamicMemberNames().Contains(modelFieldName))
+            {
+                // fire OnNext
+                codeToRunOnChange(this.Model[modelFieldName]);
+            }
+
+
+            // Default we grab all changes to model field and apply them to property
+            this.Model.PropertyChanged += (_s, _args) =>
+            {
+                if (string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase))
+                {
+                    codeToRunOnChange(this.Model[modelFieldName]);
+                }
+            };
+        }
+
+
 
         private void AddBinding<T>(string modelFieldName,
             AvaloniaObject control,
@@ -71,26 +131,12 @@ namespace dotnetCoreAvaloniaNCForms
                     return (object)i;
                 });
             control.Bind(property, bindingSourceObservable);
-            // Default we grab all changes to model field and apply them to property
-            this.Model.PropertyChanged += (_s, _args) =>
+
+            notifyOnModelChange(modelFieldName, (val) =>
             {
-                if( string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase))
-                {
-                    // field value has changed
-                    if(this.Model[modelFieldName] is T newVal)
-                    {
-                        bindingSource.OnNext(newVal);
-                    }else
-                    {
-                        if( lib.Util.CanChangeType<T>(
-                            this.Model[modelFieldName], out T newVal2))
-                        {
-                            bindingSource.OnNext(newVal2);
-                        }
-                    }
-                    
-                }
-            };
+                FireOnNext<T>(bindingSource, modelFieldName);
+            });
+
             // If they say two way then we setup a watch on the property observable and apply the values back to the model
             if(isTwoWayDataBinding)
             {

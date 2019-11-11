@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace dotnetCoreAvaloniaNCForms
 {
-    class App : Application
+    public class App : Application
     {
         public override void Initialize()
         {

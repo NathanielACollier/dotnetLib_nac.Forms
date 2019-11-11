@@ -37,14 +37,20 @@ namespace dotnetCoreAvaloniaNCForms.lib
 
         public T GetOrDefault<T>(string key, T defaultValue)
         {
-            if(GetDynamicMemberNames().Contains(key))
+            if(GetDynamicMemberNames().Contains(key) && this[key] != null)
             {
                 if( this[key] is T curVal)
                 {
                     return curVal;
                 }else
                 {
-                    return defaultValue;
+                    // one more check see if we can convert to T
+                    try
+                    {
+                        T result = (T)Convert.ChangeType(this[key], typeof(T));
+                        return result;
+                    }
+                    catch { } // ignore whatever happens
                 }
             }
 

@@ -27,7 +27,27 @@
 		var current = child.Model.GetOrDefault<int>("txt1", 0);
 		++current;
 		child.Model["txt1"] = current;
-	});
+	})
+	.Display();
 	```
 	+ Result
 	+ ![](/assets/201908170102PM.png)
++ Horizontal Group
+	+ Code
+	```c#
+	var f = new dotnetCoreAvaloniaNCForms.Form();
+	f.HorizontalGroup(hori =>
+	{
+		hori.Text("Click Count: ")
+			.TextBoxFor("clickCount")
+			.Button("Click Me!", arg =>
+			{
+				var current = child.Model.GetOrDefault<int>("clickCount", 0);
+				++current;
+				hori.Model["clickCount"] = current;
+			});
+	})
+	.Display();
+	```
+	+ Result
+	+ ![](/assets/Screenshot_8_17_19__2_36_PM.png)
