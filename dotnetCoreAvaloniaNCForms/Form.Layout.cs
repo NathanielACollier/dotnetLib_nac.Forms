@@ -36,8 +36,8 @@ namespace dotnetCoreAvaloniaNCForms
                 var col = new ColumnDefinition();
                 horiontalGroup.ColumnDefinitions.Add(col);
 
-                Grid.SetRow((AvaloniaObject)child, rowIndex);
-                Grid.SetColumn((AvaloniaObject)child, columnIndex);
+                Grid.SetRow((Control)child, rowIndex);
+                Grid.SetColumn((Control)child, columnIndex);
                 horiontalGroup.Children.Add(child);
 
                 ++columnIndex; // last statement

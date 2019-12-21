@@ -46,7 +46,7 @@ namespace dotnetCoreAvaloniaNCForms
             this.win = new Window();
             this.Host = new StackPanel();
             
-            this.Host.Orientation = Orientation.Vertical;
+            this.Host.Orientation = Avalonia.Layout.Orientation.Vertical;
         }
 
         public Form(Form _parentForm) : this(__app: _parentForm.app, _model: _parentForm.Model)

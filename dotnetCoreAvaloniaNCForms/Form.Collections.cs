@@ -19,7 +19,7 @@ namespace dotnetCoreAvaloniaNCForms
             var itemsCtrl = new ListBox();
 
             // this is documented here: https://avaloniaui.net/docs/templates/datatemplates-in-code
-            itemsCtrl.ItemTemplate = new FuncDataTemplate<object>((itemModel) =>
+            itemsCtrl.ItemTemplate = new FuncDataTemplate<object>((itemModel, nameScope) =>
             {
                 //return grid;
                 return new TextBlock
