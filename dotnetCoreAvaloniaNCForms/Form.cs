@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Logging.Serilog;
 
 using Avalonia.Threading;
 using Avalonia.Reactive;
