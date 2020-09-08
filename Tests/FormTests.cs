@@ -45,5 +45,18 @@ namespace Tests
                 .TextBoxFor("txt2")
                 .Display();
         }
+
+
+
+        [TestMethod]
+        public void LayoutVerticalSplitTest(){
+            var f = Avalonia.AppBuilder.Configure<dotnetCoreAvaloniaNCForms.App>()
+                .NewForm();
+
+            f.VerticalGroupSplit(grp=>{
+                grp.Text("Text Above")
+                    .Text("Text Below");
+            });
+        }
     }
 }

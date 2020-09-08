@@ -52,24 +52,35 @@ namespace TestApp
                 },
                 new TestEntry
                 {
-                    Name = "Test Layout: Simple Horizontal",
+                    Name = "Test Layout: Horizontal Group",
                     CodeToRun = TestLayout1_SimpleHorizontal
+                },
+                new TestEntry
+                {
+                    Name = "Test Layout: Vertical Group",
+                    CodeToRun = TestVerticalGroup_Simple1
+                },
+                new TestEntry{
+                    Name = "Test Layout: Vertical Group Split",
+                    CodeToRun = TestLayout_VerticalSplit
+                },
+                new TestEntry{
+                    Name = "Test Layout: Horizontal Group Split",
+                    CodeToRun = TestLayout_HorizontalSplit
+                },
+                new TestEntry
+                {
+                    Name = "Test Layout: Visibility of Horizontal and Vertical Groups",
+                    CodeToRun = TestControllingVisibilityOfControls
                 },
                 new TestEntry
                 {
                     Name = "Test List: Simple Items Control",
                     CodeToRun = TestCollections_SimpleItemsControl
-                },
-                new TestEntry
-                {
-                    Name = "Test Vertical Group 1",
-                    CodeToRun = TestVerticalGroup_Simple1
-                },
-                new TestEntry
-                {
-                    Name = "Test Visibility of Horizontal and Vertical Groups",
-                    CodeToRun = TestControllingVisibilityOfControls
                 }
+
+
+
             };
             f.SimpleDropDown(methods, (i) => {
                 try
@@ -96,6 +107,26 @@ namespace TestApp
             .Display();
         }
 
+        private static void TestLayout_HorizontalSplit(Form parentForm)
+        {
+            parentForm.DisplayChildForm(child=>{
+                child.HorizontalGroupSplit(grp=> {
+                    grp.Text("Text to the Left")
+                        .Text("Text to the right");
+                });
+            });
+        }
+
+        private static void TestLayout_VerticalSplit(Form parentForm)
+        {
+            parentForm.DisplayChildForm(child=>{
+                child.VerticalGroupSplit(grp=> {
+                    grp.Text("Text Above")
+                        .Text("Text Below");
+                });
+            });
+
+        }
 
         private static void writeLineError(string message)
         {

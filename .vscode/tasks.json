@@ -12,6 +12,17 @@
             "problemMatcher": "$tsc"
         },
         {
+            "label": "build-solution",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/dotnetCoreAvaloniaNCForms.sln"
+            ],
+            "problemMatcher": "$tsc"
+        },
+
+        {
             "label": "publish",
             "command": "dotnet",
             "type": "process",
