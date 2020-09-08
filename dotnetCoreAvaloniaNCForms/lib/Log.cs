@@ -4,7 +4,7 @@ namespace dotnetCoreAvaloniaNCForms.lib
 {
     public class Log{
         private void writeMessage(string level, string message){
-            string line = $"[{DateTime.Now:hh_mm_tt}] - {message}";
+            string line = $"[{DateTime.Now:hh_mm_tt}] - {level} - {message}";
 
             if( string.Equals(level, "Info", StringComparison.OrdinalIgnoreCase)){
                 System.Console.ForegroundColor = ConsoleColor.White;
