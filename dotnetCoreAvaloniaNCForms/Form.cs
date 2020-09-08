@@ -10,16 +10,16 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using Avalonia.Reactive;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace dotnetCoreAvaloniaNCForms
 {
     public partial class Form
     {
-        static void log(string message)
-        {
-            Debug.WriteLine($"[{DateTime.Now:hh_mm_tt]}:{message}");
-        }
-        private StackPanel Host { get; set; }
+        private static lib.Log log = new lib.Log();
+
+        private Grid Host { get; set; }
+        private Dictionary<string, IControl> controlsIndex;
         public lib.BindableDynamicDictionary Model { get; set; }
         private Application app;
         private Window win;
@@ -43,24 +43,19 @@ namespace dotnetCoreAvaloniaNCForms
             this.app = __app;
             this.isDisplayed = false;
             this.win = new Window();
-            this.Host = new StackPanel();
+
+            var g = new Grid();
+            var gridCol = new ColumnDefinition();
+            g.ColumnDefinitions.Add(gridCol);
+
+            this.Host = g;
             
-            this.Host.Orientation = Avalonia.Layout.Orientation.Vertical;
+            this.controlsIndex = new Dictionary<string, IControl>();
         }
 
         public Form(Form _parentForm) : this(__app: _parentForm.app, _model: _parentForm.Model)
         {
             
-        }
-
-
-        private void AddRowToHost(IControl ctrl)
-        {
-            DockPanel row = new DockPanel();
-
-            row.Children.Add(ctrl);
-
-            this.Host.Children.Add(row);
         }
 
 
@@ -168,7 +163,7 @@ namespace dotnetCoreAvaloniaNCForms
             win.Content = this.Host;
             win.Closing += (_sender, _args) =>
             {
-                log("Window is closing");
+                log.Debug("Window is closing");
                 if( onClosing != null)
                 {
                     onClosing();

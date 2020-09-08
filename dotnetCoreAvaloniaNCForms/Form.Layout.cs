@@ -128,7 +128,7 @@ namespace dotnetCoreAvaloniaNCForms
                 ++rowIndex; // make sure this is last statement
             }
 
-            AddRowToHost(vertGroup);
+            AddRowToHost(vertGroup, rowAutoHeight: false);
             return this;
         }
 

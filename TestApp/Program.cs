@@ -103,12 +103,15 @@ namespace TestApp
             .Display();
         }
 
-        private static void TestLayout_VerticalSplit(Form f)
+        private static void TestLayout_VerticalSplit(Form parentForm)
         {
-            f.VerticalGroupSplit(grp=> {
-                grp.Text("Text Above")
-                    .Text("Text Below");
+            parentForm.DisplayChildForm(child=>{
+                child.VerticalGroupSplit(grp=> {
+                    grp.Text("Text Above")
+                        .Text("Text Below");
+                });
             });
+
         }
 
         private static void writeLineError(string message)
