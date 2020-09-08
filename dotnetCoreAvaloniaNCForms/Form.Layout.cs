@@ -78,7 +78,59 @@ namespace dotnetCoreAvaloniaNCForms
 
 
 
+        /*
+         For grid info see these two links
+         https://www.c-sharpcorner.com/Resources/676/how-to-create-a-grid-in-wpf-dynamically.aspx
+         https://www.wpf-tutorial.com/panels/gridsplitter/
+        */
+        public Form VerticalGroupSplit(Action<Form> populateVerticalGroup)
+        {
+            var vertGroupForm = new Form(_parentForm: this);
 
+            populateVerticalGroup(vertGroupForm);
+
+            Grid vertGroup = new Grid();
+            var gridCol = new ColumnDefinition();
+            vertGroup.ColumnDefinitions.Add(gridCol);
+            int rowIndex = 0;
+            int columnIndex = 0;
+            var childControls = vertGroupForm.Host.Children.OfType<Control>().ToList();
+            foreach( var child in childControls)
+            {
+                vertGroupForm.Host.Children.Remove(child); // get the child out of the form so we can move it to the grid
+
+                // 1 row for the child control
+                var row = new RowDefinition();
+                vertGroup.RowDefinitions.Add(row);
+
+                // set child into the grid
+                Grid.SetRow(child, rowIndex);
+                Grid.SetColumn(child, columnIndex);
+                vertGroup.Children.Add(child);
+
+                // 1 row for grid splitter (If not last child)
+                if( child != childControls.Last())
+                {
+                    ++rowIndex; // we are on the next row because we are going to add a row definition
+                    int splitterHeight = 5;
+                    var gridSplitRow = new RowDefinition();
+                    gridSplitRow.Height = new GridLength(splitterHeight);
+                    vertGroup.RowDefinitions.Add(gridSplitRow);
+
+                    var gridSplitter = new GridSplitter();
+                    gridSplitter.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch;
+                    gridSplitter.Height = splitterHeight;
+                    Grid.SetRow(gridSplitter, rowIndex);
+                    Grid.SetColumn(gridSplitter, columnIndex);
+                    vertGroup.Children.Add(gridSplitter);
+                }
+
+                ++rowIndex; // make sure this is last statement
+            }
+
+            AddRowToHost(vertGroup);
+            return this;
+        }
 
 
     }
