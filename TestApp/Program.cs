@@ -64,6 +64,10 @@ namespace TestApp
                     Name = "Test Layout: Vertical Group Split",
                     CodeToRun = TestLayout_VerticalSplit
                 },
+                new TestEntry{
+                    Name = "Test Layout: Horizontal Group Split",
+                    CodeToRun = TestLayout_HorizontalSplit
+                },
                 new TestEntry
                 {
                     Name = "Test Layout: Visibility of Horizontal and Vertical Groups",
@@ -101,6 +105,16 @@ namespace TestApp
                 }
             })
             .Display();
+        }
+
+        private static void TestLayout_HorizontalSplit(Form parentForm)
+        {
+            parentForm.DisplayChildForm(child=>{
+                child.HorizontalGroupSplit(grp=> {
+                    grp.Text("Text to the Left")
+                        .Text("Text to the right");
+                });
+            });
         }
 
         private static void TestLayout_VerticalSplit(Form parentForm)

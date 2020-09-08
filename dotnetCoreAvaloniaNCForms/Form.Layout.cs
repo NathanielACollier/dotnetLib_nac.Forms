@@ -72,7 +72,7 @@ namespace dotnetCoreAvaloniaNCForms
                 vertGroup.Children.Add(child);
             }
 
-            AddRowToHost(vertGroup);
+            AddRowToHost(vertGroup, rowAutoHeight: false);
             return this;
         }
 
@@ -129,6 +129,56 @@ namespace dotnetCoreAvaloniaNCForms
             }
 
             AddRowToHost(vertGroup, rowAutoHeight: false);
+            return this;
+        }
+
+
+        public Form HorizontalGroupSplit(Action<Form> populateHorizontalGroup)
+        {
+            var horizontalGroupForm = new Form(_parentForm: this);
+
+            populateHorizontalGroup(horizontalGroupForm);
+
+            // take all the child items of host and put them in a grid with equal space between?
+            Grid horiontalGroup = new Grid();
+            var gridRow = new RowDefinition();
+            horiontalGroup.RowDefinitions.Add(gridRow);
+            int rowIndex = 0;
+            int columnIndex = 0;
+            var childControls = horizontalGroupForm.Host.Children
+                                            .OfType<Control>().ToList();
+            foreach (var child in childControls)
+            {
+                // called ToList above so we can remove this guy from the host children without breaking the foreach
+                horizontalGroupForm.Host.Children.Remove(child); // we have to remove it from the host to be able to add it to the Grid
+                var col = new ColumnDefinition();
+                horiontalGroup.ColumnDefinitions.Add(col);
+
+                Grid.SetRow(child, rowIndex);
+                Grid.SetColumn(child, columnIndex);
+                horiontalGroup.Children.Add(child);
+
+                // 1 column for grid splitter (If not last child)
+                if (child != childControls.Last())
+                {
+                    ++columnIndex; // incriment because we are going to add a new column below
+                    int splitterWidth = 5;
+                    var gridSplitColumn = new ColumnDefinition();
+                    gridSplitColumn.Width = new GridLength(splitterWidth);
+                    horiontalGroup.ColumnDefinitions.Add(gridSplitColumn);
+
+                    var gridSplitter = new GridSplitter();
+                    gridSplitter.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch;
+                    gridSplitter.Width = splitterWidth;
+                    Grid.SetRow(gridSplitter, rowIndex);
+                    Grid.SetColumn(gridSplitter, columnIndex);
+                    horiontalGroup.Children.Add(gridSplitter);
+                }
+
+                ++columnIndex; // last statement
+            }
+
+            AddRowToHost(horiontalGroup);
             return this;
         }
 
