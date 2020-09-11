@@ -111,13 +111,18 @@ namespace TestApp
             .Display();
         }
 
+        public class TestList_ButtonCounterExample_ItemModel{
+            public int Counter {get; set; }
+            public string Label {get; set; }
+        }
+
         private static void TestList_ButtonCounterExample(Form parentForm)
         {   
             var items = new ObservableCollection<object>();
 
             // display 5 counters
             for( int i = 0; i < 10; ++i){
-                items.Add(new {
+                items.Add(new TestList_ButtonCounterExample_ItemModel{
                     Counter = 0,
                     Label = $"Counter {i}"
                 });
@@ -126,9 +131,11 @@ namespace TestApp
             parentForm.DisplayChildForm(child=>{
                 child.Model["items"] = items;
                 child.List("items", row=>{
+                    
                     row.TextFor("Label")
                         .Button("Next", (arg)=>{
-                            
+                            var model = row.Model["datacontext"] as TestList_ButtonCounterExample_ItemModel;
+                            ++model.Counter;
                         });
                 });
             });

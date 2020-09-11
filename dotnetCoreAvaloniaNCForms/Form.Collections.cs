@@ -21,11 +21,12 @@ namespace dotnetCoreAvaloniaNCForms
             // this is documented here: https://avaloniaui.net/docs/templates/datatemplates-in-code
             itemsCtrl.ItemTemplate = new FuncDataTemplate<object>((itemModel, nameScope) =>
             {
-                //return grid;
-                return new TextBlock
-                {
-                    Text = "Hello World!"
-                };
+                var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
+                // this has to have a unique model
+                rowForm.Model["datacontext"] = itemModel;
+                populateItemRow(rowForm);
+
+                return rowForm.Host;
             });
 
             if( !(this.Model[itemSourcePropertyName] is ObservableCollection<object>))
