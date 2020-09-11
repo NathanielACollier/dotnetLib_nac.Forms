@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using Avalonia;
 using dotnetCoreAvaloniaNCForms;
 
@@ -111,13 +112,25 @@ namespace TestApp
             .Display();
         }
 
+        public class TestList_ButtonCounterExample_ItemModel : dotnetCoreAvaloniaNCForms.lib.model.ViewModelBase {
+            public int Counter {
+                get { return base.GetValue(()=> this.Counter);}
+                set { base.SetValue(() => this.Counter, value);}
+            }
+            public string Label{
+                get { return base.GetValue(() => this.Label);}
+                set { base.SetValue(() => this.Label, value);}
+            }
+
+        }
+
         private static void TestList_ButtonCounterExample(Form parentForm)
         {   
             var items = new ObservableCollection<object>();
 
             // display 5 counters
             for( int i = 0; i < 10; ++i){
-                items.Add(new {
+                items.Add(new TestList_ButtonCounterExample_ItemModel{
                     Counter = 0,
                     Label = $"Counter {i}"
                 });
@@ -126,10 +139,16 @@ namespace TestApp
             parentForm.DisplayChildForm(child=>{
                 child.Model["items"] = items;
                 child.List("items", row=>{
-                    row.TextFor("Label")
-                        .Button("Next", (arg)=>{
-                            
-                        });
+                    
+                    row.HorizontalGroup(hg=>{
+                        hg.TextFor("Label")
+                            .Button("Next", (arg)=>{
+                                var model = row.Model[dotnetCoreAvaloniaNCForms.lib.model.SpecialModelKeys.DataContext] as TestList_ButtonCounterExample_ItemModel;
+                                ++model.Counter;
+                            })
+                            .Text("Counter is: ")
+                            .TextFor("Counter");
+                    });
                 });
             });
         }
@@ -224,17 +243,15 @@ namespace TestApp
         {
             parentForm.DisplayChildForm(child =>
             {
-                child.Model["items"] = new ObservableCollection<object>
-                {
-                    new
-                    {
-                        Prop1 = "Fish"
-                    },
-                    new
-                    {
-                        Prop1 = "Blanket"
-                    }
-                };
+                var items = new ObservableCollection<object>();
+                child.Model["items"]  = items;
+                var newItem = new dotnetCoreAvaloniaNCForms.lib.BindableDynamicDictionary();
+                newItem["Prop1"] = "fish";
+                
+                items.Add(newItem);
+                newItem = new dotnetCoreAvaloniaNCForms.lib.BindableDynamicDictionary();
+                newItem["Prop1"] = "Blanket";
+                items.Add(newItem);
 
                 child.Text("Simple List")
                 .List("items", (itemForm) =>
@@ -243,14 +260,16 @@ namespace TestApp
                 })
                 .HorizontalGroup((hgChild) =>
                 {
-                    hgChild.Text("Click this button to add to list")
-                            .Button("add", (_args) =>
+                    // default some stuff
+                    child.Model["NewItem.Prop1"] = "Frog Prince";
+
+                    hgChild.Text("Prop1: ")
+                            .TextBoxFor("NewItem.Prop1")
+                            .Button("Add Item", (_args) =>
                             {
-                                var items = child.Model["items"] as ObservableCollection<object>;
-                                items.Add(new
-                                {
-                                    Prop1 = "Frog Prince"
-                                });
+                                newItem = new dotnetCoreAvaloniaNCForms.lib.BindableDynamicDictionary();
+                                newItem["Prop1"] = child.Model["NewItem.Prop1"] as string;
+                                items.Add(newItem);
                             });
                 });
             });

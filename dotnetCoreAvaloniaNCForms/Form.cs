@@ -61,15 +61,20 @@ namespace dotnetCoreAvaloniaNCForms
 
         private void FireOnNext<T>(Subject<T> bindingSource, string modelFieldName)
         {
+            FireOnNextWithValue<T>(bindingSource, this.Model[modelFieldName]);
+        }
+
+
+        private void FireOnNextWithValue<T>(Subject<T> bindingSource, object value)
+        {
             // field value has changed
-            if (this.Model[modelFieldName] is T newVal)
+            if (value is T newVal)
             {
                 bindingSource.OnNext(newVal);
             }
             else
             {
-                if (lib.Util.CanChangeType<T>(
-                    this.Model[modelFieldName], out T newVal2))
+                if (lib.Util.CanChangeType<T>(value, out T newVal2))
                 {
                     bindingSource.OnNext(newVal2);
                 }
@@ -126,10 +131,52 @@ namespace dotnetCoreAvaloniaNCForms
                 });
             control.Bind(property, bindingSourceObservable);
 
-            notifyOnModelChange(modelFieldName, (val) =>
-            {
-                FireOnNext<T>(bindingSource, modelFieldName);
-            });
+            bool bindingIsDataContext = false;
+            object dataContext = null;
+            object getDataContextValue(){
+                if( dataContext is lib.BindableDynamicDictionary dynDict){
+                    return dynDict[modelFieldName];
+                }else{
+                    return dataContext.GetType().GetProperty(modelFieldName).GetValue(dataContext);
+                }
+                
+            }
+            void setDataContextValue(object val){
+                if( dataContext is lib.BindableDynamicDictionary dynDict){
+                    dynDict[modelFieldName] = val;
+                }else {
+                    dataContext.GetType().GetProperty(modelFieldName).SetValue(dataContext, val);
+                }
+            }
+
+            // does model contain a datacontext???
+            if( this.Model.GetDynamicMemberNames().Any(key=> string.Equals(key, lib.model.SpecialModelKeys.DataContext, StringComparison.OrdinalIgnoreCase))){
+                // bind to the data context
+                dataContext = this.Model[lib.model.SpecialModelKeys.DataContext];
+
+                if( dataContext is System.ComponentModel.INotifyPropertyChanged prop){
+                    // It's INotifyPropertyChanged so set this as handled
+                    bindingIsDataContext = true;
+
+                    // need to fire it's current value.  Then start watching for changes
+                    FireOnNextWithValue<T>(bindingSource, getDataContextValue());
+
+                    prop.PropertyChanged += (_s,_args) => {
+                        if( string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase)){
+                            
+                            FireOnNextWithValue<T>(bindingSource, getDataContextValue());
+                        }
+                    };
+                }
+            }
+
+            if(!bindingIsDataContext){
+                notifyOnModelChange(modelFieldName, (val) =>
+                {
+                    FireOnNext<T>(bindingSource, modelFieldName);
+                });
+            }
+
 
             // If they say two way then we setup a watch on the property observable and apply the values back to the model
             if(isTwoWayDataBinding)
@@ -139,7 +186,13 @@ namespace dotnetCoreAvaloniaNCForms
 
                 controlValueChangesObservable.Subscribe(newVal =>
                 {
-                    this.Model[modelFieldName] = newVal;
+                    if( bindingIsDataContext){
+                        // set the property
+                        setDataContextValue(newVal);
+                    }else {
+                        this.Model[modelFieldName] = newVal;
+                    }
+                    
                 });
             }
         }
