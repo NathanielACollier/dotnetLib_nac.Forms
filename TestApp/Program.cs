@@ -243,7 +243,7 @@ namespace TestApp
         {
             parentForm.DisplayChildForm(child =>
             {
-                var items = new ObservableCollection<dotnetCoreAvaloniaNCForms.lib.BindableDynamicDictionary>();
+                var items = new ObservableCollection<object>();
                 child.Model["items"]  = items;
                 var newItem = new dotnetCoreAvaloniaNCForms.lib.BindableDynamicDictionary();
                 newItem["Prop1"] = "fish";

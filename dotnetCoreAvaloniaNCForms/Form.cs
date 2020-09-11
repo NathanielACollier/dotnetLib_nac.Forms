@@ -133,14 +133,26 @@ namespace dotnetCoreAvaloniaNCForms
 
             bool bindingIsDataContext = false;
             object dataContext = null;
+            object getDataContextValue(){
+                if( dataContext is lib.BindableDynamicDictionary dynDict){
+                    return dynDict[modelFieldName];
+                }else{
+                    return dataContext.GetType().GetProperty(modelFieldName).GetValue(dataContext);
+                }
+                
+            }
+            void setDataContextValue(object val){
+                if( dataContext is lib.BindableDynamicDictionary dynDict){
+                    dynDict[modelFieldName] = val;
+                }else {
+                    dataContext.GetType().GetProperty(modelFieldName).SetValue(dataContext, val);
+                }
+            }
+
             // does model contain a datacontext???
             if( this.Model.GetDynamicMemberNames().Any(key=> string.Equals(key, lib.model.SpecialModelKeys.DataContext, StringComparison.OrdinalIgnoreCase))){
                 // bind to the data context
                 dataContext = this.Model[lib.model.SpecialModelKeys.DataContext];
-
-                object getDataContextValue(){
-                    return dataContext.GetType().GetProperty(modelFieldName).GetValue(dataContext);
-                }
 
                 if( dataContext is System.ComponentModel.INotifyPropertyChanged prop){
                     // It's INotifyPropertyChanged so set this as handled
@@ -176,7 +188,7 @@ namespace dotnetCoreAvaloniaNCForms
                 {
                     if( bindingIsDataContext){
                         // set the property
-                        dataContext.GetType().GetProperty(modelFieldName).SetValue(dataContext, newVal);
+                        setDataContextValue(newVal);
                     }else {
                         this.Model[modelFieldName] = newVal;
                     }
