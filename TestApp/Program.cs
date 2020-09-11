@@ -260,11 +260,15 @@ namespace TestApp
                 })
                 .HorizontalGroup((hgChild) =>
                 {
-                    hgChild.Text("Click this button to add to list")
-                            .Button("add", (_args) =>
+                    // default some stuff
+                    child.Model["NewItem.Prop1"] = "Frog Prince";
+
+                    hgChild.Text("Prop1: ")
+                            .TextBoxFor("NewItem.Prop1")
+                            .Button("Add Item", (_args) =>
                             {
                                 newItem = new dotnetCoreAvaloniaNCForms.lib.BindableDynamicDictionary();
-                                newItem["Prop1"] = "Frog Prince";
+                                newItem["Prop1"] = child.Model["NewItem.Prop1"] as string;
                                 items.Add(newItem);
                             });
                 });
