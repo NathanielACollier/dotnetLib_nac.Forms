@@ -77,6 +77,10 @@ namespace TestApp
                 {
                     Name = "Test List: Simple Items Control",
                     CodeToRun = TestCollections_SimpleItemsControl
+                },
+                new TestEntry{
+                    Name = "Test List: Button Counter via Model",
+                    CodeToRun = TestList_ButtonCounterExample
                 }
 
 
@@ -105,6 +109,29 @@ namespace TestApp
                 }
             })
             .Display();
+        }
+
+        private static void TestList_ButtonCounterExample(Form parentForm)
+        {   
+            var items = new ObservableCollection<object>();
+
+            // display 5 counters
+            for( int i = 0; i < 10; ++i){
+                items.Add(new {
+                    Counter = 0,
+                    Label = $"Counter {i}"
+                });
+            }
+
+            parentForm.DisplayChildForm(child=>{
+                child.Model["items"] = items;
+                child.List("items", row=>{
+                    row.TextFor("Label")
+                        .Button("Next", (arg)=>{
+                            
+                        });
+                });
+            });
         }
 
         private static void TestLayout_HorizontalSplit(Form parentForm)
@@ -212,7 +239,7 @@ namespace TestApp
                 child.Text("Simple List")
                 .List("items", (itemForm) =>
                 {
-                    itemForm.Text("Here is an item");
+                    itemForm.TextFor("Prop1");
                 })
                 .HorizontalGroup((hgChild) =>
                 {
