@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using Avalonia;
 using dotnetCoreAvaloniaNCForms;
 
@@ -111,9 +112,16 @@ namespace TestApp
             .Display();
         }
 
-        public class TestList_ButtonCounterExample_ItemModel{
-            public int Counter {get; set; }
-            public string Label {get; set; }
+        public class TestList_ButtonCounterExample_ItemModel : dotnetCoreAvaloniaNCForms.lib.model.ViewModelBase {
+            public int Counter {
+                get { return base.GetValue(()=> this.Counter);}
+                set { base.SetValue(() => this.Counter, value);}
+            }
+            public string Label{
+                get { return base.GetValue(() => this.Label);}
+                set { base.SetValue(() => this.Label, value);}
+            }
+
         }
 
         private static void TestList_ButtonCounterExample(Form parentForm)
@@ -132,11 +140,15 @@ namespace TestApp
                 child.Model["items"] = items;
                 child.List("items", row=>{
                     
-                    row.TextFor("Label")
-                        .Button("Next", (arg)=>{
-                            var model = row.Model["datacontext"] as TestList_ButtonCounterExample_ItemModel;
-                            ++model.Counter;
-                        });
+                    row.HorizontalGroup(hg=>{
+                        hg.TextFor("Label")
+                            .Button("Next", (arg)=>{
+                                var model = row.Model[dotnetCoreAvaloniaNCForms.lib.model.SpecialModelKeys.DataContext] as TestList_ButtonCounterExample_ItemModel;
+                                ++model.Counter;
+                            })
+                            .Text("Counter is: ")
+                            .TextFor("Counter");
+                    });
                 });
             });
         }
@@ -231,17 +243,15 @@ namespace TestApp
         {
             parentForm.DisplayChildForm(child =>
             {
-                child.Model["items"] = new ObservableCollection<object>
-                {
-                    new
-                    {
-                        Prop1 = "Fish"
-                    },
-                    new
-                    {
-                        Prop1 = "Blanket"
-                    }
-                };
+                var items = new ObservableCollection<dotnetCoreAvaloniaNCForms.lib.BindableDynamicDictionary>();
+                child.Model["items"]  = items;
+                var newItem = new dotnetCoreAvaloniaNCForms.lib.BindableDynamicDictionary();
+                newItem["Prop1"] = "fish";
+                
+                items.Add(newItem);
+                newItem = new dotnetCoreAvaloniaNCForms.lib.BindableDynamicDictionary();
+                newItem["Prop1"] = "Blanket";
+                items.Add(newItem);
 
                 child.Text("Simple List")
                 .List("items", (itemForm) =>
@@ -253,11 +263,9 @@ namespace TestApp
                     hgChild.Text("Click this button to add to list")
                             .Button("add", (_args) =>
                             {
-                                var items = child.Model["items"] as ObservableCollection<object>;
-                                items.Add(new
-                                {
-                                    Prop1 = "Frog Prince"
-                                });
+                                newItem = new dotnetCoreAvaloniaNCForms.lib.BindableDynamicDictionary();
+                                newItem["Prop1"] = "Frog Prince";
+                                items.Add(newItem);
                             });
                 });
             });

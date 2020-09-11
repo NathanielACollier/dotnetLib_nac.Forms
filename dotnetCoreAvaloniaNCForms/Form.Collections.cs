@@ -23,8 +23,10 @@ namespace dotnetCoreAvaloniaNCForms
             {
                 var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
                 // this has to have a unique model
-                rowForm.Model["datacontext"] = itemModel;
+                rowForm.Model[lib.model.SpecialModelKeys.DataContext] = itemModel;
                 populateItemRow(rowForm);
+
+                rowForm.Host.DataContext = itemModel;
 
                 return rowForm.Host;
             });
