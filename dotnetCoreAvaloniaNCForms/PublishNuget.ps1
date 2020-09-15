@@ -1,6 +1,9 @@
 ﻿$buildConfigurationName = "Debug"
 
-$buildPath = [system.io.path]::Combine( (Get-Location).Path, "bin", $buildConfigurationName)
+
+$scriptParentFolderPath = [System.IO.Path]::GetDirectoryName( $MyInvocation.InvocationName )
+
+$buildPath = [system.io.path]::Combine( $scriptParentFolderPath, "bin", $buildConfigurationName)
 $nugetPackages = Get-ChildItem $buildPath -Filter *.nupkg
 $package = $nugetPackages | Sort-Object -Descending -Property CreationTIme | Select-Object -First 1
 
