@@ -79,5 +79,49 @@ namespace dotnetCoreAvaloniaNCForms
             AddRowToHost(dropdown);
             return this;
         }
+
+
+        public Form Menu(model.MenuItem[] items)
+        {
+            var menu = new Avalonia.Controls.Menu();
+            menu.Items = items.Select(i => convertModelToAvaloniaMenuItem(i));
+            
+            AddRowToHost(menu);
+            return this;
+        }
+
+        private Avalonia.Controls.MenuItem convertModelToAvaloniaMenuItem(model.MenuItem item)
+        {
+            var avaloniaItem = new Avalonia.Controls.MenuItem
+            {
+                Header = item.Header
+            };
+
+            if (item.Action != null)
+            {
+                avaloniaItem.Click += (_s, _args) =>
+                {
+                    item.Action();
+                };
+            }
+
+            
+            if (item.Items?.Any() == true)
+            {
+                var subMenuItems = new List<Avalonia.Controls.MenuItem>();
+                foreach (var i in item.Items)
+                {
+                    subMenuItems.Add(
+                        convertModelToAvaloniaMenuItem(i)    
+                    );
+                }
+
+                avaloniaItem.Items = subMenuItems;
+            }
+
+            return avaloniaItem;
+        }
+        
+        
     }
 }

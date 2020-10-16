@@ -82,6 +82,11 @@ namespace TestApp
                 new TestEntry{
                     Name = "Test List: Button Counter via Model",
                     CodeToRun = TestList_ButtonCounterExample
+                },
+                new TestEntry
+                {
+                    Name = "Test Menu: Simple",
+                    CodeToRun = TestMenu_Simple
                 }
 
 
@@ -318,6 +323,41 @@ namespace TestApp
                 {
                     mainForm.Model["isTextVisible"] = !(mainForm.Model["isTextVisible"] as bool? ?? false);
                 });
+            });
+        }
+        
+        
+        private static void TestMenu_Simple(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.Menu(new[]
+                {
+                    new dotnetCoreAvaloniaNCForms.model.MenuItem
+                    {
+                        Header = "File",
+                        Items = new[]
+                        {
+                            new dotnetCoreAvaloniaNCForms.model.MenuItem
+                            {
+                                Header = "Save",
+                                Action = () =>
+                                {
+                                    f.Model["Last Action"] = "Save";
+                                }
+                            },
+                            new dotnetCoreAvaloniaNCForms.model.MenuItem
+                            {
+                                Header = "Open",
+                                Action = () =>
+                                {
+                                    f.Model["Last Action"] = "Open";
+                                }
+                            }
+                        }
+                    }
+                })
+                .TextFor("Last Action");
             });
         }
 
