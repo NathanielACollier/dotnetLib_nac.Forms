@@ -39,6 +39,12 @@ namespace dotnetCoreAvaloniaNCForms
             AddBinding<ObservableCollection<object>>(itemSourcePropertyName, itemsCtrl, ItemsControl.ItemsProperty,
                 isTwoWayDataBinding: true);
 
+            // handle selection changed
+            itemsCtrl.SelectionChanged += (_s, _args) =>
+            {
+
+            };
+
             AddRowToHost(itemsCtrl);
 
             var debugTest = itemsCtrl.Items;
