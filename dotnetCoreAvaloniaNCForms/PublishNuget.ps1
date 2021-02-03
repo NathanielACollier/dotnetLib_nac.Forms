@@ -7,4 +7,4 @@ $buildPath = [system.io.path]::Combine( $scriptParentFolderPath, "bin", $buildCo
 $nugetPackages = Get-ChildItem $buildPath -Filter *.nupkg
 $package = $nugetPackages | Sort-Object -Descending -Property CreationTIme | Select-Object -First 1
 
-& dotnet @("nuget", "push", $package.FullName, "--source", "github")
+& nuget @( "push", $package.FullName, "-Source", "github")
