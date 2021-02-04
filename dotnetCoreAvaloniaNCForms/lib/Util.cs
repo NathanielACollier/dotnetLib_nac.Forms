@@ -12,15 +12,16 @@ namespace dotnetCoreAvaloniaNCForms.lib
             try
             {
                 var result = Convert.ChangeType(val, typeof(T));
-                if( result is T newVal)
+                if (result is T newVal)
                 {
                     valConvertedToT = newVal;
                     return true;
                 }
-            }catch(Exception ex)
-            {
-
             }
+            catch
+            {
+            }
+
             return false;
         }
     }

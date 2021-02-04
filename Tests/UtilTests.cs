@@ -9,7 +9,7 @@ namespace Tests
     public class UtilTests
     {
         [TestMethod]
-        public async Task TestConversionToString()
+        public void TestConversionToString()
         {
             Assert.IsTrue(
                 util.CanChangeType<string>(1, out string result));
