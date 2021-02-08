@@ -1,3 +1,5 @@
+using System.Reactive.Concurrency;
+using Avalonia;
 using Avalonia.Controls;
 
 namespace dotnetCoreAvaloniaNCForms
@@ -19,6 +21,22 @@ namespace dotnetCoreAvaloniaNCForms
                 ctrlIndex: null,
                 rowAutoHeight : rowAutoHeight);
         }
+        
+        
+        // public version of AddBinding
+        public void _Extend_AddBinding<T>(string modelFieldName,
+            AvaloniaObject control,
+            AvaloniaProperty property,
+            bool isTwoWayDataBinding = false)
+        {
+            AddBinding<T>(modelFieldName: modelFieldName,
+                control: control,
+                property: property,
+                isTwoWayDataBinding: isTwoWayDataBinding);
+        }
+        
+        
+        
         
     }
 }
