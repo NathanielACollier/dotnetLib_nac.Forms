@@ -12,7 +12,7 @@ using Avalonia.Reactive;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace dotnetCoreAvaloniaNCForms
+namespace NC.Forms.Avalonia
 {
     public partial class Form
     {

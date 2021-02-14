@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Avalonia;
-using dotnetCoreAvaloniaNCForms;
+using forms=NC.Forms.Avalonia;
+using NC.Forms.Avalonia; // to bring in the extensions
 
 namespace TestApp
 {
@@ -11,7 +12,7 @@ namespace TestApp
     class TestEntry
     {
         public string Name { get; set; }
-        public Action<dotnetCoreAvaloniaNCForms.Form> CodeToRun { get; set; }
+        public Action<forms.Form> CodeToRun { get; set; }
 
         public override string ToString()
         {
@@ -24,13 +25,13 @@ namespace TestApp
         
         static void Main(string[] args)
         {
-            var f = Avalonia.AppBuilder.Configure<dotnetCoreAvaloniaNCForms.App>()
+            var f = Avalonia.AppBuilder.Configure<forms.App>()
                                 .NewForm();
 
             mainUI(f);
         }
 
-        static void mainUI(dotnetCoreAvaloniaNCForms.Form f)
+        static void mainUI(forms.Form f)
         {
             TestEntry selectedTestEntry = null;
             // setup test methods
@@ -117,7 +118,7 @@ namespace TestApp
             .Display();
         }
 
-        public class TestList_ButtonCounterExample_ItemModel : dotnetCoreAvaloniaNCForms.lib.model.ViewModelBase {
+        public class TestList_ButtonCounterExample_ItemModel : forms.lib.model.ViewModelBase {
             public int Counter {
                 get { return base.GetValue(()=> this.Counter);}
                 set { base.SetValue(() => this.Counter, value);}
@@ -148,7 +149,7 @@ namespace TestApp
                     row.HorizontalGroup(hg=>{
                         hg.TextFor("Label")
                             .Button("Next", (arg)=>{
-                                var model = row.Model[dotnetCoreAvaloniaNCForms.lib.model.SpecialModelKeys.DataContext] as TestList_ButtonCounterExample_ItemModel;
+                                var model = row.Model[forms.lib.model.SpecialModelKeys.DataContext] as TestList_ButtonCounterExample_ItemModel;
                                 ++model.Counter;
                             })
                             .Text("Counter is: ")
@@ -228,7 +229,7 @@ namespace TestApp
             });
         }
 
-        static void Test1(dotnetCoreAvaloniaNCForms.Form parentForm)
+        static void Test1(forms.Form parentForm)
         {
             parentForm.DisplayChildForm(child =>
             {
@@ -244,17 +245,17 @@ namespace TestApp
 
 
 
-        static void TestCollections_SimpleItemsControl(dotnetCoreAvaloniaNCForms.Form parentForm)
+        static void TestCollections_SimpleItemsControl(forms.Form parentForm)
         {
             parentForm.DisplayChildForm(child =>
             {
                 var items = new ObservableCollection<object>();
                 child.Model["items"]  = items;
-                var newItem = new dotnetCoreAvaloniaNCForms.lib.BindableDynamicDictionary();
+                var newItem = new forms.lib.BindableDynamicDictionary();
                 newItem["Prop1"] = "fish";
                 
                 items.Add(newItem);
-                newItem = new dotnetCoreAvaloniaNCForms.lib.BindableDynamicDictionary();
+                newItem = new forms.lib.BindableDynamicDictionary();
                 newItem["Prop1"] = "Blanket";
                 items.Add(newItem);
 
@@ -272,7 +273,7 @@ namespace TestApp
                             .TextBoxFor("NewItem.Prop1")
                             .Button("Add Item", (_args) =>
                             {
-                                newItem = new dotnetCoreAvaloniaNCForms.lib.BindableDynamicDictionary();
+                                newItem = new forms.lib.BindableDynamicDictionary();
                                 newItem["Prop1"] = child.Model["NewItem.Prop1"] as string;
                                 items.Add(newItem);
                             });
@@ -281,7 +282,7 @@ namespace TestApp
         }
 
 
-        static void TestVerticalGroup_Simple1(dotnetCoreAvaloniaNCForms.Form parentForm)
+        static void TestVerticalGroup_Simple1(forms.Form parentForm)
         {
             parentForm.DisplayChildForm(mainForm =>
             {
@@ -309,7 +310,7 @@ namespace TestApp
 
 
 
-        static void TestControllingVisibilityOfControls(dotnetCoreAvaloniaNCForms.Form parentForm)
+        static void TestControllingVisibilityOfControls(forms.Form parentForm)
         {
             parentForm.DisplayChildForm(mainForm =>
             {
@@ -333,12 +334,12 @@ namespace TestApp
             {
                 f.Menu(new[]
                 {
-                    new dotnetCoreAvaloniaNCForms.model.MenuItem
+                    new forms.model.MenuItem
                     {
                         Header = "File",
                         Items = new[]
                         {
-                            new dotnetCoreAvaloniaNCForms.model.MenuItem
+                            new forms.model.MenuItem
                             {
                                 Header = "Save",
                                 Action = () =>
@@ -346,7 +347,7 @@ namespace TestApp
                                     f.Model["Last Action"] = "Save";
                                 }
                             },
-                            new dotnetCoreAvaloniaNCForms.model.MenuItem
+                            new forms.model.MenuItem
                             {
                                 Header = "Open",
                                 Action = () =>

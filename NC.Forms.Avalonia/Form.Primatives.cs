@@ -5,7 +5,7 @@ using System.Text;
 using Avalonia;
 using Avalonia.Controls;
 
-namespace dotnetCoreAvaloniaNCForms
+namespace NC.Forms.Avalonia
 {
     public partial class Form
     {
@@ -83,16 +83,16 @@ namespace dotnetCoreAvaloniaNCForms
 
         public Form Menu(model.MenuItem[] items)
         {
-            var menu = new Avalonia.Controls.Menu();
+            var menu = new global::Avalonia.Controls.Menu();
             menu.Items = items.Select(i => convertModelToAvaloniaMenuItem(i));
             
             AddRowToHost(menu);
             return this;
         }
 
-        private Avalonia.Controls.MenuItem convertModelToAvaloniaMenuItem(model.MenuItem item)
+        private global::Avalonia.Controls.MenuItem convertModelToAvaloniaMenuItem(model.MenuItem item)
         {
-            var avaloniaItem = new Avalonia.Controls.MenuItem
+            var avaloniaItem = new global::Avalonia.Controls.MenuItem
             {
                 Header = item.Header
             };
@@ -108,7 +108,7 @@ namespace dotnetCoreAvaloniaNCForms
             
             if (item.Items?.Any() == true)
             {
-                var subMenuItems = new List<Avalonia.Controls.MenuItem>();
+                var subMenuItems = new List<global::Avalonia.Controls.MenuItem>();
                 foreach (var i in item.Items)
                 {
                     subMenuItems.Add(

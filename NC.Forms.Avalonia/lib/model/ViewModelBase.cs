@@ -7,7 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace dotnetCoreAvaloniaNCForms.lib.model
+namespace NC.Forms.Avalonia.lib.model
 {
     	/**
 	 * 2016-10-11 Copied the code and started a Portable Class Library for use in Xamarin Forms

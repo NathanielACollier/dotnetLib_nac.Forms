@@ -4,7 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 
-namespace dotnetCoreAvaloniaNCForms
+namespace NC.Forms.Avalonia
 {
     public partial class Form
     {
@@ -53,7 +53,7 @@ namespace dotnetCoreAvaloniaNCForms
             itemsCtrl.Height = 500;
             itemsCtrl.Width = 300;
 
-            itemsCtrl.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Aquamarine);
+            itemsCtrl.Background = new global::Avalonia.Media.SolidColorBrush(global::Avalonia.Media.Colors.Aquamarine);
 
             return this;
         }

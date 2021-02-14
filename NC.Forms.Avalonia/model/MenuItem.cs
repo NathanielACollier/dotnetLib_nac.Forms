@@ -1,6 +1,6 @@
 using System;
 
-namespace dotnetCoreAvaloniaNCForms.model
+namespace NC.Forms.Avalonia.model
 {
     public class MenuItem
     {

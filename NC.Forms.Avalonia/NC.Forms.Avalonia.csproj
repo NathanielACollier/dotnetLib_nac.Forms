@@ -7,6 +7,8 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.0.6</Version>
     <LangVersion>latest</LangVersion>
+    <AssemblyName>NC.Forms.Avalonia</AssemblyName>
+    <RootNamespace>NC.Forms.Avalonia</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

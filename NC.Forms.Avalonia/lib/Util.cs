@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace dotnetCoreAvaloniaNCForms.lib
+namespace NC.Forms.Avalonia.lib
 {
     public class Util
     {

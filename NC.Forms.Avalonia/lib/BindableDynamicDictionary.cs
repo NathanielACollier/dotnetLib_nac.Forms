@@ -5,7 +5,7 @@ using System.Dynamic;
 using System.Text;
 using System.Linq;
 
-namespace dotnetCoreAvaloniaNCForms.lib
+namespace NC.Forms.Avalonia.lib
 {
     /// <summary>
     /// Bindable dynamic dictionary.

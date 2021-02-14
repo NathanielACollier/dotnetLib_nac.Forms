@@ -1,6 +1,6 @@
 using System;
 
-namespace dotnetCoreAvaloniaNCForms.lib
+namespace NC.Forms.Avalonia.lib
 {
     public class Log{
         private void writeMessage(string level, string message){

@@ -3,7 +3,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using System.Linq;
 
-using dotnetCoreAvaloniaNCForms;
+using forms=NC.Forms.Avalonia;
+using NC.Forms.Avalonia; // bring in the extensions
 
 namespace Tests
 {
@@ -13,7 +14,7 @@ namespace Tests
         [TestMethod]
         public void TestDisplay()
         {
-            Avalonia.AppBuilder.Configure<dotnetCoreAvaloniaNCForms.App>()
+            Avalonia.AppBuilder.Configure<forms.App>()
                 .NewForm()
                 .Display();
         }
@@ -21,7 +22,7 @@ namespace Tests
         [TestMethod]
         public void FormWithButtonClickCount()
         {
-            var f = Avalonia.AppBuilder.Configure<dotnetCoreAvaloniaNCForms.App>()
+            var f = Avalonia.AppBuilder.Configure<forms.App>()
                 .NewForm();
 
             f.TextFor("txt1", "When you click button I'll change to count!")
@@ -38,7 +39,7 @@ namespace Tests
         [TestMethod]
         public void FormThatDisplaysTypedText()
         {
-            var f = Avalonia.AppBuilder.Configure<dotnetCoreAvaloniaNCForms.App>()
+            var f = Avalonia.AppBuilder.Configure<forms.App>()
                 .NewForm();
 
             f.TextFor("txt2", "Type here")
@@ -50,7 +51,7 @@ namespace Tests
 
         [TestMethod]
         public void LayoutVerticalSplitTest(){
-            var f = Avalonia.AppBuilder.Configure<dotnetCoreAvaloniaNCForms.App>()
+            var f = Avalonia.AppBuilder.Configure<forms.App>()
                 .NewForm();
 
             f.VerticalGroupSplit(grp=>{

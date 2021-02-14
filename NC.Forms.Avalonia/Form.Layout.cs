@@ -3,7 +3,7 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 
-namespace dotnetCoreAvaloniaNCForms
+namespace NC.Forms.Avalonia
 {
     public partial class Form
     {
@@ -68,7 +68,7 @@ namespace dotnetCoreAvaloniaNCForms
             foreach (var child in childControls)
             {
                 vertGroupForm.Host.Children.Remove(child); // get the child out of the form so we can move it to the grid
-                DockPanel.SetDock((Avalonia.Controls.Control)child, Dock.Top);
+                DockPanel.SetDock((global::Avalonia.Controls.Control)child, Dock.Top);
                 vertGroup.Children.Add(child);
             }
 
@@ -118,7 +118,7 @@ namespace dotnetCoreAvaloniaNCForms
                     vertGroup.RowDefinitions.Add(gridSplitRow);
 
                     var gridSplitter = new GridSplitter();
-                    gridSplitter.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch;
+                    gridSplitter.HorizontalAlignment = global::Avalonia.Layout.HorizontalAlignment.Stretch;
                     gridSplitter.Height = splitterHeight;
                     Grid.SetRow(gridSplitter, rowIndex);
                     Grid.SetColumn(gridSplitter, columnIndex);
@@ -168,7 +168,7 @@ namespace dotnetCoreAvaloniaNCForms
                     horiontalGroup.ColumnDefinitions.Add(gridSplitColumn);
 
                     var gridSplitter = new GridSplitter();
-                    gridSplitter.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch;
+                    gridSplitter.HorizontalAlignment = global::Avalonia.Layout.HorizontalAlignment.Stretch;
                     gridSplitter.Width = splitterWidth;
                     Grid.SetRow(gridSplitter, rowIndex);
                     Grid.SetColumn(gridSplitter, columnIndex);

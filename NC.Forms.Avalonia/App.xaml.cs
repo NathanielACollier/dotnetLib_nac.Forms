@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace dotnetCoreAvaloniaNCForms
+namespace NC.Forms.Avalonia
 {
     public class App : Application
     {

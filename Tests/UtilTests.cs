@@ -2,7 +2,8 @@ using Avalonia;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using System.Linq;
-using util = dotnetCoreAvaloniaNCForms.lib.Util;
+using forms = NC.Forms.Avalonia;
+using util = NC.Forms.Avalonia.lib.Util;
 namespace Tests
 {
     [TestClass]

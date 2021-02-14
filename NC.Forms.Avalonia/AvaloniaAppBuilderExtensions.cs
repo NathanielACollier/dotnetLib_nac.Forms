@@ -2,7 +2,7 @@
 using Avalonia;
 using Avalonia.Controls;
 
-namespace dotnetCoreAvaloniaNCForms
+namespace NC.Forms.Avalonia
 {
     public static class AvaloniaAppBuilderExtensions
     {
