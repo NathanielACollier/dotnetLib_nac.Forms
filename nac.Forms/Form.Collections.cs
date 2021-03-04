@@ -2,9 +2,8 @@
 using System.Collections.ObjectModel;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using Avalonia.Data;
 
-namespace NC.Forms.Avalonia
+namespace nac.Forms
 {
     public partial class Form
     {

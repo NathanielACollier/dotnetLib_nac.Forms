@@ -1,6 +1,6 @@
 using System;
 
-namespace NC.Forms.Avalonia.model
+namespace nac.Forms.model
 {
     public class MenuItem
     {

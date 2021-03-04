@@ -1,12 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Markup.Xaml;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NC.Forms.Avalonia
+namespace nac.Forms
 {
     public class App : Application
     {

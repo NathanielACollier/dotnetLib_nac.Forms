@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NC.Forms.Avalonia\NC.Forms.Avalonia.csproj" />
+    <ProjectReference Include="..\nac.Forms\nac.Forms.csproj" />
   </ItemGroup>
 
 </Project>

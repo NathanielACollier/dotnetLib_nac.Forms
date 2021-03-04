@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Reactive.Subjects;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Reactive.Subjects;
 using Avalonia;
 using Avalonia.Controls;
 
-using Avalonia.Threading;
-using Avalonia.Reactive;
-using System.Linq;
-using System.Collections.Generic;
-
-namespace NC.Forms.Avalonia
+namespace nac.Forms
 {
     public partial class Form
     {
