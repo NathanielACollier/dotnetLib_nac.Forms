@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace NC.Forms.Avalonia.lib
+namespace nac.Forms.lib
 {
     public class Util
     {

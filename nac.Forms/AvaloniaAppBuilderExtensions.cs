@@ -1,8 +1,7 @@
-﻿using System;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 
-namespace NC.Forms.Avalonia
+namespace nac.Forms
 {
     public static class AvaloniaAppBuilderExtensions
     {

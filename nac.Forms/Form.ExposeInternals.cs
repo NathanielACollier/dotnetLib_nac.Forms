@@ -1,8 +1,7 @@
-using System.Reactive.Concurrency;
 using Avalonia;
 using Avalonia.Controls;
 
-namespace NC.Forms.Avalonia
+namespace nac.Forms
 {
     public partial class Form
     {

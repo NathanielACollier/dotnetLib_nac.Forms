@@ -1,6 +1,6 @@
 using System;
 
-namespace NC.Forms.Avalonia.lib
+namespace nac.Forms.lib
 {
     public class Log{
         private void writeMessage(string level, string message){

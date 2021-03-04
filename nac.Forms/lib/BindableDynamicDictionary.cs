@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Dynamic;
-using System.Text;
 using System.Linq;
 
-namespace NC.Forms.Avalonia.lib
+namespace nac.Forms.lib
 {
     /// <summary>
     /// Bindable dynamic dictionary.

@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace NC.Forms.Avalonia.lib.model
+namespace nac.Forms.lib.model
 {
     	/**
 	 * 2016-10-11 Copied the code and started a Portable Class Library for use in Xamarin Forms
