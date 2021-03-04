@@ -7,11 +7,12 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.0.6</Version>
     <LangVersion>latest</LangVersion>
-    <AssemblyName>NC.Forms.Avalonia</AssemblyName>
-    <RootNamespace>NC.Forms.Avalonia</RootNamespace>
+    <AssemblyName>nac.Forms.Avalonia</AssemblyName>
+    <RootNamespace>nac.Forms.Avalonia</RootNamespace>
     <Authors>Nathaniel Collier</Authors>
     <Description>Provides shortcuts to create interative form made up of UI elements from Avalonia.  UI elements like textbox, buttons, lists, etc...</Description>
     <PackageProjectUrl>https://github.com/NathanielACollier/dotnetCoreAvaloniaNCForms</PackageProjectUrl>
+    <PackageId>nac.Forms</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
