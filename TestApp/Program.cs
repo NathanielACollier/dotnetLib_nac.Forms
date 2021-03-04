@@ -92,6 +92,11 @@ namespace TestApp
                 {
                     Name = "Test Menu: Simple",
                     CodeToRun = TestMenu_Simple
+                },
+                new TestEntry
+                {
+                    Name = "Test Button: Close on click",
+                    CodeToRun = TestButton_CloseForm
                 }
 
 
@@ -330,8 +335,7 @@ namespace TestApp
                 });
             });
         }
-        
-        
+
         private static void TestMenu_Simple(Form parentForm)
         {
             parentForm.DisplayChildForm(f =>
@@ -365,6 +369,23 @@ namespace TestApp
                 .TextFor("Last Action");
             });
         }
+        
+        
+        private static void TestButton_CloseForm(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.Text("Clicking ok will close this form")
+                    .Button("Ok", (_args) =>
+                    {
+                        f.Close();
+                    });
+            });
+        }
+        
+        
+        
+        
 
     }
 }

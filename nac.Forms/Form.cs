@@ -237,6 +237,9 @@ namespace nac.Forms
             this.app.Run(win);
         }
 
-
+        public void Close()
+        {
+            this.win.Close();
+        }
     }
 }
