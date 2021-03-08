@@ -97,6 +97,11 @@ namespace TestApp
                 {
                     Name = "Test Button: Close on click",
                     CodeToRun = TestButton_CloseForm
+                },
+                new TestEntry
+                {
+                    Name = "Test Event: OnDisplay",
+                    CodeToRun = TestEvent_OnDisplay
                 }
 
 
@@ -412,7 +417,16 @@ namespace TestApp
         }
         
         
-        
+        private static void TestEvent_OnDisplay(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.TextFor("message");
+            }, onDisplay: (f) =>
+            {
+                f.Model["message"] = "Form is displayed";
+            });
+        }
         
 
     }
