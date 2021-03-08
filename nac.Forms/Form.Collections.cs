@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using nac.Forms.model;
 
 namespace nac.Forms
 {
@@ -22,7 +23,7 @@ namespace nac.Forms
             {
                 var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
                 // this has to have a unique model
-                rowForm.Model[lib.model.SpecialModelKeys.DataContext] = itemModel;
+                rowForm.Model[SpecialModelKeys.DataContext] = itemModel;
                 populateItemRow(rowForm);
 
                 rowForm.Host.DataContext = itemModel;

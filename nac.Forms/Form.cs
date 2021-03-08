@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Avalonia;
 using Avalonia.Controls;
+using nac.Forms.model;
 
 namespace nac.Forms
 {
@@ -144,9 +145,9 @@ namespace nac.Forms
             }
 
             // does model contain a datacontext???
-            if( this.Model.GetDynamicMemberNames().Any(key=> string.Equals(key, lib.model.SpecialModelKeys.DataContext, StringComparison.OrdinalIgnoreCase))){
+            if( this.Model.GetDynamicMemberNames().Any(key=> string.Equals(key, SpecialModelKeys.DataContext, StringComparison.OrdinalIgnoreCase))){
                 // bind to the data context
-                dataContext = this.Model[lib.model.SpecialModelKeys.DataContext];
+                dataContext = this.Model[SpecialModelKeys.DataContext];
 
                 if( dataContext is System.ComponentModel.INotifyPropertyChanged prop){
                     // It's INotifyPropertyChanged so set this as handled

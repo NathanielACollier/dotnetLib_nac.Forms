@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace nac.Forms.lib.model
+namespace nac.Forms.model
 {
     	/**
 	 * 2016-10-11 Copied the code and started a Portable Class Library for use in Xamarin Forms
