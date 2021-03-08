@@ -298,7 +298,15 @@ namespace TestApp.lib
         {
             parentForm.DisplayChildForm(f =>
             {
-                f.Text("Hello World!", style: new Style{foregroundColor= Colors.Green});
+                f.Text("Hello World!", style: new Style {foregroundColor = Colors.Green})
+                    .HorizontalGroup(hg =>
+                    {
+                        hg.Button("Red", (_args) =>
+                        {
+
+                        }, style: new nac.Forms.model.Style {backgroundColor = Avalonia.Media.Colors.Red});
+
+                    });
             });
         }
         

@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Media;
+using nac.Forms.model;
 
 namespace nac.Forms.lib
 {
@@ -13,7 +14,19 @@ namespace nac.Forms.lib
                 tb.Foreground = new SolidColorBrush(style.foregroundColor.Value);
             }
         }
-        
-        
+
+
+        public static void style(Button btn, Style style=null)
+        {
+            if (style?.foregroundColor.IsSet == true)
+            {
+                btn.Foreground = new SolidColorBrush(style.foregroundColor.Value);
+            }
+
+            if (style?.backgroundColor.IsSet == true)
+            {
+                btn.Background = new SolidColorBrush(style.backgroundColor.Value);
+            }
+        }
     }
 }

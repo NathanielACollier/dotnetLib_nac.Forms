@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Media;
+using nac.Forms.model;
 
 namespace nac.Forms
 {
@@ -58,10 +59,11 @@ namespace nac.Forms
             return this;
         }
 
-		public Form Button(string displayText, Action<object> onClick)
+		public Form Button(string displayText, Action<object> onClick, 
+                Style style = null)
         {
             var btn = new Button();
-
+            lib.styleUtil.style(btn, style);
             btn.Content = displayText;
 
             btn.Click += (_s, _args) =>
