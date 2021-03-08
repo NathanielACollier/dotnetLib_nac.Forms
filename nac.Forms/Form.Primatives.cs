@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Media;
 
 namespace nac.Forms
 {
@@ -31,13 +32,27 @@ namespace nac.Forms
             return this;
         }
 
-		public Form TextBoxFor(string modelFieldName)
+		public Form TextBoxFor(string modelFieldName,
+                        bool multiline = false)
         {
             var tb = new TextBox();
+
             AddBinding<string>(modelFieldName, tb, TextBox.TextProperty,
 				isTwoWayDataBinding: true);
 
-            AddRowToHost(tb);
+            if (multiline)
+            {
+                tb.AcceptsReturn = true;
+                tb.AcceptsTab = true;
+                tb.TextWrapping = TextWrapping.Wrap;
+                
+                AddRowToHost(tb, rowAutoHeight: false);
+            }
+            else
+            {
+                AddRowToHost(tb);
+            }
+
             return this;
         }
 

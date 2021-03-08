@@ -102,6 +102,11 @@ namespace TestApp
                 {
                     Name = "Test Event: OnDisplay",
                     CodeToRun = TestEvent_OnDisplay
+                },
+                new TestEntry
+                {
+                    Name = "Test Textbox: Multiline",
+                    CodeToRun = TestTextBox_Multiline
                 }
 
 
@@ -131,6 +136,8 @@ namespace TestApp
             })
             .Display();
         }
+
+
 
         public class TestList_ButtonCounterExample_ItemModel : ViewModelBase {
             public int Counter {
@@ -428,6 +435,18 @@ namespace TestApp
             });
         }
         
+        private static void TestTextBox_Multiline(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.VerticalGroupSplit(vg =>
+                {
+                    vg.Text("Text above the Textbox")
+                        .TextBoxFor("message", multiline: true)
+                        .Text("Text below the textbox");
+                });
+            });
+        }
 
     }
 }
