@@ -9,9 +9,11 @@ namespace nac.Forms
     public partial class Form
     {
 
-        public Form Text( string textToDisplay)
+        public Form Text( string textToDisplay,
+            model.Style style=null)
         {
             var label = new TextBlock();
+            lib.styleUtil.style(label, style);
             label.Text = textToDisplay;
 
             AddRowToHost(label);

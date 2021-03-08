@@ -6,6 +6,7 @@ using Avalonia;
 using nac.Forms;
 using nac.Forms.lib;
 using nac.Forms.model;
+using TestApp.model;
 
 // to bring in the extensions
 
@@ -94,6 +95,11 @@ namespace TestApp
                 {
                     Name = "Test Textbox: Multiline",
                     CodeToRun = lib.TestFunctions.TestTextBox_Multiline
+                },
+                new TestEntry
+                {
+                    Name = "Test Style: TextBlock: Basic font changes",
+                    CodeToRun = lib.TestFunctions.TestStyle_TextBlock_BasicFontChanges
                 }
 
 

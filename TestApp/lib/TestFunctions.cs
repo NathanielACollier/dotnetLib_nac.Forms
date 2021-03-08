@@ -1,3 +1,4 @@
+using Avalonia.Media;
 using nac.Forms;
 using nac.Forms.model;
 using TestApp.model;
@@ -291,8 +292,15 @@ namespace TestApp.lib
                 });
             });
         }
-        
-        
+
+
+        public static void TestStyle_TextBlock_BasicFontChanges(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.Text("Hello World!", style: new Style{foregroundColor= Colors.Green});
+            });
+        }
         
         
         
