@@ -193,17 +193,20 @@ namespace nac.Forms
         
 
         public void DisplayChildForm(Action<Form> setupChildForm, int height = 600, int width = 800,
-            Action onClosing = null)
+            Func<Form,bool?> onClosing = null,
+            Action<Form> onDisplay = null)
         {
             var childForm = new Form(this.app, this.Model);
 
             setupChildForm(childForm);
 
-            childForm.Display_Internal(height: height, width: width, onClosing: onClosing);
+            childForm.Display_Internal(height: height, width: width, onClosing: onClosing,
+                onDisplay: onDisplay);
         }
 
         private void Display_Internal(int height, int width,
-            Action onClosing = null)
+            Func<Form,bool?> onClosing = null,
+            Action<Form> onDisplay = null)
         {
             win.Height = height;
             win.Width = width;
@@ -211,16 +214,20 @@ namespace nac.Forms
             win.Closing += (_sender, _args) =>
             {
                 log.Debug("Window is closing");
-                if( onClosing != null)
-                {
-                    onClosing();
-                }
+                /*
+                 _args.Cancel = true => stops the window from closing
+                    + So what we do if they didn't specif an onClosing, is we set cancel to false
+                 */
+                _args.Cancel = onClosing?.Invoke(this) ?? false; 
             };
+            
+            onDisplay?.Invoke(this); // showing the form, so notify people if they wanted notification
             win.Show();
         }
 
         public void Display(int height = 600, int width = 800,
-            Action onClosing = null)
+            Func<Form, bool?> onClosing = null,
+            Action<Form> onDisplay = null)
         {
             if( this.isDisplayed)
             {

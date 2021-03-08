@@ -375,11 +375,39 @@ namespace TestApp
         {
             parentForm.DisplayChildForm(f =>
             {
+                f.Model["closeCount"] = 0;
+                f.Model["isQuit"] = false;
                 f.Text("Clicking ok will close this form")
-                    .Button("Ok", (_args) =>
+                    .HorizontalGroup(hg =>
                     {
-                        f.Close();
+                        hg.Text("Close count: ")
+                            .TextFor("closeCount");
+                    })
+                    .HorizontalGroup(hg =>
+                    {
+                        hg.Button("Quit", (_args) =>
+                        {
+                            f.Close();
+                        }).Button("Force Quit", (_args) =>
+                        {
+                            f.Model["isQuit"] = true;
+                            f.Close();
+                        });
                     });
+            }, onClosing: (f) =>
+            {
+                dynamic closeCount = f.Model["closeCount"];
+                f.Model["closeCount"] = ++closeCount;
+
+                if (f.Model["isQuit"] as bool? == true)
+                {
+                    return false; // don't cancel
+                }
+                else
+                {
+                    return true; // prevent closing the window (return if cancel or not)
+                }
+                
             });
         }
         
