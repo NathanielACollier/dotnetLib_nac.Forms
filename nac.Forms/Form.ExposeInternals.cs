@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 
@@ -33,7 +34,12 @@ namespace nac.Forms
                 property: property,
                 isTwoWayDataBinding: isTwoWayDataBinding);
         }
-        
+
+
+        public void _Extend_AccessApp(Action<Avalonia.Application> funcToAccessApp)
+        {
+            funcToAccessApp?.Invoke(this.app);
+        }
         
         
         
