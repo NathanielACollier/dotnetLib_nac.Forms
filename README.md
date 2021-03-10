@@ -10,7 +10,8 @@
 + Textbox
 	+ Code
 	```c#
-	var f = new NC.Forms.Avalonia.Form();
+	var f = Avalonia.AppBuilder.Configure<App>()
+                                .NewForm();
 	f.TextFor("txt2", "Type here")
      .TextBoxFor("txt2")
 	 .Display();
@@ -20,7 +21,8 @@
 + Button with click count
 	+ Code
 	```c#
-	var f = new NC.Forms.Avalonia.Form();
+	var f = Avalonia.AppBuilder.Configure<App>()
+                                .NewForm();
 	f.TextFor("txt1", "When you click button I'll change to count!")
 	.Button("Click Me!", arg =>
 	{
@@ -35,7 +37,8 @@
 + Horizontal Group
 	+ Code
 	```c#
-	var f = new NC.Forms.Avalonia.Form();
+	var f = Avalonia.AppBuilder.Configure<App>()
+                                .NewForm();
 	f.HorizontalGroup(hori =>
 	{
 		hori.Text("Click Count: ")
