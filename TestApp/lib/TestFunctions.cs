@@ -309,8 +309,19 @@ namespace TestApp.lib
                     });
             });
         }
-        
-        
-        
+
+
+        public static void TestFilePickerFor_Basic(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.FilePathFor("myPath")
+                    .HorizontalGroup(hg =>
+                    {
+                        hg.Text("You picked file: ")
+                            .TextFor("myPath");
+                    });
+            });
+        }
     }
 }
