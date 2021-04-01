@@ -116,7 +116,7 @@ namespace nac.Forms.controls
         private async Task promptForFileThatExists()
         {
             var dialog = new Avalonia.Controls.OpenFileDialog();
-            dialog.Filters.Add(new FileDialogFilter(){Name = "All", Extensions = {"*.*"}});
+            dialog.Filters.Add(new FileDialogFilter(){Name = "All", Extensions = {"*"}});
 
             var initialDirectory = getInitialDirectory();
             if (initialDirectory.IsSet)
@@ -147,7 +147,7 @@ namespace nac.Forms.controls
         private async Task promptForFile()
         {
             var dialog = new Avalonia.Controls.SaveFileDialog();
-            dialog.Filters.Add(new FileDialogFilter(){Name = "All", Extensions = {"*.*"}});
+            dialog.Filters.Add(new FileDialogFilter(){Name = "All", Extensions = {"*"}});
 
             var initialDirectory = getInitialDirectory();
             if (initialDirectory.IsSet)
