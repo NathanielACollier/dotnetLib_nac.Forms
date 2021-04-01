@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -38,7 +40,16 @@ namespace nac.Forms.controls
             get { return GetValue(FilePathProperty); }
             set { SetValue(FilePathProperty, value); }
         }
-        
+
+
+        public static readonly StyledProperty<bool> FileMustExistProperty =
+            AvaloniaProperty.Register<FilePicker, bool>(nameof(FileMustExist), defaultValue: false);
+
+        public bool FileMustExist
+        {
+            get { return GetValue(FileMustExistProperty); }
+            set { SetValue(FileMustExistProperty, value); }
+        }
         
         /*
          -----
@@ -68,7 +79,111 @@ namespace nac.Forms.controls
 
         private void openFileDialogButton_OnClick(object sender, RoutedEventArgs e)
         {
-            this.FilePath = DateTime.Now.ToString();
+            if (FileMustExist)
+            {
+                // OpenFileDIalog
+                promptForFileThatExists();
+            }
+            else
+            {
+                // SaveFileDialog
+                promptForFile();
+            }
         }
+
+        private model.Optional<string> getInitialDirectory()
+        {
+            var workingDirectory = new model.Optional<string>();
+
+            if (!string.IsNullOrWhiteSpace(FilePath))
+            {
+                try
+                {
+                    string dirPath = System.IO.Path.GetDirectoryName(FilePath);
+
+                    if (System.IO.Directory.Exists(dirPath))
+                    {
+                        workingDirectory = dirPath;
+                    }
+                }catch(Exception ex){}
+            }
+            
+            return workingDirectory;
+        }
+
+
+        private Window getParentWindow()
+        {
+            var lastControl = this.Parent;
+            while (lastControl is not Avalonia.Controls.Window)
+            {
+                lastControl = lastControl.Parent;
+            }
+
+            return lastControl as Avalonia.Controls.Window;
+        }
+        
+        private async Task promptForFileThatExists()
+        {
+            var dialog = new Avalonia.Controls.OpenFileDialog();
+            dialog.Filters.Add(new FileDialogFilter(){Name = "All", Extensions = {"*.*"}});
+
+            var initialDirectory = getInitialDirectory();
+            if (initialDirectory.IsSet)
+            {
+                dialog.Directory = initialDirectory.Value;
+            }
+
+            if (!string.IsNullOrWhiteSpace(FilePath))
+            {
+                dialog.InitialFileName = System.IO.Path.GetFileName(FilePath);
+            }
+
+            string[] result = await dialog.ShowAsync(getParentWindow());
+
+            if (result != null && result.Any())
+            {
+                FilePath = result.First();
+            }
+            else
+            {
+                FilePath = "";
+            }
+        }
+        
+        
+        private async Task promptForFile()
+        {
+            var dialog = new Avalonia.Controls.SaveFileDialog();
+            dialog.Filters.Add(new FileDialogFilter(){Name = "All", Extensions = {"*.*"}});
+
+            var initialDirectory = getInitialDirectory();
+            if (initialDirectory.IsSet)
+            {
+                dialog.Directory = initialDirectory.Value;
+            }
+
+            if (!string.IsNullOrWhiteSpace(FilePath))
+            {
+                dialog.InitialFileName = System.IO.Path.GetFileName(FilePath);
+            }
+
+            string result = await dialog.ShowAsync(getParentWindow());
+
+            if (!string.IsNullOrWhiteSpace(result))
+            {
+                FilePath = result;
+            }
+            else
+            {
+                FilePath = "";
+            }
+        }
+        
+        
+        
+        
+        
+        
     }
 }
