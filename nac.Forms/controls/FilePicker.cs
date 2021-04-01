@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.VisualTree;
 
 
 /*
@@ -110,18 +111,7 @@ namespace nac.Forms.controls
             
             return workingDirectory;
         }
-
-
-        private Window getParentWindow()
-        {
-            var lastControl = this.Parent;
-            while (lastControl is not Avalonia.Controls.Window)
-            {
-                lastControl = lastControl.Parent;
-            }
-
-            return lastControl as Avalonia.Controls.Window;
-        }
+        
         
         private async Task promptForFileThatExists()
         {
@@ -139,7 +129,9 @@ namespace nac.Forms.controls
                 dialog.InitialFileName = System.IO.Path.GetFileName(FilePath);
             }
 
-            string[] result = await dialog.ShowAsync(getParentWindow());
+            // how to get the window from a control: https://stackoverflow.com/questions/56566570/openfiledialog-in-avalonia-error-with-showasync
+            var win = (Window) this.GetVisualRoot();
+            string[] result = await dialog.ShowAsync(win);
 
             if (result != null && result.Any())
             {
@@ -168,7 +160,8 @@ namespace nac.Forms.controls
                 dialog.InitialFileName = System.IO.Path.GetFileName(FilePath);
             }
 
-            string result = await dialog.ShowAsync(getParentWindow());
+            var win = (Window) this.GetVisualRoot();
+            string result = await dialog.ShowAsync(win);
 
             if (!string.IsNullOrWhiteSpace(result))
             {
