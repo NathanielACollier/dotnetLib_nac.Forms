@@ -22,6 +22,13 @@ namespace nac.Forms
 
             var filePicker = new controls.FilePicker();
             
+            AddBinding<string>(fieldName, filePicker, controls.FilePicker.FilePathProperty, true);
+
+            filePicker.FilePathChanged += (_s, _args) =>
+            {
+                onFilePathChanged?.Invoke(_args);
+            };
+            
             this.AddRowToHost(filePicker);
             return this;
         }

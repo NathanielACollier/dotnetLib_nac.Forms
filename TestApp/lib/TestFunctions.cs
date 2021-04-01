@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Media;
 using nac.Forms;
 using nac.Forms.model;
@@ -315,7 +316,10 @@ namespace TestApp.lib
         {
             parentForm.DisplayChildForm(f =>
             {
-                f.FilePathFor("myPath")
+                f.FilePathFor("myPath", onFilePathChanged: (newFileName) =>
+                    {
+                        Console.WriteLine($"New Filename is: {newFileName}");
+                    })
                     .HorizontalGroup(hg =>
                     {
                         hg.Text("You picked file: ")
