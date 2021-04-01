@@ -105,6 +105,11 @@ namespace TestApp
                 {
                     Name = "Test FilePickerFor: Test file picker basics",
                     CodeToRun = lib.TestFunctions.TestFilePickerFor_Basic
+                },
+                new TestEntry()
+                {
+                    Name = "Test FilePickerFor: Test save file dialog (New File)",
+                    CodeToRun = lib.TestFunctions.TestFilePickerFor_NewFile
                 }
 
 
