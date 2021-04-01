@@ -21,6 +21,8 @@ namespace nac.Forms
             this.Model[fieldName] = "";
 
             var filePicker = new controls.FilePicker();
+
+            filePicker.FileMustExist = fileMustExist;
             
             AddBinding<string>(fieldName, filePicker, controls.FilePicker.FilePathProperty, true);
 
