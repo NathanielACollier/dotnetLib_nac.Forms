@@ -4,5 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="nac.Forms.controls.FilePicker">
-    Welcome to Avalonia!
+    <DockPanel>
+        <Button DockPanel.Dock="Left" Name="openFileDialogButton" Click="openFileDialogButton_OnClick">...</Button>
+        <TextBox IsReadOnly="True" Text="{Binding FilePath}"></TextBox>
+    </DockPanel>
 </UserControl>
