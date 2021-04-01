@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Media;
 using nac.Forms;
 using nac.Forms.model;
@@ -309,8 +310,39 @@ namespace TestApp.lib
                     });
             });
         }
-        
-        
-        
+
+
+        public static void TestFilePickerFor_Basic(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.FilePathFor("myPath", onFilePathChanged: (newFileName) =>
+                    {
+                        Console.WriteLine($"New Filename is: {newFileName}");
+                    })
+                    .HorizontalGroup(hg =>
+                    {
+                        hg.Text("You picked file: ")
+                            .TextFor("myPath");
+                    });
+            });
+        }
+
+        public static void TestFilePickerFor_NewFile(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.FilePathFor("myPath", fileMustExist: false,
+                    onFilePathChanged: (newFileName) =>
+                    {
+                        Console.WriteLine($"New filename is: {newFileName}");
+                    })
+                    .HorizontalGroup(hg =>
+                    {
+                        hg.Text("You picked file: ")
+                            .TextFor("myPath");
+                    });
+            });
+        }
     }
 }

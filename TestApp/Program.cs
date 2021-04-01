@@ -100,6 +100,16 @@ namespace TestApp
                 {
                     Name = "Test Style: TextBlock: Basic font changes",
                     CodeToRun = lib.TestFunctions.TestStyle_TextBlock_BasicFontChanges
+                },
+                new TestEntry
+                {
+                    Name = "Test FilePickerFor: Test file picker basics",
+                    CodeToRun = lib.TestFunctions.TestFilePickerFor_Basic
+                },
+                new TestEntry()
+                {
+                    Name = "Test FilePickerFor: Test save file dialog (New File)",
+                    CodeToRun = lib.TestFunctions.TestFilePickerFor_NewFile
                 }
 
 

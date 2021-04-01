@@ -1,0 +1,16 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             Name="myFilePicker"
+             x:Class="nac.Forms.controls.FilePicker">
+    <DockPanel>
+        <Button DockPanel.Dock="Left" Name="openFileDialogButton" Click="openFileDialogButton_OnClick">...</Button>
+        <!--
+        To bind to Properties on a control you use TemplateBinding
+          + see: https://avaloniaui.net/docs/binding/templatebinding
+        -->
+        <TextBox IsReadOnly="True" Text="{Binding FilePath, ElementName=myFilePicker}"></TextBox>
+    </DockPanel>
+</UserControl>
