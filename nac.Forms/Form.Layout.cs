@@ -33,6 +33,13 @@ namespace nac.Forms
                 // called ToList above so we can remove this guy from the host children without breaking the foreach
                 horizontalGroupForm.Host.Children.Remove(child); // we have to remove it from the host to be able to add it to the Grid
                 var col = new ColumnDefinition();
+                
+                // if child width is set, then limit the column to that width
+                if (!double.IsNaN(child.Width))
+                {
+                    col.MaxWidth = child.Width;
+                }
+                
                 horiontalGroup.ColumnDefinitions.Add(col);
 
                 Grid.SetRow((Control)child, rowIndex);
@@ -106,6 +113,7 @@ namespace nac.Forms
                 Grid.SetRow(child, rowIndex);
                 Grid.SetColumn(child, columnIndex);
 
+                // if child height is set, then limit the row to that height
                 if (!double.IsNaN(child.Height))
                 {
                     // size the row to child height

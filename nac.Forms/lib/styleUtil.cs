@@ -8,35 +8,59 @@ namespace nac.Forms.lib
     public static class styleUtil
     {
 
-        public static void style(TextBlock tb, model.Style style=null)
+        public static void style(Control ctrl, Style style = null)
         {
-            styleGeneric(tb, style);
-            if (style?.foregroundColor.IsSet == true)
+            styleGeneric(ctrl, style);
+            if (ctrl is Avalonia.Controls.Primitives.TemplatedControl tControl)
             {
-                tb.Foreground = new SolidColorBrush(style.foregroundColor.Value);
+                styleTemplated(tControl, style);
+            }else if (ctrl is TextBlock textCtrl)
+            {
+                styleTextBlock(textCtrl, style);
             }
         }
 
-
-        public static void style(Button btn, Style style=null)
+        private static void styleTextBlock(TextBlock textCtrl, Style style)
         {
             if (style?.foregroundColor.IsSet == true)
             {
-                btn.Foreground = new SolidColorBrush(style.foregroundColor.Value);
+                textCtrl.Foreground = new SolidColorBrush(style.foregroundColor.Value);
             }
 
             if (style?.backgroundColor.IsSet == true)
             {
-                btn.Background = new SolidColorBrush(style.backgroundColor.Value);
+                textCtrl.Background = new SolidColorBrush(style.backgroundColor.Value);
             }
         }
 
-        private static void styleGeneric( Control ctrl, Style style = null)
+        private static void styleTemplated(Avalonia.Controls.Primitives.TemplatedControl ctrl, Style style)
+        {
+            if (style?.foregroundColor.IsSet == true)
+            {
+                ctrl.Foreground = new SolidColorBrush(style.foregroundColor.Value);
+            }
+
+            if (style?.backgroundColor.IsSet == true)
+            {
+                ctrl.Background = new SolidColorBrush(style.backgroundColor.Value);
+            }
+        }
+
+        private static void styleGeneric( Control ctrl, Style style)
         {
             if (style?.height.IsSet == true)
             {
                 ctrl.Height = Convert.ToDouble(style.height.Value);
             }
+
+            if (style?.width.IsSet == true)
+            {
+                ctrl.Width = Convert.ToDouble(style.width.Value);
+            }
         }
+        
+        
+        
+        
     }
 }

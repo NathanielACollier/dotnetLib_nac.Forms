@@ -64,14 +64,14 @@ namespace TestApp.lib
             {
                 child.HorizontalGroup(hori =>
                 {
-                    hori.Text("Click Count: ")
+                    hori.Text("Click Count: ", style: new Style(){ width = 100})
                         .TextBoxFor("clickCount")
                         .Button("Click Me!", arg =>
                         {
                             var current = child.Model.GetOrDefault<int>("clickCount", 0);
                             ++current;
                             hori.Model["clickCount"] = current;
-                        });
+                        }, style: new Style(){width = 60});
                 });
             });
         }
@@ -299,13 +299,21 @@ namespace TestApp.lib
         {
             parentForm.DisplayChildForm(f =>
             {
-                f.Text("Hello World!", style: new Style {foregroundColor = Colors.Green})
+                f.Text("Hello World!", style: new Style
+                    {
+                        foregroundColor = Colors.Green,
+                        backgroundColor = Colors.Black
+                    })
                     .HorizontalGroup(hg =>
                     {
                         hg.Button("Red", (_args) =>
                         {
 
-                        }, style: new nac.Forms.model.Style {backgroundColor = Avalonia.Media.Colors.Red});
+                        }, style: new nac.Forms.model.Style
+                        {
+                            backgroundColor = Avalonia.Media.Colors.Red,
+                            foregroundColor = Avalonia.Media.Colors.White
+                        });
 
                     });
             });
