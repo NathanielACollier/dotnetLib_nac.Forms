@@ -72,11 +72,11 @@ namespace nac.Forms
                 Grid.SetRow(child, rowIndex);
                 Grid.SetColumn(child, columnIndex);
 
-                // if child height is set, then limit the row to that height
+                // if child height is set, then set the row to start that height (If isSplit=true, then you'll be able to resize that row)
                 if (!double.IsNaN(child.Height))
                 {
                     // size the row to child height
-                    row.MaxHeight = child.Height;
+                    row.Height = new Avalonia.Controls.GridLength(child.Height);
                 }
                 
                 vertGroup.Children.Add(child);
