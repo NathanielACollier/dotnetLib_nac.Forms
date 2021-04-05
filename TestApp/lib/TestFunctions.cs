@@ -208,20 +208,44 @@ namespace TestApp.lib
         }
 
 
-        public static void TestControllingVisibilityOfControls(Form parentForm)
+        public static void TestControllingVisibilityOfControls_HorizontalGroup(Form parentForm)
         {
             parentForm.DisplayChildForm(mainForm =>
             {
                 mainForm.Model["isTextVisible"] = false;
 
                 mainForm.HorizontalGroup(hg =>
-                {
-                    hg.Text("This text is visible");
-                }, isVisiblePropertyName: "isTextVisible")
+                    {
+                            hg.HorizontalGroup(hideableHG =>
+                                {
+                                    hideableHG.Text("This text is visible");
+                                }, isVisiblePropertyName: "isHoriVis")
+                        
+                            .Button("Hide ME!", (_args) =>
+                            {
+                                mainForm.Model["isHoriVis"] = !(mainForm.Model["isHoriVis"] as bool? ?? false);
+                            }, style: new Style(){width = 50});
+                    }, isVisiblePropertyName: "isTextVisible")
                 .Button("Show or Hide Text", (_args) =>
                 {
                     mainForm.Model["isTextVisible"] = !(mainForm.Model["isTextVisible"] as bool? ?? false);
                 });
+            });
+        }
+        
+        
+        public static void TestControlVisibilityOfControls_VerticalGroup(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.VerticalGroup(vg =>
+                    {
+                        vg.Text("I'm Visible");
+                    }, isVisiblePropertyName: "isDisplay")
+                    .Button("Hide or Show", (_args) =>
+                    {
+                        f.Model["isDisplay"] = !(f.Model["isDisplay"] as bool? ?? false);
+                    });
             });
         }
 
@@ -383,6 +407,7 @@ namespace TestApp.lib
                     });
             });
         }
+
 
 
     }

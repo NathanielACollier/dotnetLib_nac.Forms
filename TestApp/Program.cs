@@ -69,8 +69,13 @@ namespace TestApp
                 },
                 new model.TestEntry
                 {
-                    Name = "Test Layout: Visibility of Horizontal and Vertical Groups",
-                    CodeToRun = lib.TestFunctions.TestControllingVisibilityOfControls
+                    Name = "Test Layout: Visibility of Horizontal",
+                    CodeToRun = lib.TestFunctions.TestControllingVisibilityOfControls_HorizontalGroup
+                },
+                new model.TestEntry()
+                {
+                    Name = "Test Layout: Visibility of Vertical",
+                    CodeToRun = lib.TestFunctions.TestControlVisibilityOfControls_VerticalGroup
                 },
                 new model.TestEntry
                 {

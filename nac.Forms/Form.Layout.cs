@@ -138,10 +138,10 @@ namespace nac.Forms
                 Grid.SetRow(child, rowIndex);
                 Grid.SetColumn(child, columnIndex);
                 
-                // if child width is set, then limit the column to that width
+                // if child width is set, then start the column at that width
                 if (!double.IsNaN(child.Width))
                 {
-                    col.MaxWidth = child.Width;
+                    col.Width = new Avalonia.Controls.GridLength(child.Width);
                 }
                 
                 horiontalGroup.Children.Add(child);
