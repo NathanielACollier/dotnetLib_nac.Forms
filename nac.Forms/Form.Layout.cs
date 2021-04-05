@@ -105,6 +105,13 @@ namespace nac.Forms
                 // set child into the grid
                 Grid.SetRow(child, rowIndex);
                 Grid.SetColumn(child, columnIndex);
+
+                if (!double.IsNaN(child.Height))
+                {
+                    // size the row to child height
+                    row.MaxHeight = child.Height;
+                }
+                
                 vertGroup.Children.Add(child);
 
                 // 1 row for grid splitter (If not last child)

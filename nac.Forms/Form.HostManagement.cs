@@ -12,7 +12,7 @@ namespace nac.Forms
             public Action hide;
         }
 
-        private void SetupAddRowToHostFunctionsIfAny(DockPanel row, AddRowToHostFunctions functions = null)
+        private void SetupAddRowToHostFunctionsIfAny(Avalonia.Controls.Control row, AddRowToHostFunctions functions = null)
         {
             if (functions != null)
             {
@@ -45,13 +45,10 @@ namespace nac.Forms
             AddRowToHostFunctions functions = null, string ctrlIndex=null,
             bool rowAutoHeight = true)
         {
-            DockPanel row = new DockPanel();
             handleAddingControlToIndexIfRequested(ctrl, ctrlIndex);
 
-            row.Children.Add(ctrl);
-
-            AddHostChild(row, rowAutoHeight);
-            SetupAddRowToHostFunctionsIfAny(row, functions);
+            AddHostChild(ctrl, rowAutoHeight);
+            SetupAddRowToHostFunctionsIfAny(ctrl, functions);
         }
 
 

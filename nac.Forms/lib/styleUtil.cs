@@ -35,7 +35,7 @@ namespace nac.Forms.lib
         {
             if (style?.height.IsSet == true)
             {
-
+                ctrl.Height = Convert.ToDouble(style.height.Value);
             }
         }
     }
