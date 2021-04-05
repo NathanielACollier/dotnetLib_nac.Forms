@@ -14,7 +14,7 @@ namespace nac.Forms
 
             horizontalGroupForm.HorizontalGroup(f => populateItemRow(f));
 
-            var grid = (horizontalGroupForm.Host.Children[0] as DockPanel).Children[0] as Grid;
+            var grid = horizontalGroupForm.Host.Children[0] as Grid;
 
             var itemsCtrl = new ListBox();
 
