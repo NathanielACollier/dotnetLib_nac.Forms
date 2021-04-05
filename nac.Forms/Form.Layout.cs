@@ -56,7 +56,7 @@ namespace nac.Forms
 
 
 
-        public Form VerticalGroup(Action<Form> populateVerticalGroup,
+        public Form VerticalDock(Action<Form> populateVerticalGroup,
             string isVisiblePropertyName = null)
         {
             var vertGroupForm = new Form(_parentForm: this);
@@ -89,13 +89,21 @@ namespace nac.Forms
          https://www.c-sharpcorner.com/Resources/676/how-to-create-a-grid-in-wpf-dynamically.aspx
          https://www.wpf-tutorial.com/panels/gridsplitter/
         */
-        public Form VerticalGroupSplit(Action<Form> populateVerticalGroup)
+        public Form VerticalGroup(Action<Form> populateVerticalGroup,
+                    bool isSplit = false,
+                    string isVisiblePropertyName = null)
         {
             var vertGroupForm = new Form(_parentForm: this);
 
             populateVerticalGroup(vertGroupForm);
 
             Grid vertGroup = new Grid();
+            
+            if (!string.IsNullOrWhiteSpace(isVisiblePropertyName))
+            {
+                AddVisibilityTrigger(vertGroup, isVisiblePropertyName);
+            }
+            
             var gridCol = new ColumnDefinition();
             vertGroup.ColumnDefinitions.Add(gridCol);
             int rowIndex = 0;
@@ -123,7 +131,7 @@ namespace nac.Forms
                 vertGroup.Children.Add(child);
 
                 // 1 row for grid splitter (If not last child)
-                if( child != childControls.Last())
+                if( isSplit && child != childControls.Last())
                 {
                     ++rowIndex; // we are on the next row because we are going to add a row definition
                     int splitterHeight = 5;

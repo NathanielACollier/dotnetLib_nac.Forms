@@ -50,10 +50,10 @@ namespace TestApp.lib
         public static void TestLayout_VerticalSplit(Form parentForm)
         {
             parentForm.DisplayChildForm(child=>{
-                child.VerticalGroupSplit(grp=> {
+                child.VerticalGroup(grp=> {
                     grp.Text("Text Above")
                         .Text("Text Below");
-                });
+                }, isSplit: true);
             });
 
         }
@@ -175,6 +175,32 @@ namespace TestApp.lib
                 });
             });
         }
+        
+        public static void TestVerticalDock_Simple1(Form parentForm)
+        {
+            parentForm.DisplayChildForm(mainForm =>
+            {
+                mainForm.HorizontalGroup((hgForm) =>
+                {
+                    hgForm.VerticalDock((vg1) =>
+                        {
+                            vg1.Text("Here is a column of controls in a vertical group")
+                                .Button("Click Me!", (_args)=>
+                                {
+
+                                });
+                        })
+                        .VerticalDock((vg2) =>
+                        {
+                            vg2.Text("Here is a second column of controls")
+                                .Button("Click me 2!!", (_args) =>
+                                {
+
+                                });
+                        });
+                });
+            });
+        }
 
 
         public static void TestControllingVisibilityOfControls(Form parentForm)
@@ -285,12 +311,12 @@ namespace TestApp.lib
         {
             parentForm.DisplayChildForm(f =>
             {
-                f.VerticalGroupSplit(vg =>
+                f.VerticalGroup(vg =>
                 {
                     vg.Text("Text above the Textbox", new Style(){height=20})
                         .TextBoxFor("message", multiline: true)
-                        .Text("Text below the textbox");
-                });
+                        .Text("Text below the textbox", new Style(){height = 20});
+                }, isSplit: true);
             });
         }
 
@@ -352,5 +378,7 @@ namespace TestApp.lib
                     });
             });
         }
+
+
     }
 }

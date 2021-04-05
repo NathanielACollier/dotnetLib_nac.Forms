@@ -54,6 +54,11 @@ namespace TestApp
                     Name = "Test Layout: Vertical Group",
                     CodeToRun = lib.TestFunctions.TestVerticalGroup_Simple1
                 },
+                new model.TestEntry()
+                {
+                    Name = "Test Layout: Vertical Dock",
+                    CodeToRun = lib.TestFunctions.TestVerticalDock_Simple1
+                },
                 new model.TestEntry{
                     Name = "Test Layout: Vertical Group Split",
                     CodeToRun = lib.TestFunctions.TestLayout_VerticalSplit
