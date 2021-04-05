@@ -8,7 +8,7 @@ namespace nac.Forms.lib
     public static class styleUtil
     {
 
-        public static void style(Control ctrl, Style style = null)
+        public static void style(Control ctrl, Style style)
         {
             styleGeneric(ctrl, style);
             if (ctrl is Avalonia.Controls.Primitives.TemplatedControl tControl)

@@ -131,6 +131,11 @@ namespace TestApp.lib
                 .List("items", (itemForm) =>
                 {
                     itemForm.TextFor("Prop1");
+                }, style: new Style()
+                {
+                    height = 500,
+                    width = 300,
+                    backgroundColor = Avalonia.Media.Colors.Aquamarine
                 })
                 .HorizontalGroup((hgChild) =>
                 {
