@@ -287,7 +287,7 @@ namespace TestApp.lib
             {
                 f.VerticalGroupSplit(vg =>
                 {
-                    vg.Text("Text above the Textbox")
+                    vg.Text("Text above the Textbox", new Style(){height=20})
                         .TextBoxFor("message", multiline: true)
                         .Text("Text below the textbox");
                 });

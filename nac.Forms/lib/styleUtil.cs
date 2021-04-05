@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.Media;
 using nac.Forms.model;
@@ -9,6 +10,7 @@ namespace nac.Forms.lib
 
         public static void style(TextBlock tb, model.Style style=null)
         {
+            styleGeneric(tb, style);
             if (style?.foregroundColor.IsSet == true)
             {
                 tb.Foreground = new SolidColorBrush(style.foregroundColor.Value);
@@ -26,6 +28,14 @@ namespace nac.Forms.lib
             if (style?.backgroundColor.IsSet == true)
             {
                 btn.Background = new SolidColorBrush(style.backgroundColor.Value);
+            }
+        }
+
+        private static void styleGeneric( Control ctrl, Style style = null)
+        {
+            if (style?.height.IsSet == true)
+            {
+
             }
         }
     }
