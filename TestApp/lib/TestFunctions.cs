@@ -40,10 +40,10 @@ namespace TestApp.lib
         public static void TestLayout_HorizontalSplit(Form parentForm)
         {
             parentForm.DisplayChildForm(child=>{
-                child.HorizontalGroupSplit(grp=> {
+                child.HorizontalGroup(grp=> {
                     grp.Text("Text to the Left")
                         .Text("Text to the right");
-                });
+                }, isSplit: true);
             });
         }
 

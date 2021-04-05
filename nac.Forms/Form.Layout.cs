@@ -6,56 +6,7 @@ namespace nac.Forms
 {
     public partial class Form
     {
-
-        public Form HorizontalGroup(Action<Form> populateHorizontalGroup,
-            string isVisiblePropertyName = null)
-        {
-            var horizontalGroupForm = new Form(_parentForm: this);
-
-            populateHorizontalGroup(horizontalGroupForm);
-
-            // take all the child items of host and put them in a grid with equal space between?
-            Grid horiontalGroup = new Grid();
-
-            if (!string.IsNullOrWhiteSpace(isVisiblePropertyName))
-            {
-                AddVisibilityTrigger(horiontalGroup, isVisiblePropertyName);
-            }
-
-            var gridRow = new RowDefinition();
-            horiontalGroup.RowDefinitions.Add(gridRow);
-            int rowIndex = 0;
-            int columnIndex = 0;
-            foreach (var child in horizontalGroupForm.Host.Children
-                                            .ToList()
-                                            )
-            {
-                // called ToList above so we can remove this guy from the host children without breaking the foreach
-                horizontalGroupForm.Host.Children.Remove(child); // we have to remove it from the host to be able to add it to the Grid
-                var col = new ColumnDefinition();
-                
-                // if child width is set, then limit the column to that width
-                if (!double.IsNaN(child.Width))
-                {
-                    col.MaxWidth = child.Width;
-                }
-                
-                horiontalGroup.ColumnDefinitions.Add(col);
-
-                Grid.SetRow((Control)child, rowIndex);
-                Grid.SetColumn((Control)child, columnIndex);
-                horiontalGroup.Children.Add(child);
-
-                ++columnIndex; // last statement
-            }
-
-
-            AddRowToHost(horiontalGroup);
-            return this;
-        }
-
-
-
+        
         public Form VerticalDock(Action<Form> populateVerticalGroup,
             string isVisiblePropertyName = null)
         {
@@ -155,7 +106,9 @@ namespace nac.Forms
         }
 
 
-        public Form HorizontalGroupSplit(Action<Form> populateHorizontalGroup)
+        public Form HorizontalGroup(Action<Form> populateHorizontalGroup,
+            string isVisiblePropertyName = null,
+            bool isSplit = false)
         {
             var horizontalGroupForm = new Form(_parentForm: this);
 
@@ -163,6 +116,12 @@ namespace nac.Forms
 
             // take all the child items of host and put them in a grid with equal space between?
             Grid horiontalGroup = new Grid();
+            
+            if (!string.IsNullOrWhiteSpace(isVisiblePropertyName))
+            {
+                AddVisibilityTrigger(horiontalGroup, isVisiblePropertyName);
+            }
+            
             var gridRow = new RowDefinition();
             horiontalGroup.RowDefinitions.Add(gridRow);
             int rowIndex = 0;
@@ -178,10 +137,17 @@ namespace nac.Forms
 
                 Grid.SetRow(child, rowIndex);
                 Grid.SetColumn(child, columnIndex);
+                
+                // if child width is set, then limit the column to that width
+                if (!double.IsNaN(child.Width))
+                {
+                    col.MaxWidth = child.Width;
+                }
+                
                 horiontalGroup.Children.Add(child);
 
                 // 1 column for grid splitter (If not last child)
-                if (child != childControls.Last())
+                if (isSplit && child != childControls.Last())
                 {
                     ++columnIndex; // incriment because we are going to add a new column below
                     int splitterWidth = 5;
