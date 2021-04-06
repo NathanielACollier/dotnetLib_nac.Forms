@@ -221,14 +221,14 @@ namespace TestApp.lib
                                     hideableHG.Text("This text is visible");
                                 }, isVisiblePropertyName: "isHoriVis")
                         
-                            .Button("Hide ME!", (_args) =>
+                            .Button("Hide/show ME!", (_args) =>
                             {
-                                mainForm.Model["isHoriVis"] = !(mainForm.Model["isHoriVis"] as bool? ?? false);
-                            }, style: new Style(){width = 50});
+                                mainForm.Model["isHoriVis"] = !(mainForm.Model["isHoriVis"] as bool? ?? true);
+                            }, style: new Style(){width = 120});
                     }, isVisiblePropertyName: "isTextVisible")
                 .Button("Show or Hide Text", (_args) =>
                 {
-                    mainForm.Model["isTextVisible"] = !(mainForm.Model["isTextVisible"] as bool? ?? false);
+                    mainForm.Model["isTextVisible"] = !(mainForm.Model["isTextVisible"] as bool? ?? true);
                 });
             });
         }
