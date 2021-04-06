@@ -82,6 +82,14 @@ namespace nac.Forms
             {
                 row.Height = GridLength.Auto;
             }
+            else
+            {
+                // see if the control set a height, and if it did use that for the row height
+                if (!double.IsNaN(ctrl.Height))
+                {
+                    row.Height = new Avalonia.Controls.GridLength(ctrl.Height);
+                }
+            }
             log.Info($"New Host Child of Type: [{ctrl.GetType().Name}].  It's Row height is: [{row.Height}]");
             
             this.Host.RowDefinitions.Add(row);

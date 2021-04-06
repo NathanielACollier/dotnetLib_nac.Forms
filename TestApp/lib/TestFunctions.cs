@@ -241,11 +241,11 @@ namespace TestApp.lib
                 f.VerticalGroup(vg =>
                     {
                         vg.Text("I'm Visible");
-                    }, isVisiblePropertyName: "isDisplay")
+                    }, isVisiblePropertyName: "isDisplay", style:new Style(){height = 50})
                     .Button("Hide or Show", (_args) =>
                     {
-                        f.Model["isDisplay"] = !(f.Model["isDisplay"] as bool? ?? false);
-                    });
+                        f.Model["isDisplay"] = !(f.Model["isDisplay"] as bool? ?? true);
+                    }, style: new Style(){width = 100});
             });
         }
 

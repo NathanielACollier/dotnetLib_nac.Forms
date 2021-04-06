@@ -42,13 +42,15 @@ namespace nac.Forms
         */
         public Form VerticalGroup(Action<Form> populateVerticalGroup,
                     bool isSplit = false,
-                    string isVisiblePropertyName = null)
+                    string isVisiblePropertyName = null,
+                    model.Style style = null)
         {
             var vertGroupForm = new Form(_parentForm: this);
 
             populateVerticalGroup(vertGroupForm);
 
             Grid vertGroup = new Grid();
+            lib.styleUtil.style(vertGroup, style);
             
             if (!string.IsNullOrWhiteSpace(isVisiblePropertyName))
             {
