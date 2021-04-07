@@ -40,20 +40,20 @@ namespace TestApp.lib
         public static void TestLayout_HorizontalSplit(Form parentForm)
         {
             parentForm.DisplayChildForm(child=>{
-                child.HorizontalGroupSplit(grp=> {
+                child.HorizontalGroup(grp=> {
                     grp.Text("Text to the Left")
                         .Text("Text to the right");
-                });
+                }, isSplit: true);
             });
         }
 
         public static void TestLayout_VerticalSplit(Form parentForm)
         {
             parentForm.DisplayChildForm(child=>{
-                child.VerticalGroupSplit(grp=> {
+                child.VerticalGroup(grp=> {
                     grp.Text("Text Above")
                         .Text("Text Below");
-                });
+                }, isSplit: true);
             });
 
         }
@@ -64,14 +64,14 @@ namespace TestApp.lib
             {
                 child.HorizontalGroup(hori =>
                 {
-                    hori.Text("Click Count: ")
+                    hori.Text("Click Count: ", style: new Style(){ width = 100})
                         .TextBoxFor("clickCount")
                         .Button("Click Me!", arg =>
                         {
                             var current = child.Model.GetOrDefault<int>("clickCount", 0);
                             ++current;
                             hori.Model["clickCount"] = current;
-                        });
+                        }, style: new Style(){width = 60});
                 });
             });
         }
@@ -131,6 +131,11 @@ namespace TestApp.lib
                 .List("items", (itemForm) =>
                 {
                     itemForm.TextFor("Prop1");
+                }, style: new Style()
+                {
+                    height = 500,
+                    width = 300,
+                    backgroundColor = Avalonia.Media.Colors.Aquamarine
                 })
                 .HorizontalGroup((hgChild) =>
                 {
@@ -175,22 +180,72 @@ namespace TestApp.lib
                 });
             });
         }
+        
+        public static void TestVerticalDock_Simple1(Form parentForm)
+        {
+            parentForm.DisplayChildForm(mainForm =>
+            {
+                mainForm.HorizontalGroup((hgForm) =>
+                {
+                    hgForm.VerticalDock((vg1) =>
+                        {
+                            vg1.Text("Here is a column of controls in a vertical group")
+                                .Button("Click Me!", (_args)=>
+                                {
+
+                                });
+                        })
+                        .VerticalDock((vg2) =>
+                        {
+                            vg2.Text("Here is a second column of controls")
+                                .Button("Click me 2!!", (_args) =>
+                                {
+
+                                });
+                        });
+                });
+            });
+        }
 
 
-        public static void TestControllingVisibilityOfControls(Form parentForm)
+        public static void TestControllingVisibilityOfControls_HorizontalGroup(Form parentForm)
         {
             parentForm.DisplayChildForm(mainForm =>
             {
                 mainForm.Model["isTextVisible"] = false;
 
                 mainForm.HorizontalGroup(hg =>
-                {
-                    hg.Text("This text is visible");
-                }, isVisiblePropertyName: "isTextVisible")
+                    {
+                            hg.HorizontalGroup(hideableHG =>
+                                {
+                                    hideableHG.Text("This text is visible");
+                                }, isVisiblePropertyName: "isHoriVis")
+                        
+                            .Button("Hide/show ME!", (_args) =>
+                            {
+                                mainForm.Model["isHoriVis"] = !(mainForm.Model["isHoriVis"] as bool? ?? true);
+                            }, style: new Style(){width = 120});
+                    }, isVisiblePropertyName: "isTextVisible")
                 .Button("Show or Hide Text", (_args) =>
                 {
-                    mainForm.Model["isTextVisible"] = !(mainForm.Model["isTextVisible"] as bool? ?? false);
+                    mainForm.Model["isTextVisible"] = !(mainForm.Model["isTextVisible"] as bool? ?? true);
                 });
+            });
+        }
+        
+        
+        public static void TestControlVisibilityOfControls_VerticalGroup(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.VerticalGroup(vg =>
+                    {
+                        vg.Text("I'm Visible");
+                    }, isVisiblePropertyName: "isDisplay", style:new Style(){height = 50})
+                    .Button("Hide or Show", (_args) =>
+                    {
+                        f.Model["isDisplay"] = !(f.Model["isDisplay"] as bool? ?? true);
+                    }, style: new Style(){width = 100});
             });
         }
 
@@ -285,12 +340,12 @@ namespace TestApp.lib
         {
             parentForm.DisplayChildForm(f =>
             {
-                f.VerticalGroupSplit(vg =>
+                f.VerticalGroup(vg =>
                 {
-                    vg.Text("Text above the Textbox")
+                    vg.Text("Text above the Textbox", new Style(){height=20})
                         .TextBoxFor("message", multiline: true)
-                        .Text("Text below the textbox");
-                });
+                        .Text("Text below the textbox", new Style(){height = 20});
+                }, isSplit: true);
             });
         }
 
@@ -299,13 +354,21 @@ namespace TestApp.lib
         {
             parentForm.DisplayChildForm(f =>
             {
-                f.Text("Hello World!", style: new Style {foregroundColor = Colors.Green})
+                f.Text("Hello World!", style: new Style
+                    {
+                        foregroundColor = Colors.Green,
+                        backgroundColor = Colors.Black
+                    })
                     .HorizontalGroup(hg =>
                     {
                         hg.Button("Red", (_args) =>
                         {
 
-                        }, style: new nac.Forms.model.Style {backgroundColor = Avalonia.Media.Colors.Red});
+                        }, style: new nac.Forms.model.Style
+                        {
+                            backgroundColor = Avalonia.Media.Colors.Red,
+                            foregroundColor = Avalonia.Media.Colors.White
+                        });
 
                     });
             });
@@ -344,5 +407,8 @@ namespace TestApp.lib
                     });
             });
         }
+
+
+
     }
 }

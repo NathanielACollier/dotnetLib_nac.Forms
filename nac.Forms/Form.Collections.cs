@@ -8,15 +8,10 @@ namespace nac.Forms
 {
     public partial class Form
     {
-        public Form List(string itemSourcePropertyName, Action<Form> populateItemRow)
+        public Form List(string itemSourcePropertyName, Action<Form> populateItemRow, Style style=null)
         {
-            var horizontalGroupForm = new Form(_parentForm: this);
-
-            horizontalGroupForm.HorizontalGroup(f => populateItemRow(f));
-
-            var grid = (horizontalGroupForm.Host.Children[0] as DockPanel).Children[0] as Grid;
-
             var itemsCtrl = new ListBox();
+            lib.styleUtil.style(itemsCtrl, style);
 
             // this is documented here: https://avaloniaui.net/docs/templates/datatemplates-in-code
             itemsCtrl.ItemTemplate = new FuncDataTemplate<object>((itemModel, nameScope) =>
@@ -49,11 +44,6 @@ namespace nac.Forms
 
             var debugTest = itemsCtrl.Items;
             var debugTemplate = itemsCtrl.ItemTemplate;
-
-            itemsCtrl.Height = 500;
-            itemsCtrl.Width = 300;
-
-            itemsCtrl.Background = new global::Avalonia.Media.SolidColorBrush(global::Avalonia.Media.Colors.Aquamarine);
 
             return this;
         }

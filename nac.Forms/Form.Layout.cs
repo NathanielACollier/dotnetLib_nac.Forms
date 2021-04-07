@@ -6,50 +6,8 @@ namespace nac.Forms
 {
     public partial class Form
     {
-
-        public Form HorizontalGroup(Action<Form> populateHorizontalGroup,
-            string isVisiblePropertyName = null)
-        {
-            var horizontalGroupForm = new Form(_parentForm: this);
-
-            populateHorizontalGroup(horizontalGroupForm);
-
-            // take all the child items of host and put them in a grid with equal space between?
-            Grid horiontalGroup = new Grid();
-
-            if (!string.IsNullOrWhiteSpace(isVisiblePropertyName))
-            {
-                AddVisibilityTrigger(horiontalGroup, isVisiblePropertyName);
-            }
-
-            var gridRow = new RowDefinition();
-            horiontalGroup.RowDefinitions.Add(gridRow);
-            int rowIndex = 0;
-            int columnIndex = 0;
-            foreach (var child in horizontalGroupForm.Host.Children
-                                            .ToList()
-                                            )
-            {
-                // called ToList above so we can remove this guy from the host children without breaking the foreach
-                horizontalGroupForm.Host.Children.Remove(child); // we have to remove it from the host to be able to add it to the Grid
-                var col = new ColumnDefinition();
-                horiontalGroup.ColumnDefinitions.Add(col);
-
-                Grid.SetRow((Control)child, rowIndex);
-                Grid.SetColumn((Control)child, columnIndex);
-                horiontalGroup.Children.Add(child);
-
-                ++columnIndex; // last statement
-            }
-
-
-            AddRowToHost(horiontalGroup);
-            return this;
-        }
-
-
-
-        public Form VerticalGroup(Action<Form> populateVerticalGroup,
+        
+        public Form VerticalDock(Action<Form> populateVerticalGroup,
             string isVisiblePropertyName = null)
         {
             var vertGroupForm = new Form(_parentForm: this);
@@ -82,13 +40,23 @@ namespace nac.Forms
          https://www.c-sharpcorner.com/Resources/676/how-to-create-a-grid-in-wpf-dynamically.aspx
          https://www.wpf-tutorial.com/panels/gridsplitter/
         */
-        public Form VerticalGroupSplit(Action<Form> populateVerticalGroup)
+        public Form VerticalGroup(Action<Form> populateVerticalGroup,
+                    bool isSplit = false,
+                    string isVisiblePropertyName = null,
+                    model.Style style = null)
         {
             var vertGroupForm = new Form(_parentForm: this);
 
             populateVerticalGroup(vertGroupForm);
 
             Grid vertGroup = new Grid();
+            lib.styleUtil.style(vertGroup, style);
+            
+            if (!string.IsNullOrWhiteSpace(isVisiblePropertyName))
+            {
+                AddVisibilityTrigger(vertGroup, isVisiblePropertyName);
+            }
+            
             var gridCol = new ColumnDefinition();
             vertGroup.ColumnDefinitions.Add(gridCol);
             int rowIndex = 0;
@@ -105,10 +73,18 @@ namespace nac.Forms
                 // set child into the grid
                 Grid.SetRow(child, rowIndex);
                 Grid.SetColumn(child, columnIndex);
+
+                // if child height is set, then set the row to start that height (If isSplit=true, then you'll be able to resize that row)
+                if (!double.IsNaN(child.Height))
+                {
+                    // size the row to child height
+                    row.Height = new Avalonia.Controls.GridLength(child.Height);
+                }
+                
                 vertGroup.Children.Add(child);
 
                 // 1 row for grid splitter (If not last child)
-                if( child != childControls.Last())
+                if( isSplit && child != childControls.Last())
                 {
                     ++rowIndex; // we are on the next row because we are going to add a row definition
                     int splitterHeight = 5;
@@ -132,7 +108,9 @@ namespace nac.Forms
         }
 
 
-        public Form HorizontalGroupSplit(Action<Form> populateHorizontalGroup)
+        public Form HorizontalGroup(Action<Form> populateHorizontalGroup,
+            string isVisiblePropertyName = null,
+            bool isSplit = false)
         {
             var horizontalGroupForm = new Form(_parentForm: this);
 
@@ -140,6 +118,12 @@ namespace nac.Forms
 
             // take all the child items of host and put them in a grid with equal space between?
             Grid horiontalGroup = new Grid();
+            
+            if (!string.IsNullOrWhiteSpace(isVisiblePropertyName))
+            {
+                AddVisibilityTrigger(horiontalGroup, isVisiblePropertyName);
+            }
+            
             var gridRow = new RowDefinition();
             horiontalGroup.RowDefinitions.Add(gridRow);
             int rowIndex = 0;
@@ -155,10 +139,17 @@ namespace nac.Forms
 
                 Grid.SetRow(child, rowIndex);
                 Grid.SetColumn(child, columnIndex);
+                
+                // if child width is set, then start the column at that width
+                if (!double.IsNaN(child.Width))
+                {
+                    col.Width = new Avalonia.Controls.GridLength(child.Width);
+                }
+                
                 horiontalGroup.Children.Add(child);
 
                 // 1 column for grid splitter (If not last child)
-                if (child != childControls.Last())
+                if (isSplit && child != childControls.Last())
                 {
                     ++columnIndex; // incriment because we are going to add a new column below
                     int splitterWidth = 5;
