@@ -20,7 +20,7 @@ namespace TestApp
         {
             nac.Forms.Form.AddCall<AppBuilder>("testApp",appBuilder =>
             {
-                appBuilder.LogToTrace(LogEventLevel.Verbose);
+                appBuilder.LogToTrace(LogEventLevel.Debug);
                 Console.WriteLine("I got called - Number 1");
             });
             
