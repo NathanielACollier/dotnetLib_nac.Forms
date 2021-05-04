@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Avalonia;
+using Avalonia.Logging;
 using nac.Forms;
 using nac.Forms.lib;
 using nac.Forms.model;
@@ -17,7 +18,17 @@ namespace TestApp
         
         static void Main(string[] args)
         {
-            var f = Avalonia.AppBuilder.Configure<App>()
+            nac.Forms.Form.AddCall<AppBuilder>("testApp",appBuilder =>
+            {
+                appBuilder.LogToTrace(LogEventLevel.Verbose);
+                Console.WriteLine("I got called - Number 1");
+            });
+            
+            nac.Forms.Form.AddCall<AppBuilder>("testApp2", appBuilder =>
+            {
+                Console.WriteLine("I got called - Number 2");
+            });
+            var f = Avalonia.AppBuilder.Configure<nac.Forms.App>()
                                 .NewForm();
 
             mainUI(f);

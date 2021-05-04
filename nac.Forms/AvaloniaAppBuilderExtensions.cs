@@ -8,6 +8,7 @@ namespace nac.Forms
         public static Form NewForm<TAppBuilder>(this TAppBuilder appBuilder)
             where TAppBuilder : AppBuilderBase<TAppBuilder>, new()
         {
+            appBuilder = Form.configure(appBuilder);
             var builder = appBuilder
                 //.LogToDebug(Avalonia.Logging.LogEventLevel.Verbose)
                 .UsePlatformDetect()
