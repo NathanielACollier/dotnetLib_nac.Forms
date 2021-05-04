@@ -21,13 +21,9 @@ namespace TestApp
             nac.Forms.Form.AddCall<AppBuilder>("testApp",appBuilder =>
             {
                 appBuilder.LogToTrace(LogEventLevel.Debug);
-                Console.WriteLine("I got called - Number 1");
+                Console.WriteLine("Logging Setup");
             });
             
-            nac.Forms.Form.AddCall<AppBuilder>("testApp2", appBuilder =>
-            {
-                Console.WriteLine("I got called - Number 2");
-            });
             var f = Avalonia.AppBuilder.Configure<nac.Forms.App>()
                                 .NewForm();
 
