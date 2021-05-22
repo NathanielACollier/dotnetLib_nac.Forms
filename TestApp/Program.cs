@@ -125,6 +125,16 @@ namespace TestApp
                 {
                     Name = "Test FilePickerFor: Test save file dialog (New File)",
                     CodeToRun = lib.TestFunctions.TestFilePickerFor_NewFile
+                },
+                new TestEntry()
+                {
+                    Name = "Tabs: Basic Test",
+                    CodeToRun = lib.TestFunctions.Test_Tabs_BasicTest
+                },
+                new TestEntry()
+                {
+                    Name = "Tabs: Header from Template",
+                    CodeToRun = lib.TestFunctions.Test_Tabs_HeaderFromTemplate
                 }
 
 

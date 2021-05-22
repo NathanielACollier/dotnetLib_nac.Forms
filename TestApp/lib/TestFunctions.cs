@@ -409,6 +409,43 @@ namespace TestApp.lib
         }
 
 
+        public static void Test_Tabs_BasicTest(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.Tabs( 
+                    
+                );
+            });
+        }
 
+        public static void Test_Tabs_HeaderFromTemplate(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.Tabs( 
+                    new TabCreationInfo
+                    {
+                        PopulateHeader = (header) =>
+                        {
+                            header.Text("My Tab 1")
+                                .Button("Click Me!", (args) =>
+                                {
+                                    header.Model["tab1ClickCount"] =
+                                        Convert.ToInt32(header.Model["tab1ClickCount"] ?? 0) + 1;
+                                });
+                        },
+                        Populate = (tab) =>
+                        {
+                            tab.VerticalDock(vg =>
+                            {
+                                vg.Text("You have clicked the header this many: ")
+                                    .TextFor(modelFieldName: "tab1ClickCount");
+                            });
+                        }
+                    }
+                );
+            });
+        }
     }
 }
