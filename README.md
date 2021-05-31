@@ -54,3 +54,24 @@
 	```
 	+ Result
 	+ ![](/assets/Screenshot_8_17_19__2_36_PM.png)
++ Tabs
+	+ Code
+	```c#
+	var f = Avalonia.AppBuilder.Configure<App>()
+							.NewForm();
+
+	f.Tabs(t=> {
+		t.Header = "Tab 1";
+		t.Populate = f => {
+			f.Text("Hello from tab 1");
+		};
+	}, t => {
+		t.Header = "Tab 2";
+		t.Populate = f => {
+			f.Text("Hello from tab 2");
+		};
+	})
+	.Display();
+	```
+	+ Result
+	+ ![](/assets/2021-05-31_13-58.png)
