@@ -48,5 +48,25 @@ namespace nac.Forms
             items.Add(tab);
             tc.Items = items;
         }
+
+        public delegate void InitializeTabDelegate(model.TabCreationInfo newTabInfo);
+
+
+        public Form Tabs(params InitializeTabDelegate[] tabs)
+        {
+            var tc = new Avalonia.Controls.TabControl();
+
+            foreach (var newTabInitFunction in tabs)
+            {
+                var tabCreateInfo = new model.TabCreationInfo();
+                newTabInitFunction(tabCreateInfo);
+                
+                addTabToTabControl(tc, tabCreateInfo);
+            }
+            
+            AddRowToHost(tc, rowAutoHeight: false);
+
+            return this;
+        }
     }
 }

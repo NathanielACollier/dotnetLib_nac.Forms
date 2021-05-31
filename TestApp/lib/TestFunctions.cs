@@ -413,8 +413,23 @@ namespace TestApp.lib
         {
             parentForm.DisplayChildForm(f =>
             {
-                f.Tabs( 
-                    
+                f.Tabs(
+                    t =>
+                    {
+                        t.Header = "My Tab";
+                        t.Populate = f =>
+                        {
+                            f.Text("This is the first tab");
+                        };
+                    },
+                    t =>
+                    {
+                        t.Header = "Second Tab";
+                        t.Populate = f =>
+                        {
+                            f.Text("I'm on the second tab");
+                        };
+                    }
                 );
             });
         }
