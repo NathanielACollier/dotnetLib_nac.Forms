@@ -459,5 +459,22 @@ namespace TestApp.lib
                 );
             });
         }
+
+        public static void Test_DataContext_HelloWorld(Form parentForm)
+        {
+            var model = new TestApp.model.DataContext_HelloWorld(); // this will be our model
+            parentForm.Model[nac.Forms.model.SpecialModelKeys.DataContext] = model; // this will enable our "DataContext" to have strongly types
+            parentForm.DisplayChildForm(f =>
+            {
+                f.TextBoxFor(nameof(TestApp.model.DataContext_HelloWorld.Message))
+                    .HorizontalGroup(hg =>
+                    {
+                        hg.Text("You have typed: ")
+                            .TextFor(nameof(TestApp.model.DataContext_HelloWorld.Message));
+                    });
+            });
+        }
+        
+        
     }
 }

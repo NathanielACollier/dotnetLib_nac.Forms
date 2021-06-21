@@ -135,6 +135,11 @@ namespace TestApp
                 {
                     Name = "Tabs: Header from Template",
                     CodeToRun = lib.TestFunctions.Test_Tabs_HeaderFromTemplate
+                },
+                new TestEntry()
+                {
+                    Name = "DataContext: Hello World!",
+                    CodeToRun = lib.TestFunctions.Test_DataContext_HelloWorld
                 }
 
 
