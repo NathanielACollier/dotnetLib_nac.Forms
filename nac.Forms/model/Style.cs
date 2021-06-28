@@ -9,5 +9,7 @@ namespace nac.Forms.model
         public model.Optional<int> height { get; set; } = new Optional<int>();
 
         public model.Optional<int> width { get; set; } = new Optional<int>();
+
+        public model.Optional<string> isVisibleModelName { get; set; } = new Optional<string>();
     }
 }

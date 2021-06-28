@@ -77,7 +77,7 @@ namespace nac.Forms
         }
 
 
-        private void AddVisibilityTrigger(Visual control, string isVisibleModelName)
+        internal void AddVisibilityTrigger(Visual control, string isVisibleModelName)
         {
             notifyOnModelChange(isVisibleModelName, (val) =>
             {

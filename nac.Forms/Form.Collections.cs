@@ -11,7 +11,7 @@ namespace nac.Forms
         public Form List(string itemSourcePropertyName, Action<Form> populateItemRow, Style style=null)
         {
             var itemsCtrl = new ListBox();
-            lib.styleUtil.style(itemsCtrl, style);
+            lib.styleUtil.style(this, itemsCtrl, style);
 
             // this is documented here: https://avaloniaui.net/docs/templates/datatemplates-in-code
             itemsCtrl.ItemTemplate = new FuncDataTemplate<object>((itemModel, nameScope) =>

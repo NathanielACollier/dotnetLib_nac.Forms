@@ -216,16 +216,21 @@ namespace TestApp.lib
 
                 mainForm.HorizontalGroup(hg =>
                     {
-                            hg.HorizontalGroup(hideableHG =>
-                                {
-                                    hideableHG.Text("This text is visible");
-                                }, isVisiblePropertyName: "isHoriVis")
-                        
-                            .Button("Hide/show ME!", (_args) =>
-                            {
-                                mainForm.Model["isHoriVis"] = !(mainForm.Model["isHoriVis"] as bool? ?? true);
-                            }, style: new Style(){width = 120});
-                    }, isVisiblePropertyName: "isTextVisible")
+                        hg.HorizontalGroup(hideableHG =>
+                        {
+                            hideableHG.Text("This text is visible");
+                        }, style: new Style()
+                        {
+                            isVisibleModelName = "isHoriVis"
+                        })
+                        .Button("Hide/show ME!", (_args) =>
+                        {
+                            mainForm.Model["isHoriVis"] = !(mainForm.Model["isHoriVis"] as bool? ?? true);
+                        }, style: new Style(){width = 120});
+                    }, style: new Style()
+                    {
+                        isVisibleModelName = "isTextVisible"
+                    } )
                 .Button("Show or Hide Text", (_args) =>
                 {
                     mainForm.Model["isTextVisible"] = !(mainForm.Model["isTextVisible"] as bool? ?? true);
@@ -239,13 +244,17 @@ namespace TestApp.lib
             parentForm.DisplayChildForm(f =>
             {
                 f.VerticalGroup(vg =>
-                    {
-                        vg.Text("I'm Visible");
-                    }, isVisiblePropertyName: "isDisplay", style:new Style(){height = 50})
-                    .Button("Hide or Show", (_args) =>
-                    {
-                        f.Model["isDisplay"] = !(f.Model["isDisplay"] as bool? ?? true);
-                    }, style: new Style(){width = 100});
+                {
+                    vg.Text("I'm Visible");
+                }, style:new Style()
+                {
+                    height = 50,
+                    isVisibleModelName = "isDisplay"
+                })
+                .Button("Hide or Show", (_args) =>
+                {
+                    f.Model["isDisplay"] = !(f.Model["isDisplay"] as bool? ?? true);
+                }, style: new Style(){width = 100});
             });
         }
 
@@ -484,14 +493,19 @@ namespace TestApp.lib
 
                 f.VerticalGroup(vg =>
                 {
-                    vg.LoadingTextAnimation("InProgress", style: new Style()
-                        {
-                            width = 20
-                        })
-                        .Button("Toggle Loading", (_a) =>
-                        {
-                            f.Model["InProgress"] = !(bool) f.Model["InProgress"];
-                        });
+                    vg.HorizontalStack(hg =>
+                    {
+                        hg.Text("Loading")
+                            .LoadingTextAnimation(style: new Style()
+                            {
+                                width = 20,
+                                isVisibleModelName = "InProgress"
+                            });
+                    })
+                    .Button("Toggle Loading", (_a) =>
+                    {
+                        f.Model["InProgress"] = !(bool) f.Model["InProgress"];
+                    });
                 });
             });
         }

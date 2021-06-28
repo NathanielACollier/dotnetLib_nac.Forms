@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Layout;
 
 namespace nac.Forms
 {
@@ -8,7 +9,7 @@ namespace nac.Forms
     {
         
         public Form VerticalDock(Action<Form> populateVerticalGroup,
-            string isVisiblePropertyName = null)
+            model.Style style = null)
         {
             var vertGroupForm = new Form(_parentForm: this);
 
@@ -16,10 +17,7 @@ namespace nac.Forms
 
             var vertGroup = new DockPanel();
             
-            if (!string.IsNullOrWhiteSpace(isVisiblePropertyName))
-            {
-                AddVisibilityTrigger(vertGroup, isVisiblePropertyName);
-            }
+            lib.styleUtil.style(this,vertGroup, style);
             
             var childControls = vertGroupForm.Host.Children.ToList();
             foreach (var child in childControls)
@@ -42,7 +40,6 @@ namespace nac.Forms
         */
         public Form VerticalGroup(Action<Form> populateVerticalGroup,
                     bool isSplit = false,
-                    string isVisiblePropertyName = null,
                     model.Style style = null)
         {
             var vertGroupForm = new Form(_parentForm: this);
@@ -50,13 +47,8 @@ namespace nac.Forms
             populateVerticalGroup(vertGroupForm);
 
             Grid vertGroup = new Grid();
-            lib.styleUtil.style(vertGroup, style);
-            
-            if (!string.IsNullOrWhiteSpace(isVisiblePropertyName))
-            {
-                AddVisibilityTrigger(vertGroup, isVisiblePropertyName);
-            }
-            
+            lib.styleUtil.style(this,vertGroup, style);
+
             var gridCol = new ColumnDefinition();
             vertGroup.ColumnDefinitions.Add(gridCol);
             int rowIndex = 0;
@@ -108,9 +100,33 @@ namespace nac.Forms
         }
 
 
+        public Form HorizontalStack(Action<Form> populateHorizontalGroup,
+            model.Style style = null)
+        {
+            var horizontalForm = new Form(_parentForm: this);
+
+            populateHorizontalGroup(horizontalForm);
+
+            var horizontalPanel = new StackPanel();
+            horizontalPanel.Orientation = Orientation.Horizontal;
+            
+            lib.styleUtil.style(this,horizontalPanel, style);
+            
+            var childControls = horizontalForm.Host.Children.ToList();
+            foreach (var child in childControls)
+            {
+                horizontalForm.Host.Children.Remove(child); // get the child out of the form so we can move it to the grid
+                horizontalPanel.Children.Add(child);
+            }
+
+            AddRowToHost(horizontalPanel, rowAutoHeight: false);
+            return this;
+        }
+        
+        
         public Form HorizontalGroup(Action<Form> populateHorizontalGroup,
-            string isVisiblePropertyName = null,
-            bool isSplit = false)
+            bool isSplit = false,
+            model.Style style = null)
         {
             var horizontalGroupForm = new Form(_parentForm: this);
 
@@ -118,11 +134,7 @@ namespace nac.Forms
 
             // take all the child items of host and put them in a grid with equal space between?
             Grid horiontalGroup = new Grid();
-            
-            if (!string.IsNullOrWhiteSpace(isVisiblePropertyName))
-            {
-                AddVisibilityTrigger(horiontalGroup, isVisiblePropertyName);
-            }
+            lib.styleUtil.style(this,horiontalGroup, style);
             
             var gridRow = new RowDefinition();
             horiontalGroup.RowDefinitions.Add(gridRow);
