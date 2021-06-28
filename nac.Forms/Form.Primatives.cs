@@ -14,7 +14,7 @@ namespace nac.Forms
             model.Style style=null)
         {
             var label = new TextBlock();
-            lib.styleUtil.style(label, style);
+            lib.styleUtil.style(this,label, style);
             label.Text = textToDisplay;
 
             AddRowToHost(label);
@@ -63,7 +63,7 @@ namespace nac.Forms
                 Style style = null)
         {
             var btn = new Button();
-            lib.styleUtil.style(btn, style);
+            lib.styleUtil.style(this, btn, style);
             btn.Content = displayText;
 
             btn.Click += (_s, _args) =>
@@ -140,16 +140,11 @@ namespace nac.Forms
         }
 
 
-        public Form LoadingTextAnimation(string modelNameIsRunning,
-            model.Style style=null)
+        public Form LoadingTextAnimation(model.Style style=null)
         {
-            this.HorizontalGroup(hg =>
-            {
-                var loadingDisplay = new controls.LoadingIndicatorText();
-                lib.styleUtil.style(loadingDisplay, style);
-                hg.AddRowToHost(loadingDisplay);
-
-            }, isVisiblePropertyName: modelNameIsRunning);
+            var loadingDisplay = new controls.LoadingIndicatorText();
+            lib.styleUtil.style(this,loadingDisplay, style);
+            AddRowToHost(loadingDisplay);
 
             return this;
         }

@@ -8,9 +8,9 @@ namespace nac.Forms.lib
     public static class styleUtil
     {
 
-        public static void style(Control ctrl, Style style)
+        public static void style(nac.Forms.Form form, Control ctrl, Style style)
         {
-            styleGeneric(ctrl, style);
+            styleGeneric(form, ctrl, style);
             if (ctrl is Avalonia.Controls.Primitives.TemplatedControl tControl)
             {
                 styleTemplated(tControl, style);
@@ -46,7 +46,7 @@ namespace nac.Forms.lib
             }
         }
 
-        private static void styleGeneric( Control ctrl, Style style)
+        private static void styleGeneric(nac.Forms.Form form, Control ctrl, Style style)
         {
             if (style?.height.IsSet == true)
             {
@@ -56,6 +56,11 @@ namespace nac.Forms.lib
             if (style?.width.IsSet == true)
             {
                 ctrl.Width = Convert.ToDouble(style.width.Value);
+            }
+
+            if (style?.isVisibleModelName.IsSet == true)
+            {
+                form.AddVisibilityTrigger(ctrl, isVisibleModelName: style.isVisibleModelName.Value);
             }
         }
         

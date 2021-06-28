@@ -50,7 +50,7 @@ namespace nac.Forms
             populateVerticalGroup(vertGroupForm);
 
             Grid vertGroup = new Grid();
-            lib.styleUtil.style(vertGroup, style);
+            lib.styleUtil.style(this,vertGroup, style);
             
             if (!string.IsNullOrWhiteSpace(isVisiblePropertyName))
             {
