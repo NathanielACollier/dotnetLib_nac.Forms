@@ -140,11 +140,13 @@ namespace nac.Forms
         }
 
 
-        public Form LoadingTextAnimation(string modelNameIsRunning)
+        public Form LoadingTextAnimation(string modelNameIsRunning,
+            model.Style style=null)
         {
             this.HorizontalGroup(hg =>
             {
                 var loadingDisplay = new controls.LoadingIndicatorText();
+                lib.styleUtil.style(loadingDisplay, style);
                 hg.AddRowToHost(loadingDisplay);
 
             }, isVisiblePropertyName: modelNameIsRunning);

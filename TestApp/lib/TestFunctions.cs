@@ -484,7 +484,10 @@ namespace TestApp.lib
 
                 f.VerticalGroup(vg =>
                 {
-                    vg.LoadingTextAnimation("InProgress")
+                    vg.LoadingTextAnimation("InProgress", style: new Style()
+                        {
+                            width = 20
+                        })
                         .Button("Toggle Loading", (_a) =>
                         {
                             f.Model["InProgress"] = !(bool) f.Model["InProgress"];
