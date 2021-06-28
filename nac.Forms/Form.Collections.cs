@@ -52,14 +52,42 @@ namespace nac.Forms
         public Form DropDown(string itemSourceModelName, 
                         string selectedItemModelName, 
                         Action onSelectionChanged=null,
+                        Action<Form> populateItemRow = null,
                         model.Style style = null)
         {
-            var dp = new Avalonia.Controls.DropDown();
+            var dp = new Avalonia.Controls.ComboBox();
             lib.styleUtil.style(this,dp,style);
 
+            
+            // item source binding
+            AddBinding<ObservableCollection<object>>(modelFieldName: itemSourceModelName,
+                                        control: dp,
+                                        property: Avalonia.Controls.ComboBox.ItemsProperty,
+                                        isTwoWayDataBinding:true);
+            
+            // selected item binding
+            AddBinding<object>(modelFieldName: selectedItemModelName,
+                                        control: dp,
+                                        property: Avalonia.Controls.ComboBox.SelectedItemProperty,
+                                        isTwoWayDataBinding:true);
+            
+            if (populateItemRow != null)
+            {
+                dp.ItemTemplate = new FuncDataTemplate<object>((itemModel, nameScope) =>
+                {
+                    var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
+                    // this has to have a unique model
+                    rowForm.Model[SpecialModelKeys.DataContext] = itemModel;
+                    populateItemRow(rowForm);
+
+                    rowForm.Host.DataContext = itemModel;
+
+                    return rowForm.Host;
+                });
+            }
 
             
-
+            
             dp.SelectionChanged += (_s, _args) =>
             {
                 onSelectionChanged();

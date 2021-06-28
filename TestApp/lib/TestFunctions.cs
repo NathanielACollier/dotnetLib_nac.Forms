@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using Avalonia.Media;
 using nac.Forms;
 using nac.Forms.model;
@@ -505,6 +506,35 @@ namespace TestApp.lib
                     .Button("Toggle Loading", (_a) =>
                     {
                         f.Model["InProgress"] = !(bool) f.Model["InProgress"];
+                    });
+                });
+            });
+        }
+
+        public static void Test_DropDown_SimpleTextSelection(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                var items = new ObservableCollection<string>();
+                f.Model["items"] = items;
+                items.Add("Bird Feeder");
+
+                f.VerticalGroup(vg =>
+                {
+                    vg.HorizontalStack(h =>
+                    {
+                        h.Text("New Item Text: ")
+                            .TextBoxFor("newItemText")
+                            .Button("Add", (_a) =>
+                            {
+                                items.Add(f.Model["newItemText"] as string);
+                            });
+                    }).DropDown(itemSourceModelName: "items",
+                        selectedItemModelName: "selected")
+                    .HorizontalStack(h =>
+                    {
+                        h.Text("You have selected: ")
+                            .TextFor("selected");
                     });
                 });
             });
