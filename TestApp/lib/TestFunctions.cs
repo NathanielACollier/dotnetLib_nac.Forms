@@ -474,7 +474,26 @@ namespace TestApp.lib
                     });
             });
         }
-        
-        
+
+
+        public static void Test_LoadingIndicator_TextDisplay(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.Model["InProgress"] = true;
+
+                f.VerticalGroup(vg =>
+                {
+                    vg.LoadingTextAnimation("InProgress", style: new Style()
+                        {
+                            width = 20
+                        })
+                        .Button("Toggle Loading", (_a) =>
+                        {
+                            f.Model["InProgress"] = !(bool) f.Model["InProgress"];
+                        });
+                });
+            });
+        }
     }
 }

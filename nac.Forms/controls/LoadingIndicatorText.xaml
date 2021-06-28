@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:myConverters="clr-namespace:nac.Forms.converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="nac.Forms.controls.LoadingIndicatorText">
+    <UserControl.Resources>
+        <myConverters:NegateConverter x:Key="nc" />
+    </UserControl.Resources>
+    <StackPanel Name="Marquee" Orientation="Horizontal" DockPanel.Dock="Top">
+        <StackPanel.Styles>
+            <Style Selector="TextBlock.scrolling">
+                <Style.Animations>
+                    <Animation Duration="0:0:10" RepeatCount="Loop">
+                        <KeyFrame Cue="0%">
+                            <Setter Property="TranslateTransform.X"
+                                    Value="{Binding $self.Bounds.Width, Converter={StaticResource nc}}" />
+                        </KeyFrame>
+                        <KeyFrame Cue="100%">
+                            <Setter Property="TranslateTransform.X"
+                                    Value="{Binding #Marquee.Bounds.Width}" />
+                        </KeyFrame>
+                    </Animation>
+                </Style.Animations>
+            </Style>
+        </StackPanel.Styles>
+        <TextBlock Classes="scrolling"
+                   Name="TextBlob"
+                   Text=". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ." />
+    </StackPanel>
+</UserControl>
