@@ -49,5 +49,26 @@ namespace nac.Forms
         }
 
 
+        public Form DropDown(string itemSourceModelName, 
+                        string selectedItemModelName, 
+                        Action onSelectionChanged=null,
+                        model.Style style = null)
+        {
+            var dp = new Avalonia.Controls.DropDown();
+            lib.styleUtil.style(this,dp,style);
+
+
+            
+
+            dp.SelectionChanged += (_s, _args) =>
+            {
+                onSelectionChanged();
+            };
+            
+            AddRowToHost(dp);
+            return this;
+        }
+
+
 	}
 }
