@@ -493,19 +493,19 @@ namespace TestApp.lib
 
                 f.VerticalGroup(vg =>
                 {
-                    vg.HorizontalGroup(hg =>
-                        {
-                            hg.Text("Loading")
-                                .LoadingTextAnimation(style: new Style()
-                                {
-                                    width = 20,
-                                    isVisibleModelName = "InProgress"
-                                });
-                        })
-                        .Button("Toggle Loading", (_a) =>
-                        {
-                            f.Model["InProgress"] = !(bool) f.Model["InProgress"];
-                        });
+                    vg.HorizontalStack(hg =>
+                    {
+                        hg.Text("Loading")
+                            .LoadingTextAnimation(style: new Style()
+                            {
+                                width = 20,
+                                isVisibleModelName = "InProgress"
+                            });
+                    })
+                    .Button("Toggle Loading", (_a) =>
+                    {
+                        f.Model["InProgress"] = !(bool) f.Model["InProgress"];
+                    });
                 });
             });
         }

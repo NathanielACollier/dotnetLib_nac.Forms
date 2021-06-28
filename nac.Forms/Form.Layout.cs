@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Layout;
 
 namespace nac.Forms
 {
@@ -99,6 +100,30 @@ namespace nac.Forms
         }
 
 
+        public Form HorizontalStack(Action<Form> populateHorizontalGroup,
+            model.Style style = null)
+        {
+            var horizontalForm = new Form(_parentForm: this);
+
+            populateHorizontalGroup(horizontalForm);
+
+            var horizontalPanel = new StackPanel();
+            horizontalPanel.Orientation = Orientation.Horizontal;
+            
+            lib.styleUtil.style(this,horizontalPanel, style);
+            
+            var childControls = horizontalForm.Host.Children.ToList();
+            foreach (var child in childControls)
+            {
+                horizontalForm.Host.Children.Remove(child); // get the child out of the form so we can move it to the grid
+                horizontalPanel.Children.Add(child);
+            }
+
+            AddRowToHost(horizontalPanel, rowAutoHeight: false);
+            return this;
+        }
+        
+        
         public Form HorizontalGroup(Action<Form> populateHorizontalGroup,
             bool isSplit = false,
             model.Style style = null)
