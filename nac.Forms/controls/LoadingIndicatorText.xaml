@@ -27,6 +27,6 @@
         </StackPanel.Styles>
         <TextBlock Classes="scrolling"
                    Name="TextBlob"
-                   Text=" . . . " />
+                   Text=". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ." />
     </StackPanel>
 </UserControl>
