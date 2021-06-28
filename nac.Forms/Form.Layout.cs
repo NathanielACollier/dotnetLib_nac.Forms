@@ -8,7 +8,7 @@ namespace nac.Forms
     {
         
         public Form VerticalDock(Action<Form> populateVerticalGroup,
-            string isVisiblePropertyName = null)
+            model.Style style = null)
         {
             var vertGroupForm = new Form(_parentForm: this);
 
@@ -16,10 +16,7 @@ namespace nac.Forms
 
             var vertGroup = new DockPanel();
             
-            if (!string.IsNullOrWhiteSpace(isVisiblePropertyName))
-            {
-                AddVisibilityTrigger(vertGroup, isVisiblePropertyName);
-            }
+            lib.styleUtil.style(this,vertGroup, style);
             
             var childControls = vertGroupForm.Host.Children.ToList();
             foreach (var child in childControls)
@@ -42,7 +39,6 @@ namespace nac.Forms
         */
         public Form VerticalGroup(Action<Form> populateVerticalGroup,
                     bool isSplit = false,
-                    string isVisiblePropertyName = null,
                     model.Style style = null)
         {
             var vertGroupForm = new Form(_parentForm: this);
@@ -51,12 +47,7 @@ namespace nac.Forms
 
             Grid vertGroup = new Grid();
             lib.styleUtil.style(this,vertGroup, style);
-            
-            if (!string.IsNullOrWhiteSpace(isVisiblePropertyName))
-            {
-                AddVisibilityTrigger(vertGroup, isVisiblePropertyName);
-            }
-            
+
             var gridCol = new ColumnDefinition();
             vertGroup.ColumnDefinitions.Add(gridCol);
             int rowIndex = 0;
@@ -109,8 +100,8 @@ namespace nac.Forms
 
 
         public Form HorizontalGroup(Action<Form> populateHorizontalGroup,
-            string isVisiblePropertyName = null,
-            bool isSplit = false)
+            bool isSplit = false,
+            model.Style style = null)
         {
             var horizontalGroupForm = new Form(_parentForm: this);
 
@@ -118,11 +109,7 @@ namespace nac.Forms
 
             // take all the child items of host and put them in a grid with equal space between?
             Grid horiontalGroup = new Grid();
-            
-            if (!string.IsNullOrWhiteSpace(isVisiblePropertyName))
-            {
-                AddVisibilityTrigger(horiontalGroup, isVisiblePropertyName);
-            }
+            lib.styleUtil.style(this,horiontalGroup, style);
             
             var gridRow = new RowDefinition();
             horiontalGroup.RowDefinitions.Add(gridRow);
