@@ -140,6 +140,11 @@ namespace TestApp
                 {
                     Name = "DataContext: Hello World!",
                     CodeToRun = lib.TestFunctions.Test_DataContext_HelloWorld
+                },
+                new TestEntry()
+                {
+                    Name = "Test Loading Indicator: Text Display",
+                    CodeToRun = lib.TestFunctions.Test_LoadingIndicator_TextDisplay
                 }
 
 

@@ -138,6 +138,20 @@ namespace nac.Forms
 
             return avaloniaItem;
         }
+
+
+        public Form LoadingTextAnimation(string modelNameIsRunning)
+        {
+            this.HorizontalGroup(hg =>
+            {
+                var loadingDisplay = new controls.LoadingIndicatorText();
+                hg.AddRowToHost(loadingDisplay);
+
+            }, isVisiblePropertyName: modelNameIsRunning);
+
+            return this;
+        }
+        
         
         
     }
