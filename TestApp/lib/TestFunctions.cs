@@ -525,7 +525,7 @@ namespace TestApp.lib
                 items2.Add("Beretta M9");
                 items2.Add("Remington 870");
 
-                f.VerticalGroup(vg =>
+                f.VerticalStack(vg =>
                 {
                     vg.HorizontalStack(h =>
                         {
@@ -547,7 +547,7 @@ namespace TestApp.lib
                                         f.Model["items"] = items;
                                     }
                                 });
-                        }, style:new Style(){height = 25}).DropDown(itemSourceModelName: "items",
+                        }).DropDown(itemSourceModelName: "items",
                         selectedItemModelName: "selected")
                     .HorizontalStack(h =>
                     {
