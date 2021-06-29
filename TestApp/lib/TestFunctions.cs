@@ -518,18 +518,36 @@ namespace TestApp.lib
                 var items = new ObservableCollection<string>();
                 f.Model["items"] = items;
                 items.Add("Bird Feeder");
+                
+                // test swapping out model with this second list
+                var items2 = new ObservableCollection<string>();
+                items2.Add("Canik TP9");
+                items2.Add("Beretta M9");
+                items2.Add("Remington 870");
 
                 f.VerticalGroup(vg =>
                 {
                     vg.HorizontalStack(h =>
-                    {
-                        h.Text("New Item Text: ")
-                            .TextBoxFor("newItemText")
-                            .Button("Add", (_a) =>
-                            {
-                                items.Add(f.Model["newItemText"] as string);
-                            });
-                    }).DropDown(itemSourceModelName: "items",
+                        {
+                            h.Text("New Item Text: ")
+                                .TextBoxFor("newItemText", style: new Style(){width = 100})
+                                .Button("Add", (_a) =>
+                                {
+                                    var _curItems = f.Model["items"] as ObservableCollection<string>;
+                                    _curItems.Add(f.Model["newItemText"] as string);
+                                })
+                                .Button("Swap Lists", (_a) =>
+                                {
+                                    if (f.Model["items"] == items)
+                                    {
+                                        f.Model["items"] = items2;
+                                    }
+                                    else
+                                    {
+                                        f.Model["items"] = items;
+                                    }
+                                });
+                        }, style:new Style(){height = 25}).DropDown(itemSourceModelName: "items",
                         selectedItemModelName: "selected")
                     .HorizontalStack(h =>
                     {

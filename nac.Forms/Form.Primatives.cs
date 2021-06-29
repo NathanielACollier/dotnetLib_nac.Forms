@@ -36,9 +36,11 @@ namespace nac.Forms
         }
 
 		public Form TextBoxFor(string modelFieldName,
-                        bool multiline = false)
+                        bool multiline = false,
+                        model.Style style = null)
         {
             var tb = new TextBox();
+            lib.styleUtil.style(this, tb, style);
 
             AddBinding<string>(modelFieldName, tb, TextBox.TextProperty,
 				isTwoWayDataBinding: true);
