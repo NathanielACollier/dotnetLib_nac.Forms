@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
@@ -49,7 +51,7 @@ namespace nac.Forms
         }
 
 
-        public Form DropDown(string itemSourceModelName, 
+        public Form DropDown<T>(string itemSourceModelName, 
                         string selectedItemModelName, 
                         Action onSelectionChanged=null,
                         Action<Form> populateItemRow = null,
@@ -60,7 +62,7 @@ namespace nac.Forms
 
             
             // item source binding
-            AddBinding<ObservableCollection<object>>(modelFieldName: itemSourceModelName,
+            AddBinding<IEnumerable<T>>(modelFieldName: itemSourceModelName,
                                         control: dp,
                                         property: Avalonia.Controls.ComboBox.ItemsProperty,
                                         isTwoWayDataBinding:true);
@@ -90,7 +92,7 @@ namespace nac.Forms
             
             dp.SelectionChanged += (_s, _args) =>
             {
-                onSelectionChanged();
+                onSelectionChanged?.Invoke();
             };
             
             AddRowToHost(dp);

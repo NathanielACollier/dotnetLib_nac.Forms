@@ -547,7 +547,7 @@ namespace TestApp.lib
                                         f.Model["items"] = items;
                                     }
                                 });
-                        }).DropDown(itemSourceModelName: "items",
+                        }).DropDown<string>(itemSourceModelName: "items",
                         selectedItemModelName: "selected")
                     .HorizontalStack(h =>
                     {
