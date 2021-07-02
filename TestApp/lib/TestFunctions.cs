@@ -11,7 +11,7 @@ namespace TestApp.lib
     {
         public static void TestList_ButtonCounterExample(Form parentForm)
         {   
-            var items = new System.Collections.ObjectModel.ObservableCollection<object>();
+            var items = new System.Collections.ObjectModel.ObservableCollection<TestList_ButtonCounterExample_ItemModel>();
 
             // display 5 counters
             for( int i = 0; i < 10; ++i){
@@ -23,7 +23,7 @@ namespace TestApp.lib
 
             parentForm.DisplayChildForm(child=>{
                 child.Model["items"] = items;
-                child.List("items", row=>{
+                child.List<TestList_ButtonCounterExample_ItemModel>("items", row=>{
                     
                     row.HorizontalGroup(hg=>{
                         hg.TextFor("Label")
@@ -118,7 +118,7 @@ namespace TestApp.lib
         {
             parentForm.DisplayChildForm(child =>
             {
-                var items = new System.Collections.ObjectModel.ObservableCollection<object>();
+                var items = new System.Collections.ObjectModel.ObservableCollection<nac.Forms.lib.BindableDynamicDictionary>();
                 child.Model["items"]  = items;
                 var newItem = new nac.Forms.lib.BindableDynamicDictionary();
                 newItem["Prop1"] = "fish";
@@ -129,7 +129,7 @@ namespace TestApp.lib
                 items.Add(newItem);
 
                 child.Text("Simple List")
-                .List("items", (itemForm) =>
+                .List<nac.Forms.lib.BindableDynamicDictionary>("items", (itemForm) =>
                 {
                     itemForm.TextFor("Prop1");
                 }, style: new Style()

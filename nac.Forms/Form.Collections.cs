@@ -10,7 +10,7 @@ namespace nac.Forms
 {
     public partial class Form
     {
-        public Form List(string itemSourcePropertyName, Action<Form> populateItemRow, Style style=null)
+        public Form List<T>(string itemSourcePropertyName, Action<Form> populateItemRow, Style style=null)
         {
             var itemsCtrl = new ListBox();
             lib.styleUtil.style(this, itemsCtrl, style);
@@ -28,12 +28,12 @@ namespace nac.Forms
                 return rowForm.Host;
             });
 
-            if( !(this.Model[itemSourcePropertyName] is ObservableCollection<object>))
+            if( !(this.Model[itemSourcePropertyName] is IEnumerable<T>))
             {
-                throw new Exception($"Model items source property specified by name [{itemSourcePropertyName}] must be a ObservableCollection<object>");
+                throw new Exception($"Model items source property specified by name [{itemSourcePropertyName}] must be a IEnumerable<T>");
             }
 
-            AddBinding<ObservableCollection<object>>(itemSourcePropertyName, itemsCtrl, ItemsControl.ItemsProperty,
+            AddBinding<IEnumerable<T>>(itemSourcePropertyName, itemsCtrl, ItemsControl.ItemsProperty,
                 isTwoWayDataBinding: true);
 
             // handle selection changed
@@ -59,6 +59,12 @@ namespace nac.Forms
         {
             var dp = new Avalonia.Controls.ComboBox();
             lib.styleUtil.style(this,dp,style);
+            
+            // Just as a safety check, make them init the model first
+            if( !(this.Model[itemSourceModelName] is IEnumerable<T>))
+            {
+                throw new Exception($"Model {nameof(itemSourceModelName)} source property specified by name [{itemSourceModelName}] must be a IEnumerable<T>");
+            }
 
             
             // item source binding
