@@ -6,6 +6,8 @@ using nac.Forms;
 using nac.Forms.model;
 using TestApp.model;
 
+using log = TestApp.model.LogEntry;
+
 namespace TestApp.lib
 {
     public static class TestFunctions
@@ -140,7 +142,7 @@ namespace TestApp.lib
                     backgroundColor = Avalonia.Media.Colors.Aquamarine
                 }, onSelectionChanged: (_selectedEntries) =>
                 {
-                    model.LogEntry.info($"New items selected: {string.Join(",", _selectedEntries.Select(m=>m["Prop1"] as string))}");
+                    log.info($"New items selected: {string.Join(",", _selectedEntries.Select(m=>m["Prop1"] as string))}");
                 })
                 .HorizontalGroup((hgChild) =>
                 {
@@ -158,7 +160,7 @@ namespace TestApp.lib
                 });
 
                 lib.UIElementsUtility.logViewer(child);
-                model.LogEntry.info("App Ready to go");
+                log.info("App Ready to go");
 
             });
         }
