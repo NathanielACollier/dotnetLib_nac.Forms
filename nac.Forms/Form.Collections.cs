@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using nac.Forms.model;
@@ -10,7 +11,8 @@ namespace nac.Forms
 {
     public partial class Form
     {
-        public Form List<T>(string itemSourcePropertyName, Action<Form> populateItemRow, Style style=null)
+        public Form List<T>(string itemSourcePropertyName, Action<Form> populateItemRow, Style style=null,
+                        Action<IEnumerable<T>> onSelectionChanged = null)
         {
             var itemsCtrl = new ListBox();
             lib.styleUtil.style(this, itemsCtrl, style);
@@ -39,7 +41,11 @@ namespace nac.Forms
             // handle selection changed
             itemsCtrl.SelectionChanged += (_s, _args) =>
             {
-
+                if (_args.AddedItems.OfType<T>().Any())
+                {
+                    // only fire this if new stuff was selected
+                    onSelectionChanged?.Invoke(_args.AddedItems.Cast<T>());
+                }
             };
 
             AddRowToHost(itemsCtrl);
@@ -53,7 +59,7 @@ namespace nac.Forms
 
         public Form DropDown<T>(string itemSourceModelName, 
                         string selectedItemModelName, 
-                        Action onSelectionChanged=null,
+                        Action<T> onSelectionChanged=null,
                         Action<Form> populateItemRow = null,
                         model.Style style = null)
         {
@@ -98,7 +104,11 @@ namespace nac.Forms
             
             dp.SelectionChanged += (_s, _args) =>
             {
-                onSelectionChanged?.Invoke();
+                if (_args.AddedItems.OfType<T>().Any())
+                {
+                    var first = _args.AddedItems.Cast<T>().First();
+                    onSelectionChanged?.Invoke(first);
+                }
             };
             
             AddRowToHost(dp);
