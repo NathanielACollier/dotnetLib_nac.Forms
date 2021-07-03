@@ -2,11 +2,23 @@ using System;
 
 namespace TestApp.model
 {
-    public class LogEntry
+    public class LogEntry: nac.Forms.model.ViewModelBase
     {
-        public DateTime date { get; set; }
-        public string message { get; set; }
-        public string level { get; set; }
+        public DateTime date
+        {
+            get { return GetValue(() => date);}
+            set { SetValue(() => date, value);}
+        }
+        public string message
+        {
+            get { return GetValue(() => message); }
+            set { SetValue(() => message, value);}
+        }
+        public string level
+        {
+            get { return GetValue(() => level); }
+            set { SetValue(() => level, value); }
+        }
 
 
         public static event EventHandler<LogEntry> onNewMessage;

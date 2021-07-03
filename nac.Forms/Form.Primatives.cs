@@ -21,9 +21,12 @@ namespace nac.Forms
             return this;
         }
 
-		public Form TextFor(string modelFieldName, string defaultValue = null)
+		public Form TextFor(string modelFieldName, 
+                string defaultValue = null,
+                model.Style style = null)
         {
             var label = new TextBlock();
+            lib.styleUtil.style(this,label,style);
             AddBinding<string>(modelFieldName, label, TextBlock.TextProperty);
 
 			if( defaultValue != null)
