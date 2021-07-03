@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Avalonia.Media;
 using nac.Forms;
 using nac.Forms.model;
@@ -137,6 +138,9 @@ namespace TestApp.lib
                     height = 500,
                     width = 300,
                     backgroundColor = Avalonia.Media.Colors.Aquamarine
+                }, onSelectionChanged: (_selectedEntries) =>
+                {
+                    model.LogEntry.info($"New items selected: {string.Join(",", _selectedEntries.Select(m=>m["Prop1"] as string))}");
                 })
                 .HorizontalGroup((hgChild) =>
                 {
@@ -152,6 +156,10 @@ namespace TestApp.lib
                                 items.Add(newItem);
                             });
                 });
+
+                lib.UIElementsUtility.logViewer(child);
+                model.LogEntry.info("App Ready to go");
+
             });
         }
 
