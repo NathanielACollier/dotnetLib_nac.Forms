@@ -18,6 +18,10 @@ namespace nac.Forms
         {
             var itemsCtrl = new ListBox();
             lib.styleUtil.style(this, itemsCtrl, style);
+            
+            // allow multiple selections
+            itemsCtrl.SelectionMode = SelectionMode.Multiple;
+            
 
             // if T is string, or they just want to use ToString of T as the entry in the list, then they don't need an item template
             if (populateItemRow != null)
@@ -47,10 +51,10 @@ namespace nac.Forms
             // handle selection changed
             itemsCtrl.SelectionChanged += (_s, _args) =>
             {
-                if (_args.AddedItems.OfType<T>().Any())
+                if (itemsCtrl.SelectedItems.OfType<T>().Any())
                 {
-                    // only fire this if new stuff was selected
-                    onSelectionChanged?.Invoke(_args.AddedItems.Cast<T>());
+                    // only fire this if there is a change in what is selected.
+                    onSelectionChanged?.Invoke(itemsCtrl.SelectedItems.Cast<T>());
                 }
             };
 
