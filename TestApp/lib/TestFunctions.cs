@@ -573,11 +573,17 @@ namespace TestApp.lib
             parentForm.DisplayChildForm(f =>
             {
                 var items = new ObservableCollection<string>();
-                items.CopyTo(new[] {"Walnut", "Peanut", "Cashew"},0);
+                new[] {"Walnut", "Peanut", "Cashew"}.ToList().ForEach(x=> items.Add(x));
                 f.Model["myList"] = items;
 
                 f.Text("This is a list of strings")
-                    .List<string>(itemSourcePropertyName: "myList");
+                    .List<string>(itemSourcePropertyName: "myList",
+                        onSelectionChanged: (selectedItems) =>
+                        {
+                            log.info("You selected: " + string.Join(";", selectedItems));
+                        });
+
+                lib.UIElementsUtility.logViewer(f);
             });
         }
     }

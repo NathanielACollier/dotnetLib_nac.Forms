@@ -11,25 +11,31 @@ namespace nac.Forms
 {
     public partial class Form
     {
-        public Form List<T>(string itemSourcePropertyName, Action<Form> populateItemRow, Style style=null,
+        public Form List<T>(string itemSourcePropertyName, 
+                        Action<Form> populateItemRow=null,
+                        Style style=null,
                         Action<IEnumerable<T>> onSelectionChanged = null)
         {
             var itemsCtrl = new ListBox();
             lib.styleUtil.style(this, itemsCtrl, style);
 
-            // this is documented here: https://avaloniaui.net/docs/templates/datatemplates-in-code
-            itemsCtrl.ItemTemplate = new FuncDataTemplate<object>((itemModel, nameScope) =>
+            // if T is string, or they just want to use ToString of T as the entry in the list, then they don't need an item template
+            if (populateItemRow != null)
             {
-                var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
-                // this has to have a unique model
-                rowForm.Model[SpecialModelKeys.DataContext] = itemModel;
-                populateItemRow(rowForm);
+                // this is documented here: https://avaloniaui.net/docs/templates/datatemplates-in-code
+                itemsCtrl.ItemTemplate = new FuncDataTemplate<object>((itemModel, nameScope) =>
+                {
+                    var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
+                    // this has to have a unique model
+                    rowForm.Model[SpecialModelKeys.DataContext] = itemModel;
+                    populateItemRow(rowForm);
 
-                rowForm.Host.DataContext = itemModel;
+                    rowForm.Host.DataContext = itemModel;
 
-                return rowForm.Host;
-            });
-
+                    return rowForm.Host;
+                });
+            }
+            
             if( !(this.Model[itemSourcePropertyName] is IEnumerable<T>))
             {
                 throw new Exception($"Model items source property specified by name [{itemSourcePropertyName}] must be a IEnumerable<T>");
