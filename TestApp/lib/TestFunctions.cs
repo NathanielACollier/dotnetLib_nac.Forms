@@ -567,5 +567,18 @@ namespace TestApp.lib
                 });
             });
         }
+
+        public static void TestList_JustStrings(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                var items = new ObservableCollection<string>();
+                items.CopyTo(new[] {"Walnut", "Peanut", "Cashew"},0);
+                f.Model["myList"] = items;
+
+                f.Text("This is a list of strings")
+                    .List<string>(itemSourcePropertyName: "myList");
+            });
+        }
     }
 }
