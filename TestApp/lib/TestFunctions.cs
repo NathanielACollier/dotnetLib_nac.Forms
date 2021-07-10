@@ -1,8 +1,12 @@
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using Avalonia.Media;
 using nac.Forms;
 using nac.Forms.model;
 using TestApp.model;
+
+using log = TestApp.model.LogEntry;
 
 namespace TestApp.lib
 {
@@ -10,7 +14,7 @@ namespace TestApp.lib
     {
         public static void TestList_ButtonCounterExample(Form parentForm)
         {   
-            var items = new System.Collections.ObjectModel.ObservableCollection<object>();
+            var items = new System.Collections.ObjectModel.ObservableCollection<TestList_ButtonCounterExample_ItemModel>();
 
             // display 5 counters
             for( int i = 0; i < 10; ++i){
@@ -22,7 +26,7 @@ namespace TestApp.lib
 
             parentForm.DisplayChildForm(child=>{
                 child.Model["items"] = items;
-                child.List("items", row=>{
+                child.List<TestList_ButtonCounterExample_ItemModel>("items", row=>{
                     
                     row.HorizontalGroup(hg=>{
                         hg.TextFor("Label")
@@ -117,7 +121,7 @@ namespace TestApp.lib
         {
             parentForm.DisplayChildForm(child =>
             {
-                var items = new System.Collections.ObjectModel.ObservableCollection<object>();
+                var items = new System.Collections.ObjectModel.ObservableCollection<nac.Forms.lib.BindableDynamicDictionary>();
                 child.Model["items"]  = items;
                 var newItem = new nac.Forms.lib.BindableDynamicDictionary();
                 newItem["Prop1"] = "fish";
@@ -128,7 +132,7 @@ namespace TestApp.lib
                 items.Add(newItem);
 
                 child.Text("Simple List")
-                .List("items", (itemForm) =>
+                .List<nac.Forms.lib.BindableDynamicDictionary>("items", (itemForm) =>
                 {
                     itemForm.TextFor("Prop1");
                 }, style: new Style()
@@ -136,6 +140,9 @@ namespace TestApp.lib
                     height = 500,
                     width = 300,
                     backgroundColor = Avalonia.Media.Colors.Aquamarine
+                }, onSelectionChanged: (_selectedEntries) =>
+                {
+                    log.info($"New items selected: {string.Join(",", _selectedEntries.Select(m=>m["Prop1"] as string))}");
                 })
                 .HorizontalGroup((hgChild) =>
                 {
@@ -151,6 +158,10 @@ namespace TestApp.lib
                                 items.Add(newItem);
                             });
                 });
+
+                lib.UIElementsUtility.logViewer(child);
+                log.info("App Ready to go");
+
             });
         }
 
@@ -507,6 +518,72 @@ namespace TestApp.lib
                         f.Model["InProgress"] = !(bool) f.Model["InProgress"];
                     });
                 });
+            });
+        }
+
+        public static void Test_DropDown_SimpleTextSelection(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                var items = new ObservableCollection<string>();
+                f.Model["items"] = items;
+                items.Add("Bird Feeder");
+                
+                // test swapping out model with this second list
+                var items2 = new ObservableCollection<string>();
+                items2.Add("Canik TP9");
+                items2.Add("Beretta M9");
+                items2.Add("Remington 870");
+
+                f.VerticalStack(vg =>
+                {
+                    vg.HorizontalStack(h =>
+                        {
+                            h.Text("New Item Text: ")
+                                .TextBoxFor("newItemText", style: new Style(){width = 100})
+                                .Button("Add", (_a) =>
+                                {
+                                    var _curItems = f.Model["items"] as ObservableCollection<string>;
+                                    _curItems.Add(f.Model["newItemText"] as string);
+                                })
+                                .Button("Swap Lists", (_a) =>
+                                {
+                                    if (f.Model["items"] == items)
+                                    {
+                                        f.Model["items"] = items2;
+                                    }
+                                    else
+                                    {
+                                        f.Model["items"] = items;
+                                    }
+                                });
+                        }).DropDown<string>(itemSourceModelName: "items",
+                        selectedItemModelName: "selected")
+                    .HorizontalStack(h =>
+                    {
+                        h.Text("You have selected: ")
+                            .TextFor("selected");
+                    });
+                });
+            });
+        }
+
+        public static void TestList_JustStrings(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                var items = new ObservableCollection<string>();
+                new[] {"Walnut", "Peanut", "Cashew"}.ToList().ForEach(x=> items.Add(x));
+                f.Model["myList"] = items;
+
+                f.Text("This is a list of strings")
+                    .List<string>(itemSourcePropertyName: "myList",
+                        onSelectionChanged: (selectedItems) =>
+                        {
+                            log.info("You selected: " + string.Join(";", selectedItems));
+                        });
+
+                lib.UIElementsUtility.logViewer(f);
             });
         }
     }

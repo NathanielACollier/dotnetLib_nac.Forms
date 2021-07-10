@@ -40,8 +40,11 @@ namespace nac.Forms
         {
             funcToAccessApp?.Invoke(this.app);
         }
-        
-        
+
+        public void _Extend_AccessHost(Action<Avalonia.Controls.Grid> funcToAccessHost)
+        {
+            funcToAccessHost?.Invoke(this.Host);
+        }
         
     }
 }

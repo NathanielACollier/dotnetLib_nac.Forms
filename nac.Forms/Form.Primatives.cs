@@ -21,9 +21,12 @@ namespace nac.Forms
             return this;
         }
 
-		public Form TextFor(string modelFieldName, string defaultValue = null)
+		public Form TextFor(string modelFieldName, 
+                string defaultValue = null,
+                model.Style style = null)
         {
             var label = new TextBlock();
+            lib.styleUtil.style(this,label,style);
             AddBinding<string>(modelFieldName, label, TextBlock.TextProperty);
 
 			if( defaultValue != null)
@@ -36,9 +39,11 @@ namespace nac.Forms
         }
 
 		public Form TextBoxFor(string modelFieldName,
-                        bool multiline = false)
+                        bool multiline = false,
+                        model.Style style = null)
         {
             var tb = new TextBox();
+            lib.styleUtil.style(this, tb, style);
 
             AddBinding<string>(modelFieldName, tb, TextBox.TextProperty,
 				isTwoWayDataBinding: true);

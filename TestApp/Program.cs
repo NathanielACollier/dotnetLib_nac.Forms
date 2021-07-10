@@ -93,6 +93,11 @@ namespace TestApp
                 },
                 new model.TestEntry
                 {
+                    Name  = "Test List: Just Strings",
+                    CodeToRun = lib.TestFunctions.TestList_JustStrings
+                },
+                new model.TestEntry
+                {
                     Name = "Test Menu: Simple",
                     CodeToRun = lib.TestFunctions.TestMenu_Simple
                 },
@@ -145,6 +150,11 @@ namespace TestApp
                 {
                     Name = "Test Loading Indicator: Text Display",
                     CodeToRun = lib.TestFunctions.Test_LoadingIndicator_TextDisplay
+                },
+                new TestEntry()
+                {
+                    Name = "Test Dropdown: Simple Text Selection",
+                    CodeToRun = lib.TestFunctions.Test_DropDown_SimpleTextSelection
                 }
 
 

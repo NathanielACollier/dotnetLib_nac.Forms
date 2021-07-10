@@ -30,6 +30,29 @@ namespace nac.Forms
             AddRowToHost(vertGroup, rowAutoHeight: false);
             return this;
         }
+        
+        
+        public Form VerticalStack(Action<Form> populateVerticalGroup,
+            model.Style style = null)
+        {
+            var vertGroupForm = new Form(_parentForm: this);
+
+            populateVerticalGroup(vertGroupForm);
+
+            var vertGroup = new StackPanel();
+            
+            lib.styleUtil.style(this,vertGroup, style);
+            
+            var childControls = vertGroupForm.Host.Children.ToList();
+            foreach (var child in childControls)
+            {
+                vertGroupForm.Host.Children.Remove(child); // get the child out of the form so we can move it to the grid
+                vertGroup.Children.Add(child);
+            }
+
+            AddRowToHost(vertGroup, rowAutoHeight: false);
+            return this;
+        }
 
 
 
