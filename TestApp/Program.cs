@@ -19,11 +19,12 @@ namespace TestApp
         static void Main(string[] args)
         {
             var f = Avalonia.AppBuilder.Configure<nac.Forms.App>()
-                                .NewForm(beforeAppBuilderInit: (appBuilder) =>
-                                {
-                                    appBuilder.LogToTrace(LogEventLevel.Debug);
-                                    Console.WriteLine("Logging Setup");
-                                });
+                .NewForm(beforeAppBuilderInit: (appBuilder) =>
+                {
+                    appBuilder.LogToTrace(LogEventLevel.Debug);
+                    Console.WriteLine("Logging Setup");
+                })
+                .DebugAvalonia();
 
             mainUI(f);
         }

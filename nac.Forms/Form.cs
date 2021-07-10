@@ -48,6 +48,14 @@ namespace nac.Forms
             this.controlsIndex = new Dictionary<string, IControl>();
         }
 
+        public Form DebugAvalonia()
+        {
+            // documentation on how the dev tools work:
+            //    + https://docs.avaloniaui.net/docs/getting-started/developer-tools
+            this.win.AttachDevTools();
+            return this;
+        }
+
         public Form(Form _parentForm) : this(__app: _parentForm.app, _model: _parentForm.Model)
         {
             
