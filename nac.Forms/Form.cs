@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using nac.Forms.model;
@@ -265,6 +266,15 @@ namespace nac.Forms
         public void Close()
         {
             this.win.Close();
+        }
+
+
+        public async Task InvokeAsync(Func<Task> codeToRun)
+        {
+            await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                await codeToRun();
+            });
         }
     }
 }

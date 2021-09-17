@@ -605,10 +605,14 @@ namespace TestApp.lib
                             Task.Run(() =>
                             {
                                 Thread.Sleep(200); // cause a delay
-                                list.Add(new model.TestList_ButtonCounterExample_ItemModel()
+                                f.InvokeAsync(async () =>
                                 {
-                                    Label = Guid.NewGuid().ToString("N")
+                                    list.Add(new model.TestList_ButtonCounterExample_ItemModel()
+                                    {
+                                        Label = Guid.NewGuid().ToString("N")
+                                    });
                                 });
+                                
                             });
                         });
                 }).List<model.TestList_ButtonCounterExample_ItemModel>(itemSourcePropertyName: "entries", populateItemRow: myRow =>
