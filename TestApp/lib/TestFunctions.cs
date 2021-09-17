@@ -1,6 +1,8 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Avalonia.Media;
 using nac.Forms;
 using nac.Forms.model;
@@ -584,6 +586,39 @@ namespace TestApp.lib
                         });
 
                 lib.UIElementsUtility.logViewer(f);
+            });
+        }
+
+        public static void Test_Threading_ModifyUIInThread(Form parentForm)
+        {
+            var list = new ObservableCollection<model.TestList_ButtonCounterExample_ItemModel>();
+
+            parentForm.DisplayChildForm(f =>
+            {
+                f.Model["entries"] = list;
+
+                f.HorizontalGroup(h =>
+                {
+                    h.Text("My List")
+                        .Button("Add", (args) =>
+                        {
+                            Task.Run(() =>
+                            {
+                                Thread.Sleep(200); // cause a delay
+                                list.Add(new model.TestList_ButtonCounterExample_ItemModel()
+                                {
+                                    Label = Guid.NewGuid().ToString("N")
+                                });
+                            });
+                        });
+                }).List<model.TestList_ButtonCounterExample_ItemModel>(itemSourcePropertyName: "entries", populateItemRow: myRow =>
+                {
+                    myRow.HorizontalStack(h =>
+                    {
+                        h.Text("Label: ")
+                            .TextBoxFor("Label");
+                    });
+                });
             });
         }
     }

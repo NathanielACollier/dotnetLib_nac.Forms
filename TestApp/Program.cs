@@ -156,6 +156,11 @@ namespace TestApp
                 {
                     Name = "Test Dropdown: Simple Text Selection",
                     CodeToRun = lib.TestFunctions.Test_DropDown_SimpleTextSelection
+                },
+                new TestEntry()
+                {
+                    Name = "Threading: Modify UI in another thread",
+                    CodeToRun = lib.TestFunctions.Test_Threading_ModifyUIInThread
                 }
 
 
