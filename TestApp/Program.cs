@@ -124,6 +124,11 @@ namespace TestApp
                 },
                 new TestEntry
                 {
+                    Name  = "Test Style: Change button color",
+                    CodeToRun = lib.TestFunctions.TestStyle_Button_ChangeButtonBackground
+                },
+                new TestEntry
+                {
                     Name = "Test FilePickerFor: Test file picker basics",
                     CodeToRun = lib.TestFunctions.TestFilePickerFor_Basic
                 },

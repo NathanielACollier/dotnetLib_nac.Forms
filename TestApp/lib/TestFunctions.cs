@@ -625,5 +625,46 @@ namespace TestApp.lib
                 });
             });
         }
+
+        public static void TestStyle_Button_ChangeButtonBackground(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.Model["counter"] = 0;
+                var incrimentButtonFunctions = new nac.Forms.Form.ButtonFunctions();
+
+                f.HorizontalGroup(h =>
+                {
+                    h.Text("Counter: ")
+                        .TextBoxFor("counter", onTextChanged: (newVal) =>
+                        {
+                            int counterInt = Convert.ToInt32(f.Model["counter"] as string);
+                            if (counterInt % 2 == 0)
+                            {
+                                incrimentButtonFunctions.setStyle(new Style
+                                {
+                                    backgroundColor = Colors.Purple
+                                });
+                            }
+                            else
+                            {
+                                incrimentButtonFunctions.setStyle(new Style
+                                {
+                                    backgroundColor = Colors.Azure
+                                });
+                            }
+                        })
+                        .Button("Incriment", (args) =>
+                        {
+                            int counterInt = Convert.ToInt32(f.Model["counter"] as string);
+                            f.Model["counter"] = ++counterInt;
+                        }, functions: incrimentButtonFunctions);
+                });
+            });
+        }
+        
+        
+        
+        
     }
 }
