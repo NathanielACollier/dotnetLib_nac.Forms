@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using nac.Forms.lib;
 using nac.Forms.model;
 
 namespace nac.Forms
@@ -296,9 +297,16 @@ namespace nac.Forms
 
         public void DisplayChildForm(Action<Form> setupChildForm, int height = 600, int width = 800,
             Func<Form,bool?> onClosing = null,
-            Action<Form> onDisplay = null)
+            Action<Form> onDisplay = null,
+            bool useIsolatedModelForThisChildForm = false)
         {
-            var childForm = new Form(this.app, this.Model);
+            // default to use the parent's model, but some child will use a DataContext and need an isolated model
+            var childFormModel = this.Model;
+            if (useIsolatedModelForThisChildForm == true)
+            {
+                childFormModel = new BindableDynamicDictionary();
+            }
+            var childForm = new Form(this.app, childFormModel);
 
             setupChildForm(childForm);
 
