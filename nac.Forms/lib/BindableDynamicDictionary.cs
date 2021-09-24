@@ -123,5 +123,10 @@ namespace nac.Forms.lib
             if (propChange == null) return;
             propChange(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public bool HasKey(string key)
+        {
+            return this.GetDynamicMemberNames().Contains(key);
+        }
     }
 }

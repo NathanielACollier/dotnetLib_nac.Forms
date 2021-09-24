@@ -668,31 +668,32 @@ namespace TestApp.lib
         {
             parentForm.DisplayChildForm(f =>
             {
-                var contact = new model.Contact();
-                f.Model[nac.Forms.model.SpecialModelKeys.DataContext] = contact;
+                var model = new model.ContactWindowMainModel();
+                
+                f.Model[nac.Forms.model.SpecialModelKeys.DataContext] = model;
 
                 f.Text("Contact Editor")
                     .HorizontalGroup(h =>
                     {
                         h.Text("Name: ")
-                            .TextBoxFor("displayName");
+                            .TextBoxFor("Contact.DisplayName");
                     })
                     .HorizontalGroup(h =>
                     {
                         h.Text("Email: ")
-                            .TextBoxFor("email");
+                            .TextBoxFor("Contact.Email");
                     })
                     .Button("save", (obj) =>
                     {
-                        f.Model["results"] = $@"
-                            Display Name: {contact.DisplayName}
-                            Email: {contact.Email}
+                        model.Results = $@"
+                            Display Name: {model.Contact.DisplayName}
+                            Email: {model.Contact.Email}
                             ";
                     })
                     .HorizontalGroup(h =>
                     {
                         h.Text("Results: ")
-                            .TextBoxFor("results", multiline: true, style: new nac.Forms.model.Style
+                            .TextBoxFor("Results", multiline: true, style: new nac.Forms.model.Style
                             {
                                 height = 100
                             });

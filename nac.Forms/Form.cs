@@ -119,44 +119,104 @@ namespace nac.Forms
             };
         }
 
+
         private object getDataContextValue(object dataContext, string modelFieldName){
             if (dataContext == null)
             {
                 throw new Exception("DataContext special field in model is null");
             }
-            
+
+            var fieldPath = new model.ModelFieldNamePathInfo(modelFieldName);
+
             if( dataContext is lib.BindableDynamicDictionary dynDict){
-                if (!dynDict.GetDynamicMemberNames().Contains(modelFieldName))
+                if (!dynDict.HasKey(fieldPath.Current))
                 {
-                    throw new Exception($"Field [{modelFieldName}] does not exist on DataContext object");
+                    throw new Exception($"Field [{fieldPath.Current}] does not exist on DataContext object");
                 }
-                return dynDict[modelFieldName];
+
+                var val = dynDict[fieldPath.Current];
+                if (fieldPath.ChildPath.Length > 0)
+                {
+                    return getDataContextValue(val, fieldPath.ChildPath);
+                }
+                else
+                {
+                    return val;
+                }
             }else
             {
                 Type dcType = dataContext.GetType();
-                var prop = dcType.GetProperty(modelFieldName);
+                var prop = dcType.GetProperty(fieldPath.Current);
                 if (prop == null)
                 {
                     throw new Exception(
-                        $"Field [{modelFieldName}] does not exist on DataContext object of [type: {dcType.Name}]");
+                        $"Field [{fieldPath.Current}] does not exist on DataContext object of [type: {dcType.Name}]");
                 }
-                return prop.GetValue(dataContext);
+                
+                var val = prop.GetValue(dataContext);
+
+                if (fieldPath.ChildPath.Length > 0)
+                {
+                    return getDataContextValue(val, fieldPath.ChildPath);
+                }
+                else
+                {
+                    return val;
+                }
+                
             }
         }
         
-        void setDataContextValue(object dataContext, string modelFieldName,  object val){
-            if( dataContext is lib.BindableDynamicDictionary dynDict){
-                dynDict[modelFieldName] = val;
-            }else {
-                Type dcType = dataContext.GetType();
-                var prop = dcType.GetProperty(modelFieldName);
-                if (prop == null)
+        private void setDataContextValue(object dataContext, string modelFieldName,  object val)
+        {
+
+            var fieldPath = new model.ModelFieldNamePathInfo(modelFieldName);
+
+            if (fieldPath.ChildPath.Length > 0)
+            {
+                if (dataContext is lib.BindableDynamicDictionary dyncDict)
                 {
-                    throw new Exception(
-                        $"Field [{modelFieldName}] does not exist on DataContext object of [type: {dcType.Name}]");
+                    // dynDict must contain this part of the path, because it's a path
+                    if (!dyncDict.HasKey(fieldPath.Current))
+                    {
+                        throw new Exception($"Field [{fieldPath.Current}] does not exist on DataContext object");
+                    }
+
+                    var currentPathVal = dyncDict[fieldPath.Current];
+                    setDataContextValue(currentPathVal, fieldPath.ChildPath, val); 
                 }
-                prop.SetValue(dataContext, val);
+                else
+                {
+                    Type dcType = dataContext.GetType();
+                    var prop = dcType.GetProperty(fieldPath.Current);
+                    if (prop == null)
+                    {
+                        throw new Exception(
+                            $"Field [{fieldPath.Current}] does not exist on DataContext object of [type: {dcType.Name}]");
+                    }
+
+                    var currentPathVal = prop.GetValue(dataContext);
+                    setDataContextValue(currentPathVal, fieldPath.ChildPath, val);
+                }
             }
+            else
+            {
+                // no child path so do the normal
+                if( dataContext is lib.BindableDynamicDictionary dynDict){
+                    dynDict[fieldPath.Current] = val;
+                }else {
+                    Type dcType = dataContext.GetType();
+                    var prop = dcType.GetProperty(fieldPath.Current);
+                    if (prop == null)
+                    {
+                        throw new Exception(
+                            $"Field [{fieldPath.Current}] does not exist on DataContext object of [type: {dcType.Name}]");
+                    }
+                    prop.SetValue(dataContext, val);
+                }
+            }
+            
+
         }
 
         private void AddBinding<T>(string modelFieldName,
