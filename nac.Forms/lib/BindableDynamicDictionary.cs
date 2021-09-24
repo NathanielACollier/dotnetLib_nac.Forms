@@ -36,7 +36,7 @@ namespace nac.Forms.lib
 
         public T GetOrDefault<T>(string key, T defaultValue)
         {
-            if(GetDynamicMemberNames().Contains(key) && this[key] != null)
+            if(HasKey(key) && this[key] != null)
             {
                 if( this[key] is T curVal)
                 {

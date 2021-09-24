@@ -102,7 +102,7 @@ namespace nac.Forms
         private void notifyOnModelChange(string modelFieldName, Action<object> codeToRunOnChange)
         {
             // need to fire what it is now if there is anything there
-            if (this.Model.GetDynamicMemberNames().Contains(modelFieldName))
+            if (this.Model.HasKey(modelFieldName))
             {
                 // fire OnNext
                 codeToRunOnChange(this.Model[modelFieldName]);
@@ -237,7 +237,7 @@ namespace nac.Forms
             object dataContext = null;
 
             // does model contain a datacontext???
-            if( this.Model.GetDynamicMemberNames().Any(key=> string.Equals(key, SpecialModelKeys.DataContext, StringComparison.OrdinalIgnoreCase))){
+            if( this.Model.HasKey(SpecialModelKeys.DataContext)){
                 // bind to the data context
                 dataContext = this.Model[SpecialModelKeys.DataContext];
 
