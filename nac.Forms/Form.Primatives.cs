@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using nac.Forms.model;
@@ -40,7 +41,8 @@ namespace nac.Forms
 
 		public Form TextBoxFor(string modelFieldName,
                         bool multiline = false,
-                        model.Style style = null)
+                        model.Style style = null,
+                        Action<string> onTextChanged=null)
         {
             var tb = new TextBox();
             lib.styleUtil.style(this, tb, style);
@@ -48,6 +50,13 @@ namespace nac.Forms
             AddBinding<string>(modelFieldName, tb, TextBox.TextProperty,
 				isTwoWayDataBinding: true);
 
+            // for text changed you do observable because Avalonia hasn't implemented TextChanged for TextBox yet
+            //  see: https://github.com/AvaloniaUI/Avalonia/issues/418
+            tb.GetObservable(TextBox.TextProperty).Subscribe(newTextValue =>
+            {
+                onTextChanged?.Invoke(newTextValue);
+            });
+            
             if (multiline)
             {
                 tb.AcceptsReturn = true;
@@ -64,8 +73,14 @@ namespace nac.Forms
             return this;
         }
 
+        public class ButtonFunctions
+        {
+            public Action<model.Style> setStyle;
+        }
+
 		public Form Button(string displayText, Action<object> onClick, 
-                Style style = null)
+                Style style = null,
+                ButtonFunctions functions = null)
         {
             var btn = new Button();
             lib.styleUtil.style(this, btn, style);
@@ -75,6 +90,15 @@ namespace nac.Forms
             {
                 onClick(null);
             };
+
+            if (functions != null)
+            {
+                functions.setStyle = (_newStyle) =>
+                {
+                    lib.styleUtil.style(this, btn, _newStyle);
+                };
+            }
+            
             AddRowToHost(btn);
             return this;
         }

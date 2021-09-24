@@ -485,16 +485,17 @@ namespace TestApp.lib
         public static void Test_DataContext_HelloWorld(Form parentForm)
         {
             var model = new TestApp.model.DataContext_HelloWorld(); // this will be our model
-            parentForm.Model[nac.Forms.model.SpecialModelKeys.DataContext] = model; // this will enable our "DataContext" to have strongly types
+            
             parentForm.DisplayChildForm(f =>
             {
+                f.Model[nac.Forms.model.SpecialModelKeys.DataContext] = model; // this will enable our "DataContext" to have strongly types
                 f.TextBoxFor(nameof(TestApp.model.DataContext_HelloWorld.Message))
                     .HorizontalGroup(hg =>
                     {
                         hg.Text("You have typed: ")
                             .TextFor(nameof(TestApp.model.DataContext_HelloWorld.Message));
                     });
-            });
+            }, useIsolatedModelForThisChildForm: true);
         }
 
 
@@ -624,6 +625,81 @@ namespace TestApp.lib
                     });
                 });
             });
+        }
+
+        public static void TestStyle_Button_ChangeButtonBackground(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.Model["counter"] = 0;
+                var incrimentButtonFunctions = new nac.Forms.Form.ButtonFunctions();
+
+                f.HorizontalGroup(h =>
+                {
+                    h.Text("Counter: ")
+                        .TextBoxFor("counter", onTextChanged: (newVal) =>
+                        {
+                            int counterInt = Convert.ToInt32(f.Model["counter"] as string);
+                            if (counterInt % 2 == 0)
+                            {
+                                incrimentButtonFunctions.setStyle?.Invoke(new Style
+                                {
+                                    backgroundColor = Colors.Purple
+                                });
+                            }
+                            else
+                            {
+                                incrimentButtonFunctions.setStyle?.Invoke(new Style
+                                {
+                                    backgroundColor = Colors.Azure
+                                });
+                            }
+                        })
+                        .Button("Incriment", (args) =>
+                        {
+                            int counterInt = Convert.ToInt32(f.Model["counter"] as string);
+                            f.Model["counter"] = ++counterInt;
+                        }, functions: incrimentButtonFunctions);
+                });
+            });
+        }
+
+
+        public static void Test_DataContext_ContactClassModel(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                var model = new model.ContactWindowMainModel();
+                
+                f.Model[nac.Forms.model.SpecialModelKeys.DataContext] = model;
+
+                f.Text("Contact Editor")
+                    .HorizontalGroup(h =>
+                    {
+                        h.Text("Name: ")
+                            .TextBoxFor("Contact.DisplayName");
+                    })
+                    .HorizontalGroup(h =>
+                    {
+                        h.Text("Email: ")
+                            .TextBoxFor("Contact.Email");
+                    })
+                    .Button("save", (obj) =>
+                    {
+                        model.Results = $@"
+                            Display Name: {model.Contact.DisplayName}
+                            Email: {model.Contact.Email}
+                            ";
+                    })
+                    .HorizontalGroup(h =>
+                    {
+                        h.Text("Results: ")
+                            .TextBoxFor("Results", multiline: true, style: new nac.Forms.model.Style
+                            {
+                                height = 100
+                            });
+                    });
+            }, useIsolatedModelForThisChildForm: true);
         }
     }
 }

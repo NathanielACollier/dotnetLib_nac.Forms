@@ -36,7 +36,7 @@ namespace nac.Forms.lib
 
         public T GetOrDefault<T>(string key, T defaultValue)
         {
-            if(GetDynamicMemberNames().Contains(key) && this[key] != null)
+            if(HasKey(key) && this[key] != null)
             {
                 if( this[key] is T curVal)
                 {
@@ -122,6 +122,11 @@ namespace nac.Forms.lib
             var propChange = PropertyChanged;
             if (propChange == null) return;
             propChange(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public bool HasKey(string key)
+        {
+            return this.GetDynamicMemberNames().Contains(key);
         }
     }
 }

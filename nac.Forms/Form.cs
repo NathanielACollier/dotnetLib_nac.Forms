@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using nac.Forms.lib;
 using nac.Forms.model;
 
 namespace nac.Forms
@@ -102,7 +103,7 @@ namespace nac.Forms
         private void notifyOnModelChange(string modelFieldName, Action<object> codeToRunOnChange)
         {
             // need to fire what it is now if there is anything there
-            if (this.Model.GetDynamicMemberNames().Contains(modelFieldName))
+            if (this.Model.HasKey(modelFieldName))
             {
                 // fire OnNext
                 codeToRunOnChange(this.Model[modelFieldName]);
@@ -120,6 +121,104 @@ namespace nac.Forms
         }
 
 
+        private object getDataContextValue(object dataContext, string modelFieldName){
+            if (dataContext == null)
+            {
+                throw new Exception("DataContext special field in model is null");
+            }
+
+            var fieldPath = new model.ModelFieldNamePathInfo(modelFieldName);
+
+            if( dataContext is lib.BindableDynamicDictionary dynDict){
+                if (!dynDict.HasKey(fieldPath.Current))
+                {
+                    throw new Exception($"Field [{fieldPath.Current}] does not exist on DataContext object");
+                }
+
+                var val = dynDict[fieldPath.Current];
+                if (fieldPath.ChildPath.Length > 0)
+                {
+                    return getDataContextValue(val, fieldPath.ChildPath);
+                }
+                else
+                {
+                    return val;
+                }
+            }else
+            {
+                Type dcType = dataContext.GetType();
+                var prop = dcType.GetProperty(fieldPath.Current);
+                if (prop == null)
+                {
+                    throw new Exception(
+                        $"Field [{fieldPath.Current}] does not exist on DataContext object of [type: {dcType.Name}]");
+                }
+                
+                var val = prop.GetValue(dataContext);
+
+                if (fieldPath.ChildPath.Length > 0)
+                {
+                    return getDataContextValue(val, fieldPath.ChildPath);
+                }
+                else
+                {
+                    return val;
+                }
+                
+            }
+        }
+        
+        private void setDataContextValue(object dataContext, string modelFieldName,  object val)
+        {
+
+            var fieldPath = new model.ModelFieldNamePathInfo(modelFieldName);
+
+            if (fieldPath.ChildPath.Length > 0)
+            {
+                if (dataContext is lib.BindableDynamicDictionary dyncDict)
+                {
+                    // dynDict must contain this part of the path, because it's a path
+                    if (!dyncDict.HasKey(fieldPath.Current))
+                    {
+                        throw new Exception($"Field [{fieldPath.Current}] does not exist on DataContext object");
+                    }
+
+                    var currentPathVal = dyncDict[fieldPath.Current];
+                    setDataContextValue(currentPathVal, fieldPath.ChildPath, val); 
+                }
+                else
+                {
+                    Type dcType = dataContext.GetType();
+                    var prop = dcType.GetProperty(fieldPath.Current);
+                    if (prop == null)
+                    {
+                        throw new Exception(
+                            $"Field [{fieldPath.Current}] does not exist on DataContext object of [type: {dcType.Name}]");
+                    }
+
+                    var currentPathVal = prop.GetValue(dataContext);
+                    setDataContextValue(currentPathVal, fieldPath.ChildPath, val);
+                }
+            }
+            else
+            {
+                // no child path so do the normal
+                if( dataContext is lib.BindableDynamicDictionary dynDict){
+                    dynDict[fieldPath.Current] = val;
+                }else {
+                    Type dcType = dataContext.GetType();
+                    var prop = dcType.GetProperty(fieldPath.Current);
+                    if (prop == null)
+                    {
+                        throw new Exception(
+                            $"Field [{fieldPath.Current}] does not exist on DataContext object of [type: {dcType.Name}]");
+                    }
+                    prop.SetValue(dataContext, val);
+                }
+            }
+            
+
+        }
 
         private void AddBinding<T>(string modelFieldName,
             AvaloniaObject control,
@@ -137,24 +236,9 @@ namespace nac.Forms
 
             bool bindingIsDataContext = false;
             object dataContext = null;
-            object getDataContextValue(){
-                if( dataContext is lib.BindableDynamicDictionary dynDict){
-                    return dynDict[modelFieldName];
-                }else{
-                    return dataContext.GetType().GetProperty(modelFieldName).GetValue(dataContext);
-                }
-                
-            }
-            void setDataContextValue(object val){
-                if( dataContext is lib.BindableDynamicDictionary dynDict){
-                    dynDict[modelFieldName] = val;
-                }else {
-                    dataContext.GetType().GetProperty(modelFieldName).SetValue(dataContext, val);
-                }
-            }
 
             // does model contain a datacontext???
-            if( this.Model.GetDynamicMemberNames().Any(key=> string.Equals(key, SpecialModelKeys.DataContext, StringComparison.OrdinalIgnoreCase))){
+            if( this.Model.HasKey(SpecialModelKeys.DataContext)){
                 // bind to the data context
                 dataContext = this.Model[SpecialModelKeys.DataContext];
 
@@ -163,12 +247,12 @@ namespace nac.Forms
                     bindingIsDataContext = true;
 
                     // need to fire it's current value.  Then start watching for changes
-                    FireOnNextWithValue<T>(bindingSource, getDataContextValue());
+                    FireOnNextWithValue<T>(bindingSource, getDataContextValue(dataContext, modelFieldName));
 
                     prop.PropertyChanged += (_s,_args) => {
                         if( string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase)){
                             
-                            FireOnNextWithValue<T>(bindingSource, getDataContextValue());
+                            FireOnNextWithValue<T>(bindingSource, getDataContextValue(dataContext, modelFieldName));
                         }
                     };
                 }
@@ -201,7 +285,7 @@ namespace nac.Forms
                 {
                     if( bindingIsDataContext){
                         // set the property
-                        setDataContextValue(newVal);
+                        setDataContextValue(dataContext, modelFieldName,  newVal);
                     }else {
                         this.Model[modelFieldName] = newVal;
                     }
@@ -213,9 +297,16 @@ namespace nac.Forms
 
         public void DisplayChildForm(Action<Form> setupChildForm, int height = 600, int width = 800,
             Func<Form,bool?> onClosing = null,
-            Action<Form> onDisplay = null)
+            Action<Form> onDisplay = null,
+            bool useIsolatedModelForThisChildForm = false)
         {
-            var childForm = new Form(this.app, this.Model);
+            // default to use the parent's model, but some child will use a DataContext and need an isolated model
+            var childFormModel = this.Model;
+            if (useIsolatedModelForThisChildForm == true)
+            {
+                childFormModel = new BindableDynamicDictionary();
+            }
+            var childForm = new Form(this.app, childFormModel);
 
             setupChildForm(childForm);
 
