@@ -220,6 +220,31 @@ namespace nac.Forms
 
         }
 
+
+        /*
+         This is used at least by the nac.Forms.Table project to get access to the List itemsource even if it's on the DataContext
+         */
+        public object getModelValue(string modelFieldName)
+        {
+            if (this.Model.HasKey(model.SpecialModelKeys.DataContext))
+            {
+                var dataContext = this.Model[SpecialModelKeys.DataContext];
+                return getDataContextValue(dataContext, modelFieldName:  modelFieldName);
+            }
+            else
+            {
+                if (this.Model.HasKey(modelFieldName))
+                {
+                    return this.Model[modelFieldName];
+                }
+                else
+                {
+                    throw new Exception($"Form Model does not contain [key={modelFieldName}]");
+                }
+            }
+        }
+        
+        
         private void AddBinding<T>(string modelFieldName,
             AvaloniaObject control,
             AvaloniaProperty property,
