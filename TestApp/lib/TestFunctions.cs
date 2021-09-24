@@ -641,14 +641,14 @@ namespace TestApp.lib
                             int counterInt = Convert.ToInt32(f.Model["counter"] as string);
                             if (counterInt % 2 == 0)
                             {
-                                incrimentButtonFunctions.setStyle(new Style
+                                incrimentButtonFunctions.setStyle?.Invoke(new Style
                                 {
                                     backgroundColor = Colors.Purple
                                 });
                             }
                             else
                             {
-                                incrimentButtonFunctions.setStyle(new Style
+                                incrimentButtonFunctions.setStyle?.Invoke(new Style
                                 {
                                     backgroundColor = Colors.Azure
                                 });
