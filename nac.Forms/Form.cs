@@ -119,7 +119,45 @@ namespace nac.Forms
             };
         }
 
-
+        private object getDataContextValue(object dataContext, string modelFieldName){
+            if (dataContext == null)
+            {
+                throw new Exception("DataContext special field in model is null");
+            }
+            
+            if( dataContext is lib.BindableDynamicDictionary dynDict){
+                if (!dynDict.GetDynamicMemberNames().Contains(modelFieldName))
+                {
+                    throw new Exception($"Field [{modelFieldName}] does not exist on DataContext object");
+                }
+                return dynDict[modelFieldName];
+            }else
+            {
+                Type dcType = dataContext.GetType();
+                var prop = dcType.GetProperty(modelFieldName);
+                if (prop == null)
+                {
+                    throw new Exception(
+                        $"Field [{modelFieldName}] does not exist on DataContext object of [type: {dcType.Name}]");
+                }
+                return prop.GetValue(dataContext);
+            }
+        }
+        
+        void setDataContextValue(object dataContext, string modelFieldName,  object val){
+            if( dataContext is lib.BindableDynamicDictionary dynDict){
+                dynDict[modelFieldName] = val;
+            }else {
+                Type dcType = dataContext.GetType();
+                var prop = dcType.GetProperty(modelFieldName);
+                if (prop == null)
+                {
+                    throw new Exception(
+                        $"Field [{modelFieldName}] does not exist on DataContext object of [type: {dcType.Name}]");
+                }
+                prop.SetValue(dataContext, val);
+            }
+        }
 
         private void AddBinding<T>(string modelFieldName,
             AvaloniaObject control,
@@ -137,21 +175,6 @@ namespace nac.Forms
 
             bool bindingIsDataContext = false;
             object dataContext = null;
-            object getDataContextValue(){
-                if( dataContext is lib.BindableDynamicDictionary dynDict){
-                    return dynDict[modelFieldName];
-                }else{
-                    return dataContext.GetType().GetProperty(modelFieldName).GetValue(dataContext);
-                }
-                
-            }
-            void setDataContextValue(object val){
-                if( dataContext is lib.BindableDynamicDictionary dynDict){
-                    dynDict[modelFieldName] = val;
-                }else {
-                    dataContext.GetType().GetProperty(modelFieldName).SetValue(dataContext, val);
-                }
-            }
 
             // does model contain a datacontext???
             if( this.Model.GetDynamicMemberNames().Any(key=> string.Equals(key, SpecialModelKeys.DataContext, StringComparison.OrdinalIgnoreCase))){
@@ -163,12 +186,12 @@ namespace nac.Forms
                     bindingIsDataContext = true;
 
                     // need to fire it's current value.  Then start watching for changes
-                    FireOnNextWithValue<T>(bindingSource, getDataContextValue());
+                    FireOnNextWithValue<T>(bindingSource, getDataContextValue(dataContext, modelFieldName));
 
                     prop.PropertyChanged += (_s,_args) => {
                         if( string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase)){
                             
-                            FireOnNextWithValue<T>(bindingSource, getDataContextValue());
+                            FireOnNextWithValue<T>(bindingSource, getDataContextValue(dataContext, modelFieldName));
                         }
                     };
                 }
@@ -201,7 +224,7 @@ namespace nac.Forms
                 {
                     if( bindingIsDataContext){
                         // set the property
-                        setDataContextValue(newVal);
+                        setDataContextValue(dataContext, modelFieldName,  newVal);
                     }else {
                         this.Model[modelFieldName] = newVal;
                     }
