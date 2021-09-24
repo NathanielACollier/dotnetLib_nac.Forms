@@ -662,9 +662,42 @@ namespace TestApp.lib
                 });
             });
         }
-        
-        
-        
-        
+
+
+        public static void Test_DataContext_ContactClassModel(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                var contact = new model.Contact();
+                f.Model[nac.Forms.model.SpecialModelKeys.DataContext] = contact;
+
+                f.Text("Contact Editor")
+                    .HorizontalGroup(h =>
+                    {
+                        h.Text("Name: ")
+                            .TextBoxFor("displayName");
+                    })
+                    .HorizontalGroup(h =>
+                    {
+                        h.Text("Email: ")
+                            .TextBoxFor("email");
+                    })
+                    .Button("save", (obj) =>
+                    {
+                        f.Model["results"] = $@"
+                            Display Name: {contact.DisplayName}
+                            Email: {contact.Email}
+                            ";
+                    })
+                    .HorizontalGroup(h =>
+                    {
+                        h.Text("Results: ")
+                            .TextBoxFor("results", multiline: true, style: new nac.Forms.model.Style
+                            {
+                                height = 100
+                            });
+                    });
+            });
+        }
     }
 }

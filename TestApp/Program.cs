@@ -149,8 +149,13 @@ namespace TestApp
                 },
                 new TestEntry()
                 {
-                    Name = "DataContext: Hello World!",
+                    Name = "Test DataContext: Hello World!",
                     CodeToRun = lib.TestFunctions.Test_DataContext_HelloWorld
+                },
+                new TestEntry
+                {
+                    Name = "Test DataContext: Contact Class Model",
+                    CodeToRun = lib.TestFunctions.Test_DataContext_ContactClassModel
                 },
                 new TestEntry()
                 {
