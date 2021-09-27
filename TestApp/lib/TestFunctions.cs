@@ -671,7 +671,7 @@ namespace TestApp.lib
             {
                 var model = new model.ContactWindowMainModel();
                 
-                f.Model[nac.Forms.model.SpecialModelKeys.DataContext] = model;
+                f.DataContext = model;
 
                 f.Text("Contact Editor")
                     .HorizontalGroup(h =>
