@@ -23,6 +23,12 @@ namespace nac.Forms
         private bool isMainForm;
         private bool isDisplayed;
 
+        public object DataContext
+        {
+            get { return this.Model[model.SpecialModelKeys.DataContext]; }
+            set { this.Model[model.SpecialModelKeys.DataContext] = value; }
+        }
+
         public Form(Application __app, lib.BindableDynamicDictionary _model=null)
         {
             if( _model == null)
