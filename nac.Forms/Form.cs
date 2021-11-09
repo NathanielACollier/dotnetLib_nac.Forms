@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using nac.Forms.lib;
 using nac.Forms.model;
 
@@ -249,21 +250,30 @@ namespace nac.Forms
                 }
             }
         }
+
+
+        public void setModelValue(string modelFieldName, object val)
+        {
+            if (this.Model.HasKey(model.SpecialModelKeys.DataContext))
+            {
+                var dataContext = this.Model[SpecialModelKeys.DataContext];
+                setDataContextValue(dataContext, modelFieldName, val);
+            }
+            else
+            {
+                this.Model[modelFieldName] = val;
+            }
+        }
         
         
         private void AddBinding<T>(string modelFieldName,
             AvaloniaObject control,
-            AvaloniaProperty property,
+            AvaloniaProperty<T> property,
             bool isTwoWayDataBinding = false)
         {
             // (ideas from here)[http://avaloniaui.net/docs/binding/binding-from-code]
             var bindingSource = new Subject<T>();
-            var bindingSourceObservable = bindingSource.AsObservable()
-                .Select(i =>
-                {
-                    return (object)i;
-                });
-            control.Bind(property, bindingSourceObservable);
+            control.Bind<T>(property, bindingSource.AsObservable());
 
             bool bindingIsDataContext = false;
             object dataContext = null;
@@ -278,12 +288,17 @@ namespace nac.Forms
                     bindingIsDataContext = true;
 
                     // need to fire it's current value.  Then start watching for changes
-                    FireOnNextWithValue<T>(bindingSource, getDataContextValue(dataContext, modelFieldName));
+                    var currentValue = getDataContextValue(dataContext, modelFieldName);
+                    log.Debug(
+                        $"AddBinding-Model Value Change [*Initial* Field: {modelFieldName}; New Value: {currentValue}]");
+                    FireOnNextWithValue<T>(bindingSource, currentValue );
 
                     prop.PropertyChanged += (_s,_args) => {
-                        if( string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase)){
-                            
-                            FireOnNextWithValue<T>(bindingSource, getDataContextValue(dataContext, modelFieldName));
+                        if( string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            var newCurrentValue = getDataContextValue(dataContext, modelFieldName);
+                            log.Debug($"AddBinding-Model Value Change [Field: {modelFieldName}; New Value: {currentValue}]");
+                            FireOnNextWithValue<T>(bindingSource, newCurrentValue );
                         }
                     };
                 }
@@ -304,8 +319,6 @@ namespace nac.Forms
                     FireOnNext<T>(bindingSource, modelFieldName);
                 });
             }
-
-
             // If they say two way then we setup a watch on the property observable and apply the values back to the model
             if(isTwoWayDataBinding)
             {
@@ -314,15 +327,13 @@ namespace nac.Forms
 
                 controlValueChangesObservable.Subscribe(newVal =>
                 {
-                    if( bindingIsDataContext){
-                        // set the property
-                        setDataContextValue(dataContext, modelFieldName,  newVal);
-                    }else {
-                        this.Model[modelFieldName] = newVal;
-                    }
-                    
+                    log.Debug($"AddBinding-TwoWay-Control Value Change [Control Property: {property.Name}; Field: {modelFieldName}; New Value: {newVal}]");
+                    setModelValue(modelFieldName, newVal);
                 });
             }
+            
+            
+            // end of AddBinding
         }
         
 

@@ -31,7 +31,7 @@ namespace nac.Forms
                 {
                     var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
                     // this has to have a unique model
-                    rowForm.Model[SpecialModelKeys.DataContext] = itemModel;
+                    rowForm.DataContext = itemModel;
                     populateItemRow(rowForm);
 
                     rowForm.Host.DataContext = itemModel;
@@ -40,13 +40,13 @@ namespace nac.Forms
                 });
             }
             
-            if( !(this.Model[itemSourcePropertyName] is IEnumerable<T>))
+            if( !(getModelValue(itemSourcePropertyName) is IEnumerable<T>))
             {
                 throw new Exception($"Model items source property specified by name [{itemSourcePropertyName}] must be a IEnumerable<T>");
             }
 
-            AddBinding<IEnumerable<T>>(itemSourcePropertyName, itemsCtrl, ItemsControl.ItemsProperty,
-                isTwoWayDataBinding: true);
+            AddBinding<IEnumerable>(itemSourcePropertyName, itemsCtrl, ItemsControl.ItemsProperty,
+                isTwoWayDataBinding: false);
 
             // handle selection changed
             itemsCtrl.SelectionChanged += (_s, _args) =>
@@ -77,17 +77,17 @@ namespace nac.Forms
             lib.styleUtil.style(this,dp,style);
             
             // Just as a safety check, make them init the model first
-            if( !(this.Model[itemSourceModelName] is IEnumerable<T>))
+            if( !(getModelValue(itemSourceModelName) is IEnumerable<T>))
             {
                 throw new Exception($"Model {nameof(itemSourceModelName)} source property specified by name [{itemSourceModelName}] must be a IEnumerable<T>");
             }
 
             
             // item source binding
-            AddBinding<IEnumerable<T>>(modelFieldName: itemSourceModelName,
+            AddBinding<IEnumerable>(modelFieldName: itemSourceModelName,
                                         control: dp,
                                         property: Avalonia.Controls.ComboBox.ItemsProperty,
-                                        isTwoWayDataBinding:true);
+                                        isTwoWayDataBinding:false);
             
             // selected item binding
             AddBinding<object>(modelFieldName: selectedItemModelName,
@@ -101,7 +101,7 @@ namespace nac.Forms
                 {
                     var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
                     // this has to have a unique model
-                    rowForm.Model[SpecialModelKeys.DataContext] = itemModel;
+                    rowForm.DataContext = itemModel;
                     populateItemRow(rowForm);
 
                     rowForm.Host.DataContext = itemModel;

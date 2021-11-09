@@ -684,12 +684,36 @@ namespace TestApp.lib
                         h.Text("Email: ")
                             .TextBoxFor("Contact.Email");
                     })
-                    .Button("save", (obj) =>
+                    .HorizontalGroup(h =>
                     {
-                        model.Results = $@"
+                        h.Button("New", (obj) =>
+                        {
+                            model.Contact = new model.Contact();
+                        }).Button("save", (obj) =>
+                        {
+                            model.Results = $@"
                             Display Name: {model.Contact.DisplayName}
                             Email: {model.Contact.Email}
                             ";
+                            model.savedContacts.Add(model.Contact);
+                            model.Contact = new model.Contact
+                            {
+                                Email = model.Contact.Email,
+                                DisplayName = model.Contact.DisplayName
+                            };
+                        });
+                    })
+                    .HorizontalGroup(h =>
+                    {
+                        h.Text("Saved Contacts: ")
+                            .DropDown<model.Contact>(itemSourceModelName: "savedContacts",
+                                selectedItemModelName: "Contact",
+                                populateItemRow: (r) => r.HorizontalGroup(h =>
+                                {
+                                    h.Text("Email: ")
+                                        .TextFor("Email");
+                                })
+                            );
                     })
                     .HorizontalGroup(h =>
                     {
@@ -698,7 +722,9 @@ namespace TestApp.lib
                             {
                                 height = 100
                             });
-                    });
+                    })
+                    .DebugAvalonia(); // enables press F12 to get the avalonia debug window
+                
             }, useIsolatedModelForThisChildForm: true);
         }
     }

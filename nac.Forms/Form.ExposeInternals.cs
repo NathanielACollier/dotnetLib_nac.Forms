@@ -26,7 +26,7 @@ namespace nac.Forms
         // public version of AddBinding
         public void _Extend_AddBinding<T>(string modelFieldName,
             AvaloniaObject control,
-            AvaloniaProperty property,
+            AvaloniaProperty<T> property,
             bool isTwoWayDataBinding = false)
         {
             AddBinding<T>(modelFieldName: modelFieldName,
