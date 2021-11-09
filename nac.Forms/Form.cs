@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using nac.Forms.lib;
 using nac.Forms.model;
 
@@ -267,17 +268,12 @@ namespace nac.Forms
         
         private void AddBinding<T>(string modelFieldName,
             AvaloniaObject control,
-            AvaloniaProperty property,
+            AvaloniaProperty<T> property,
             bool isTwoWayDataBinding = false)
         {
             // (ideas from here)[http://avaloniaui.net/docs/binding/binding-from-code]
             var bindingSource = new Subject<T>();
-            var bindingSourceObservable = bindingSource.AsObservable()
-                .Select(i =>
-                {
-                    return (object)i;
-                });
-            control.Bind(property, bindingSourceObservable);
+            control.Bind<T>(property, bindingSource.AsObservable());
 
             bool bindingIsDataContext = false;
             object dataContext = null;

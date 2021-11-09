@@ -45,7 +45,7 @@ namespace nac.Forms
                 throw new Exception($"Model items source property specified by name [{itemSourcePropertyName}] must be a IEnumerable<T>");
             }
 
-            AddBinding<IEnumerable<T>>(itemSourcePropertyName, itemsCtrl, ItemsControl.ItemsProperty,
+            AddBinding<IEnumerable>(itemSourcePropertyName, itemsCtrl, ItemsControl.ItemsProperty,
                 isTwoWayDataBinding: true);
 
             // handle selection changed
@@ -84,7 +84,7 @@ namespace nac.Forms
 
             
             // item source binding
-            AddBinding<IEnumerable<T>>(modelFieldName: itemSourceModelName,
+            AddBinding<IEnumerable>(modelFieldName: itemSourceModelName,
                                         control: dp,
                                         property: Avalonia.Controls.ComboBox.ItemsProperty,
                                         isTwoWayDataBinding:true);
