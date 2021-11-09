@@ -46,7 +46,7 @@ namespace nac.Forms
             }
 
             AddBinding<IEnumerable>(itemSourcePropertyName, itemsCtrl, ItemsControl.ItemsProperty,
-                isTwoWayDataBinding: true);
+                isTwoWayDataBinding: false);
 
             // handle selection changed
             itemsCtrl.SelectionChanged += (_s, _args) =>
@@ -87,7 +87,7 @@ namespace nac.Forms
             AddBinding<IEnumerable>(modelFieldName: itemSourceModelName,
                                         control: dp,
                                         property: Avalonia.Controls.ComboBox.ItemsProperty,
-                                        isTwoWayDataBinding:true);
+                                        isTwoWayDataBinding:false);
             
             // selected item binding
             AddBinding<object>(modelFieldName: selectedItemModelName,

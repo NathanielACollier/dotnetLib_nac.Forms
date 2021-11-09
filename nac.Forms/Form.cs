@@ -289,12 +289,15 @@ namespace nac.Forms
 
                     // need to fire it's current value.  Then start watching for changes
                     var currentValue = getDataContextValue(dataContext, modelFieldName);
+                    log.Debug(
+                        $"AddBinding-Model Value Change [*Initial* Field: {modelFieldName}; New Value: {currentValue}]");
                     FireOnNextWithValue<T>(bindingSource, currentValue );
 
                     prop.PropertyChanged += (_s,_args) => {
                         if( string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase))
                         {
                             var newCurrentValue = getDataContextValue(dataContext, modelFieldName);
+                            log.Debug($"AddBinding-Model Value Change [Field: {modelFieldName}; New Value: {currentValue}]");
                             FireOnNextWithValue<T>(bindingSource, newCurrentValue );
                         }
                     };
@@ -316,8 +319,6 @@ namespace nac.Forms
                     FireOnNext<T>(bindingSource, modelFieldName);
                 });
             }
-
-
             // If they say two way then we setup a watch on the property observable and apply the values back to the model
             if(isTwoWayDataBinding)
             {
@@ -326,15 +327,13 @@ namespace nac.Forms
 
                 controlValueChangesObservable.Subscribe(newVal =>
                 {
-                    if( bindingIsDataContext){
-                        // set the property
-                        setDataContextValue(dataContext, modelFieldName,  newVal);
-                    }else {
-                        this.Model[modelFieldName] = newVal;
-                    }
-                    
+                    log.Debug($"AddBinding-TwoWay-Control Value Change [Control Property: {property.Name}; Field: {modelFieldName}; New Value: {newVal}]");
+                    setModelValue(modelFieldName, newVal);
                 });
             }
+            
+            
+            // end of AddBinding
         }
         
 
