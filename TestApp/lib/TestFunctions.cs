@@ -690,11 +690,23 @@ namespace TestApp.lib
                             Display Name: {model.Contact.DisplayName}
                             Email: {model.Contact.Email}
                             ";
+                        model.savedContacts.Add(model.Contact);
+                        model.Contact = new model.Contact
+                        {
+                            Email = model.Contact.Email,
+                            DisplayName = model.Contact.DisplayName
+                        };
                     })
                     .HorizontalGroup(h =>
                     {
                         h.Text("Saved Contacts: ")
-                            .DropDown<model.Contact>(itemSourceModelName: "savedContacts", selectedItemModelName: "Contact");
+                            .DropDown<model.Contact>(itemSourceModelName: "savedContacts", selectedItemModelName: "Contact",
+                                populateItemRow: (r)=> r.HorizontalGroup(h=>
+                                {
+                                    h.Text("Email: ")
+                                    .TextFor("Email");
+                                })
+                                );
                     })
                     .HorizontalGroup(h =>
                     {
