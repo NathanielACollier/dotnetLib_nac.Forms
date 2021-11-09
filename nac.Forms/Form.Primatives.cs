@@ -32,7 +32,7 @@ namespace nac.Forms
 
 			if( defaultValue != null)
             {
-                this.Model[modelFieldName] = defaultValue;
+                setModelValue(modelFieldName, defaultValue);
             }
 
             AddRowToHost(label);

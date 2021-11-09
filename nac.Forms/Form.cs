@@ -249,6 +249,20 @@ namespace nac.Forms
                 }
             }
         }
+
+
+        public void setModelValue(string modelFieldName, object val)
+        {
+            if (this.Model.HasKey(model.SpecialModelKeys.DataContext))
+            {
+                var dataContext = this.Model[SpecialModelKeys.DataContext];
+                setDataContextValue(dataContext, modelFieldName, val);
+            }
+            else
+            {
+                this.Model[modelFieldName] = val;
+            }
+        }
         
         
         private void AddBinding<T>(string modelFieldName,

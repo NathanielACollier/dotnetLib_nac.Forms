@@ -18,7 +18,7 @@ namespace nac.Forms
         )
         {
             // initialize the filename in the model
-            this.Model[fieldName] = "";
+            setModelValue(fieldName, "");
 
             var filePicker = new controls.FilePicker();
 

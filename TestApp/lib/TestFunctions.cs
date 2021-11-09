@@ -693,6 +693,11 @@ namespace TestApp.lib
                     })
                     .HorizontalGroup(h =>
                     {
+                        h.Text("Saved Contacts: ")
+                            .DropDown<model.Contact>(itemSourceModelName: "savedContacts", selectedItemModelName: "Contact");
+                    })
+                    .HorizontalGroup(h =>
+                    {
                         h.Text("Results: ")
                             .TextBoxFor("Results", multiline: true, style: new nac.Forms.model.Style
                             {
