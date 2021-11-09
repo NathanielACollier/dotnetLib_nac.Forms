@@ -292,12 +292,14 @@ namespace nac.Forms
                     bindingIsDataContext = true;
 
                     // need to fire it's current value.  Then start watching for changes
-                    FireOnNextWithValue<T>(bindingSource, getDataContextValue(dataContext, modelFieldName));
+                    var currentValue = getDataContextValue(dataContext, modelFieldName);
+                    FireOnNextWithValue<T>(bindingSource, currentValue );
 
                     prop.PropertyChanged += (_s,_args) => {
-                        if( string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase)){
-                            
-                            FireOnNextWithValue<T>(bindingSource, getDataContextValue(dataContext, modelFieldName));
+                        if( string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            var newCurrentValue = getDataContextValue(dataContext, modelFieldName);
+                            FireOnNextWithValue<T>(bindingSource, newCurrentValue );
                         }
                     };
                 }
