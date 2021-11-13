@@ -19,6 +19,7 @@ namespace TestApp.model
         public DropDown_DataContext_BindSelectedItem_MainWindowModel()
         {
             this.ContactList = new ObservableCollection<Contact>();
+            this.SelectedContact = new model.Contact();
         }
     }
 }

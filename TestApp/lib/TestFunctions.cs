@@ -755,6 +755,9 @@ namespace TestApp.lib
                         onSelectionChanged: (_c) =>
                         {
                             log.info($"You selected {_c?.DisplayName}");
+                        }, populateItemRow: r =>
+                        {
+                            r.HorizontalGroup(h => h.Text("DisplayName: ").TextFor("DisplayName"));
                         })
                     .HorizontalGroup(h =>
                     {
