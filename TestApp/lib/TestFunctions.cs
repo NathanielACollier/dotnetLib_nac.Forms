@@ -727,5 +727,45 @@ namespace TestApp.lib
                 
             }, useIsolatedModelForThisChildForm: true);
         }
+
+        public static void Test_DropDown_DataContext_SelectedItemBinding(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                // setup Model
+                var m = new model.DropDown_DataContext_BindSelectedItem_MainWindowModel();
+                f.DataContext = m;
+                
+                foreach (var __c in new model.Contact[]
+                {
+                    new model.Contact { DisplayName = "Mike Brown", Email = "mike.brown@google.com" }, 
+                    new model.Contact{ DisplayName = "Jamie Joe", Email = "jamie.joe@google.com"},
+                    new model.Contact{ DisplayName = "Lisa Paige", Email = "lisa.paige@google.com"}
+                })
+                {
+                    m.ContactList.Add(__c);
+                }
+                
+                // setup UI
+                f.DropDown<model.Contact>(
+                        itemSourceModelName: nameof(model.DropDown_DataContext_BindSelectedItem_MainWindowModel
+                            .ContactList),
+                        selectedItemModelName: nameof(model.DropDown_DataContext_BindSelectedItem_MainWindowModel
+                            .SelectedContact),
+                        onSelectionChanged: (_c) =>
+                        {
+                            log.info($"You selected {_c?.DisplayName}");
+                        }, populateItemRow: r =>
+                        {
+                            r.HorizontalGroup(h => h.Text("DisplayName: ").TextFor("DisplayName"));
+                        })
+                    .HorizontalGroup(h =>
+                    {
+                        h.Text("Selected Contact: ")
+                            .TextFor("SelectedContact.DisplayName");
+                    });
+
+            }, useIsolatedModelForThisChildForm: true);
+        }
     }
 }
