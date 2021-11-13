@@ -131,7 +131,7 @@ namespace nac.Forms
         private object getDataContextValue(object dataContext, string modelFieldName){
             if (dataContext == null)
             {
-                throw new Exception("DataContext special field in model is null");
+                throw new Exception($"Error accessing [field: {modelFieldName}]. DataContext special field in model is null");
             }
 
             var fieldPath = new model.ModelFieldNamePathInfo(modelFieldName);
@@ -165,6 +165,11 @@ namespace nac.Forms
 
                 if (fieldPath.ChildPath.Length > 0)
                 {
+                    if (val == null)
+                    {
+                        // warn that we have a child path but a parent is null
+                        log.Warn($"DataContext warning.  Child Path found [FullPath: {modelFieldName}] but current [Path: {fieldPath.Current}] is null.  Would not be able to find [child path: {fieldPath.ChildPath}] while parent is null.");
+                    }
                     return getDataContextValue(val, fieldPath.ChildPath);
                 }
                 else
@@ -327,6 +332,12 @@ namespace nac.Forms
 
                 controlValueChangesObservable.Subscribe(newVal =>
                 {
+                    if( newVal == null)
+                    {
+                        // there is never a situation where the UI would need to make a model property null right???
+                        return;
+                    }
+
                     log.Debug($"AddBinding-TwoWay-Control Value Change [Control Property: {property.Name}; Field: {modelFieldName}; New Value: {newVal}]");
                     setModelValue(modelFieldName, newVal);
                 });
