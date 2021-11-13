@@ -639,7 +639,14 @@ namespace TestApp.lib
                     h.Text("Counter: ")
                         .TextBoxFor("counter", onTextChanged: (newVal) =>
                         {
-                            int counterInt = Convert.ToInt32(f.Model["counter"] as string);
+                            var counterText = f.Model["counter"] as string;
+
+                            if (string.IsNullOrWhiteSpace(counterText) ||
+                                !int.TryParse(counterText, out int counterInt))
+                            {
+                                return;
+                            }
+                            
                             if (counterInt % 2 == 0)
                             {
                                 incrimentButtonFunctions.setStyle?.Invoke(new Style

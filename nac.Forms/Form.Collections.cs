@@ -99,6 +99,14 @@ namespace nac.Forms
             {
                 dp.ItemTemplate = new FuncDataTemplate<object>((itemModel, nameScope) =>
                 {
+                    if (itemModel == null)
+                    {
+                        // how could itemModel be null?  Sometimes it is though, so strange
+                        var tb = new Avalonia.Controls.TextBlock();
+                        tb.Text = "(null)";
+                        return tb;
+                    }
+                    
                     var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
                     // this has to have a unique model
                     rowForm.DataContext = itemModel;

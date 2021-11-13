@@ -314,7 +314,7 @@ namespace nac.Forms
                      If you don't want to go to the trouble of implementing INotifyPropertyChanged just have your items use BindableDictionary and it's pretty easy
                      */
                     throw new Exception(
-                        $"Special DataContext used in model, but DataContext is not INotifyPropertyChanged.  Type given is {dataContext.GetType().Name}.  There is no way to read properties without INotifyPropertyChanged");
+                        $"Special DataContext used in model, but DataContext is not INotifyPropertyChanged.  [modelFileName: {modelFieldName}] Type given is {dataContext?.GetType().Name ?? "null"}.  There is no way to read properties without INotifyPropertyChanged");
                 }
             }
 
