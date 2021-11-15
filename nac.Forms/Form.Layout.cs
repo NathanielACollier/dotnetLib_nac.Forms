@@ -212,6 +212,10 @@ namespace nac.Forms
 
         public Form Panel<T>(string modelFieldName, Action<Form> populatePanel)
         {
+            /*
+             Here is documentation on how ContentControl works:
+             https://docs.avaloniaui.net/docs/controls/contentcontrol
+             */
             var panelControl = new Avalonia.Controls.ContentControl();
 
             if (!(getModelValue(modelFieldName) is T))
@@ -219,6 +223,14 @@ namespace nac.Forms
                 throw new Exception(
                     $"Model {nameof(modelFieldName)} source property specified by name [{modelFieldName}] is not of type T: {typeof(T).Name}");
             }
+            
+            /*
+             One Way binding, because the ContentControl cannot set the model back, it just displays the model
+             */
+            AddBinding<object>(modelFieldName: modelFieldName,
+                        control: panelControl,
+                        property: Avalonia.Controls.ContentControl.ContentProperty,
+                        isTwoWayDataBinding: false);
 
             panelControl.ContentTemplate = new Avalonia.Controls.Templates.FuncDataTemplate<T>((itemModel, nameScope) =>
             {
