@@ -766,10 +766,9 @@ namespace TestApp.lib
                         {
                             r.HorizontalGroup(h => h.Text("DisplayName: ").TextFor("DisplayName"));
                         })
-                    .HorizontalGroup(h =>
+                    .Panel<model.Contact>(modelFieldName: "SelectedContact", populatePanel: p =>
                     {
-                        h.Text("Selected Contact: ")
-                            .TextFor("SelectedContact.DisplayName");
+                        p.HorizontalGroup(h => h.Text("Selected Contact: ").TextFor("DisplayName"));
                     });
 
             }, useIsolatedModelForThisChildForm: true);

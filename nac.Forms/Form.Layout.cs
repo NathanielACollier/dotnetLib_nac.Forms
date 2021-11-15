@@ -208,5 +208,40 @@ namespace nac.Forms
         }
 
 
+
+
+        public Form Panel<T>(string modelFieldName, Action<Form> populatePanel)
+        {
+            var panelControl = new Avalonia.Controls.ContentControl();
+
+            if (!(getModelValue(modelFieldName) is T))
+            {
+                throw new Exception(
+                    $"Model {nameof(modelFieldName)} source property specified by name [{modelFieldName}] is not of type T: {typeof(T).Name}");
+            }
+
+            panelControl.ContentTemplate = new Avalonia.Controls.Templates.FuncDataTemplate<T>((itemModel, nameScope) =>
+            {
+                // if the model is null then just display nothing
+                if (itemModel == null)
+                {
+                    // how could itemModel be null?  Sometimes it is though, so strange
+                    var tb = new Avalonia.Controls.TextBlock();
+                    tb.Text = "(null)";
+                    return tb;
+                }
+
+                var contentForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
+                contentForm.DataContext = itemModel;
+                populatePanel(contentForm);
+
+                contentForm.Host.DataContext = itemModel;
+                return contentForm.Host;
+            });
+            
+            AddRowToHost(panelControl);
+            return this;
+        }
+
     }
 }
