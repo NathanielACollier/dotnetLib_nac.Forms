@@ -681,15 +681,18 @@ namespace TestApp.lib
                 f.DataContext = model;
 
                 f.Text("Contact Editor")
-                    .HorizontalGroup(h =>
+                    .Panel<model.Contact>(modelFieldName: "Contact", _f =>
                     {
-                        h.Text("Name: ")
-                            .TextBoxFor("Contact.DisplayName");
-                    })
-                    .HorizontalGroup(h =>
-                    {
-                        h.Text("Email: ")
-                            .TextBoxFor("Contact.Email");
+                        _f.HorizontalGroup(h =>
+                            {
+                                h.Text("Name: ")
+                                    .TextBoxFor("DisplayName");
+                            })
+                            .HorizontalGroup(h =>
+                            {
+                                h.Text("Email: ")
+                                    .TextBoxFor("Email");
+                            });
                     })
                     .HorizontalGroup(h =>
                     {
@@ -766,10 +769,9 @@ namespace TestApp.lib
                         {
                             r.HorizontalGroup(h => h.Text("DisplayName: ").TextFor("DisplayName"));
                         })
-                    .HorizontalGroup(h =>
+                    .Panel<model.Contact>(modelFieldName: "SelectedContact", populatePanel: p =>
                     {
-                        h.Text("Selected Contact: ")
-                            .TextFor("SelectedContact.DisplayName");
+                        p.HorizontalGroup(h => h.Text("Selected Contact: ").TextFor("DisplayName"));
                     });
 
             }, useIsolatedModelForThisChildForm: true);
