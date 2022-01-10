@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.VisualTree;
 
 namespace nac.Forms.controls;
 
@@ -56,7 +58,34 @@ public class DirectoryPicker: UserControl
      */
     private void PickDirectoryButton_OnClick(object sender, RoutedEventArgs e)
     {
-        throw new System.NotImplementedException();
+        promptForDirectoryPath();
+    }
+
+    private async Task promptForDirectoryPath()
+    {
+        var dialog = new Avalonia.Controls.OpenFolderDialog();
+        
+        // if there is allready a folder picked, then use it if it exists.  If something isn't right use Desktop
+        if (!string.IsNullOrEmpty(this.DirectoryPath) && System.IO.Directory.Exists(this.DirectoryPath))
+        {
+            dialog.Directory = this.DirectoryPath;
+        }
+        else
+        {
+            dialog.Directory = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+        }
+
+        var win = (Window)this.GetVisualRoot();
+        string result = await dialog.ShowAsync(win);
+
+        if (!string.IsNullOrWhiteSpace(result))
+        {
+            DirectoryPath = result;
+        }
+        else
+        {
+            DirectoryPath = "";
+        }
     }
     
     private void DirectoryPath_Changed(AvaloniaPropertyChangedEventArgs e)

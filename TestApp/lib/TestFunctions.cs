@@ -429,6 +429,29 @@ namespace TestApp.lib
                     });
             });
         }
+        
+        
+        
+        
+        public static void TestDirectoryPathFor_Simple(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.DirectoryPathFor("myPath",
+                        onDirectoryPathChanged: (newFilePath) =>
+                        {
+                            Console.WriteLine($"New Directory path is: {newFilePath}");
+                        })
+                    .HorizontalGroup(hg =>
+                    {
+                        hg.Text("You picked directory: ")
+                            .TextFor("myPath");
+                    });
+            });
+        }
+        
+        
+        
 
 
         public static void Test_Tabs_BasicTest(Form parentForm)
@@ -776,5 +799,6 @@ namespace TestApp.lib
 
             }, useIsolatedModelForThisChildForm: true);
         }
+
     }
 }

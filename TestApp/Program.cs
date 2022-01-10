@@ -139,6 +139,11 @@ namespace TestApp
                 },
                 new TestEntry()
                 {
+                    Name  = "Test DirectoryPathFor: Simple example",
+                    CodeToRun = lib.TestFunctions.TestDirectoryPathFor_Simple
+                },
+                new TestEntry()
+                {
                     Name = "Tabs: Basic Test",
                     CodeToRun = lib.TestFunctions.Test_Tabs_BasicTest
                 },
