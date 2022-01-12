@@ -34,6 +34,26 @@ namespace nac.Forms
             this.AddRowToHost(filePicker);
             return this;
         }
+
+
+
+        public Form DirectoryPathFor(string fieldName,
+            Action<string> onDirectoryPathChanged = null)
+        {
+            setModelValue(fieldName, ""); // make sure the model has a value for this to start out
+
+            var directoryPicker = new controls.DirectoryPicker();
+            
+            AddBinding<string>(fieldName, directoryPicker, controls.DirectoryPicker.DirectoryPathProperty, true);
+
+            directoryPicker.DirectoryPathChanged += (_s, _args) =>
+            {
+                onDirectoryPathChanged?.Invoke(_args);
+            };
+            
+            this.AddRowToHost(directoryPicker);
+            return this;
+        }
         
         
     }
