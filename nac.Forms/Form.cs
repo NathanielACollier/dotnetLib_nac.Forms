@@ -269,6 +269,29 @@ namespace nac.Forms
                 this.Model[modelFieldName] = val;
             }
         }
+
+
+        public void setModelIfNull(string modelFieldName, object val)
+        {
+            if (this.Model.HasKey(model.SpecialModelKeys.DataContext))
+            {
+                var dataContext = this.Model[SpecialModelKeys.DataContext];
+
+                object currentValue = getDataContextValue(dataContext, modelFieldName);
+                if (currentValue is null)
+                {
+                    setDataContextValue(dataContext, modelFieldName, val);
+                }
+            }
+            else
+            {
+                if (!this.Model.HasKey(modelFieldName) ||
+                    this.Model[modelFieldName] is null)
+                {
+                    this.Model[modelFieldName] = val;
+                }
+            }
+        }
         
         
         private void AddBinding<T>(string modelFieldName,

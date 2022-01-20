@@ -437,6 +437,7 @@ namespace TestApp.lib
         {
             parentForm.DisplayChildForm(f =>
             {
+                f.Model["myPath"] = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
                 f.DirectoryPathFor("myPath",
                         onDirectoryPathChanged: (newFilePath) =>
                         {
