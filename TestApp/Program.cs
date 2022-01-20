@@ -144,6 +144,11 @@ namespace TestApp
                 },
                 new TestEntry()
                 {
+                    Name  = "Test DirectoryPathFor: Class Model binding Directory Path",
+                    CodeToRun = lib.TestFunctions.TestDirectoryPathFor_ClassBinding
+                },
+                new TestEntry()
+                {
                     Name = "Tabs: Basic Test",
                     CodeToRun = lib.TestFunctions.Test_Tabs_BasicTest
                 },

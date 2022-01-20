@@ -451,6 +451,29 @@ namespace TestApp.lib
             });
         }
         
+        public static void TestDirectoryPathFor_ClassBinding(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                var myModel = new model.DirectoryPathFormWindowModel();
+                f.DataContext = myModel;
+
+                myModel.myPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                
+                f.DirectoryPathFor(nameof(model.DirectoryPathFormWindowModel.myPath),
+                        onDirectoryPathChanged: (newFilePath) =>
+                        {
+                            Console.WriteLine($"New Directory path is: {newFilePath}");
+                            Console.WriteLine($"\t\tModel myPath: {myModel.myPath}");
+                        })
+                    .HorizontalGroup(hg =>
+                    {
+                        hg.Text("You picked directory: ")
+                            .TextFor(nameof(model.DirectoryPathFormWindowModel.myPath));
+                    });
+            });
+        }
+        
         
         
 
@@ -800,6 +823,5 @@ namespace TestApp.lib
 
             }, useIsolatedModelForThisChildForm: true);
         }
-
     }
 }
