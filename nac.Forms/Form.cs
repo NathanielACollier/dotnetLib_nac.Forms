@@ -325,7 +325,7 @@ namespace nac.Forms
                         if( string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase))
                         {
                             var newCurrentValue = getDataContextValue(dataContext, modelFieldName);
-                            log.Debug($"AddBinding-Model Value Change [Field: {modelFieldName}; New Value: {currentValue}]");
+                            log.Debug($"AddBinding-Model Value Change [Field: {modelFieldName}; New Value: {newCurrentValue}]");
                             FireOnNextWithValue<T>(bindingSource, newCurrentValue );
                         }
                     };
