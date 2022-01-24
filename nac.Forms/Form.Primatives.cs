@@ -42,7 +42,9 @@ namespace nac.Forms
 		public Form TextBoxFor(string modelFieldName,
                         bool multiline = false,
                         model.Style style = null,
-                        Action<string> onTextChanged=null)
+                        Action<string> onTextChanged=null,
+                        bool isPassword = false,
+                        bool isReadOnly = false)
         {
             var tb = new TextBox();
             lib.styleUtil.style(this, tb, style);
@@ -56,6 +58,15 @@ namespace nac.Forms
             {
                 onTextChanged?.Invoke(newTextValue);
             });
+
+            tb.IsReadOnly = isReadOnly;
+
+            if (isPassword)
+            {
+                tb.PasswordChar = '*';
+                tb.Watermark = "Type in password";
+                tb.UseFloatingWatermark = true;
+            }
             
             if (multiline)
             {
