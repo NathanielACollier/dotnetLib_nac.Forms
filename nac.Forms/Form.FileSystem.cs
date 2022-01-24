@@ -17,8 +17,7 @@ namespace nac.Forms
             FilePathFor_Functions functions = null
         )
         {
-            // initialize the filename in the model
-            setModelValue(fieldName, "");
+            setModelIfNull(fieldName, "");
 
             var filePicker = new controls.FilePicker();
 
@@ -40,7 +39,7 @@ namespace nac.Forms
         public Form DirectoryPathFor(string fieldName,
             Action<string> onDirectoryPathChanged = null)
         {
-            setModelValue(fieldName, ""); // make sure the model has a value for this to start out
+            setModelIfNull(fieldName, ""); // make sure the model has a value for this to start out
 
             var directoryPicker = new controls.DirectoryPicker();
             
