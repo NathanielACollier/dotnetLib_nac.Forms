@@ -105,12 +105,14 @@ namespace TestApp
                 new model.TestEntry
                 {
                     Name = "Test Button: Close on click",
-                    CodeToRun = lib.TestFunctions.TestButton_CloseForm
+                    CodeToRun = lib.TestFunctions.TestButton_CloseForm,
+                    SetupChildForm = false
                 },
                 new model.TestEntry
                 {
                     Name = "Test Event: OnDisplay",
-                    CodeToRun = lib.TestFunctions.TestEvent_OnDisplay
+                    CodeToRun = lib.TestFunctions.TestEvent_OnDisplay,
+                    SetupChildForm = false
                 },
                 new model.TestEntry
                 {
@@ -211,28 +213,12 @@ namespace TestApp
                         {
                             t.SimpleDropDown(methods, (i) =>
                                 {
-                                    try
-                                    {
-                                        selectedTestEntry = i;
-                                        i.CodeToRun(f);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        writeLineError($"Error, trying [{i.Name}].  Exception: {ex}");
-                                    }
-
+                                    selectedTestEntry = i;
+                                    invokeTest(f, selectedTestEntry);
                                 })
                                 .Button("Run", _args =>
                                 {
-                                    try
-                                    {
-                                        selectedTestEntry.CodeToRun(f);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        writeLineError(
-                                            $"Error, manually running {selectedTestEntry?.Name ?? "NULL"}.  Exception: {ex}");
-                                    }
+                                    invokeTest(f,selectedTestEntry);
                                 });
                         }
                     }, new nac.Forms.model.TabCreationInfo
@@ -247,6 +233,33 @@ namespace TestApp
             .Display();
         }
 
+
+        private static void invokeTest(nac.Forms.Form parentForm, model.TestEntry test)
+        {
+            try
+            {
+                if (test.SetupChildForm)
+                {
+                    parentForm.DisplayChildForm(childForm =>
+                    {
+                        test.CodeToRun(childForm);
+                    }, useIsolatedModelForThisChildForm: true);
+                }
+                else
+                {
+                    // just run it directly
+                    test.CodeToRun(parentForm);
+                }
+            }
+            catch (Exception ex)
+            {
+                string errorMessage = $"Error, trying [{test.Name}].  Exception: {ex}";
+                model.LogEntry.error(errorMessage);
+                writeLineError(errorMessage);
+            }
+            
+
+        }
 
         private static void writeLineError(string message)
         {
