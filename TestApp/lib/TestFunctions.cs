@@ -823,5 +823,32 @@ namespace TestApp.lib
 
             }, useIsolatedModelForThisChildForm: true);
         }
+
+        public static void TestTextBox_Password(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.HorizontalGroup(h =>
+                    {
+                        h.Text("Enter a password?")
+                            .TextBoxFor("myPassword", isPassword: true);
+                    }).HorizontalGroup(h =>
+                    {
+                        h.Text("Enter password2?")
+                            .TextBoxFor("password2", isPassword: true,
+                                watermarkText: "Enter a password");
+                    })
+                    .HorizontalGroup(h =>
+                    {
+                        h.Text("You password is: ")
+                            .TextBoxFor("myPassword", isReadOnly: true);
+                    })
+                    .HorizontalGroup(h =>
+                    {
+                        h.Text("Your password2 is: ")
+                            .TextBoxFor("password2", isReadOnly: true);
+                    });
+            }, useIsolatedModelForThisChildForm: true);
+        }
     }
 }

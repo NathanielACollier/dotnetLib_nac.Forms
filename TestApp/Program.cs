@@ -117,6 +117,11 @@ namespace TestApp
                     Name = "Test Textbox: Multiline",
                     CodeToRun = lib.TestFunctions.TestTextBox_Multiline
                 },
+                new model.TestEntry
+                {
+                    Name  = "Test Textbox: Password",
+                    CodeToRun = lib.TestFunctions.TestTextBox_Password
+                },
                 new TestEntry
                 {
                     Name = "Test Style: TextBlock: Basic font changes",
