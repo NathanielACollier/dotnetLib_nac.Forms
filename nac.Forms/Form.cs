@@ -372,12 +372,13 @@ namespace nac.Forms
         }
         
 
-        public void DisplayChildForm(Action<Form> setupChildForm, int height = 600, int width = 800,
+        public Task<bool> DisplayChildForm(Action<Form> setupChildForm, int height = 600, int width = 800,
             Func<Form,bool?> onClosing = null,
             Action<Form> onDisplay = null,
             bool useIsolatedModelForThisChildForm = false,
             bool isDialog = false)
         {
+            var promise = new System.Threading.Tasks.TaskCompletionSource<bool>();
             // default to use the parent's model, but some child will use a DataContext and need an isolated model
             var childFormModel = this.Model;
             if (useIsolatedModelForThisChildForm == true)
@@ -389,20 +390,27 @@ namespace nac.Forms
             setupChildForm(childForm);
 
             childForm.Display_Internal(height: height, width: width, onClosing: onClosing,
-                onDisplay: onDisplay,
-                isDialog: isDialog);
+                    onDisplay: onDisplay,
+                    isDialog: isDialog)
+                .ContinueWith(t =>
+                {
+                    promise.SetResult(t.Result);
+                });
+
+            return promise.Task;
         }
 
-        public void _Internal_ShowDialog(Window subWindow)
+        public Task _Internal_ShowDialog(Window subWindow)
         {
-            subWindow.ShowDialog(win);
+            return subWindow.ShowDialog(win);
         }
         
-        private void Display_Internal(int height, int width,
+        private Task<bool> Display_Internal(int height, int width,
             Func<Form,bool?> onClosing = null,
             Action<Form> onDisplay = null,
             bool isDialog = false)
         {
+            var promise = new System.Threading.Tasks.TaskCompletionSource<bool>();
             win.Height = height;
             win.Width = width;
             win.Content = this.Host;
@@ -413,7 +421,12 @@ namespace nac.Forms
                  _args.Cancel = true => stops the window from closing
                     + So what we do if they didn't specif an onClosing, is we set cancel to false
                  */
-                _args.Cancel = onClosing?.Invoke(this) ?? false; 
+                _args.Cancel = onClosing?.Invoke(this) ?? false;
+                if (_args.Cancel == false && promise.Task.IsCompleted == false)
+                {
+                    promise.SetResult(true); // window is closed
+                }
+                
             };
             
             onDisplay?.Invoke(this); // showing the form, so notify people if they wanted notification
@@ -422,7 +435,15 @@ namespace nac.Forms
             {
                 if (parentForm != null)
                 {
-                    parentForm._Internal_ShowDialog(win);
+                    parentForm._Internal_ShowDialog(win)
+                    .ContinueWith(t =>
+                    {
+                        if (!promise.Task.IsCompleted)
+                        {
+                            promise.SetResult(true);
+                        }
+                        
+                    });
                 }
                 else
                 {
@@ -434,7 +455,8 @@ namespace nac.Forms
             {
                 win.Show();
             }
-            
+
+            return promise.Task;
         }
 
         public void Display(int height = 600, int width = 800,
