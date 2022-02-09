@@ -44,7 +44,8 @@ namespace nac.Forms
                         model.Style style = null,
                         Action<string> onTextChanged=null,
                         bool isPassword = false,
-                        bool isReadOnly = false)
+                        bool isReadOnly = false,
+                        string watermarkText = null)
         {
             var tb = new TextBox();
             lib.styleUtil.style(this, tb, style);
@@ -61,11 +62,15 @@ namespace nac.Forms
 
             tb.IsReadOnly = isReadOnly;
 
+            if (!string.IsNullOrWhiteSpace(watermarkText))
+            {
+                tb.Watermark = watermarkText;
+                tb.UseFloatingWatermark = true;
+            }
+
             if (isPassword)
             {
                 tb.PasswordChar = '*';
-                tb.Watermark = "Type in password";
-                tb.UseFloatingWatermark = true;
             }
             
             if (multiline)
