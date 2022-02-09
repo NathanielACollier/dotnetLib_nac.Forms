@@ -236,6 +236,7 @@ namespace TestApp
 
         private static void invokeTest(nac.Forms.Form parentForm, model.TestEntry test)
         {
+            model.LogEntry.info($"Test: [name={test.Name}] starting");
             try
             {
                 if (test.SetupChildForm)
@@ -243,7 +244,11 @@ namespace TestApp
                     parentForm.DisplayChildForm(childForm =>
                     {
                         test.CodeToRun(childForm);
-                    }, useIsolatedModelForThisChildForm: true);
+                    }, useIsolatedModelForThisChildForm: true)
+                    .ContinueWith(t =>
+                    {
+                        model.LogEntry.info($"Test: [name={test.Name}] is complete");
+                    });
                 }
                 else
                 {
