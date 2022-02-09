@@ -615,7 +615,7 @@ namespace TestApp.lib
                             .TextFor("selected");
                     });
                 });
-            });
+            }, useIsolatedModelForThisChildForm: true);
         }
 
         public static void TestList_JustStrings(Form parentForm)
@@ -861,12 +861,15 @@ namespace TestApp.lib
                     {
                         child.Text("I'm show");
                     }, isDialog: false);
+                    
+                    log.info("After show is displayed");
                 }).Button("ShowDialog", (_args) =>
                 {
                     f.DisplayChildForm(child =>
                     {
                         child.Text("I'm Show Dialog");
                     }, isDialog:true);
+                    log.info("After show dialog is displayed");
                 });
 
             }, useIsolatedModelForThisChildForm: true);

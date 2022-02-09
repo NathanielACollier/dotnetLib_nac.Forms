@@ -426,8 +426,8 @@ namespace nac.Forms
                 }
                 else
                 {
-                    var fakeOwner = new Window();
-                    win.ShowDialog(fakeOwner);
+                    throw new Exception(
+                        "Cannot show window as ShowDialog unless you have a parent form.  parentForm was null");
                 }
             }
             else

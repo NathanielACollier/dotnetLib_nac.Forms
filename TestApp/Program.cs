@@ -201,28 +201,49 @@ namespace TestApp
 
 
             };
-            f.SimpleDropDown(methods, (i) => {
-                try
+            
+            f.Tabs(new[]
                 {
-                    selectedTestEntry = i;
-                    i.CodeToRun(f);
-                }
-                catch (Exception ex)
-                {
-                    writeLineError($"Error, trying [{i.Name}].  Exception: {ex}");
-                }
+                    new nac.Forms.model.TabCreationInfo
+                    {
+                        Header = "Methods",
+                        Populate = (t) =>
+                        {
+                            t.SimpleDropDown(methods, (i) =>
+                                {
+                                    try
+                                    {
+                                        selectedTestEntry = i;
+                                        i.CodeToRun(f);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        writeLineError($"Error, trying [{i.Name}].  Exception: {ex}");
+                                    }
 
-            })
-            .Button("Run", _args =>
-            {
-                try
-                {
-                    selectedTestEntry.CodeToRun(f);
-                }catch(Exception ex)
-                {
-                    writeLineError($"Error, manually running {selectedTestEntry?.Name ?? "NULL"}.  Exception: {ex}");
-                }
-            })
+                                })
+                                .Button("Run", _args =>
+                                {
+                                    try
+                                    {
+                                        selectedTestEntry.CodeToRun(f);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        writeLineError(
+                                            $"Error, manually running {selectedTestEntry?.Name ?? "NULL"}.  Exception: {ex}");
+                                    }
+                                });
+                        }
+                    }, new nac.Forms.model.TabCreationInfo
+                    {
+                        Header = "Log",
+                        Populate = (t) =>
+                        {
+                            lib.UIElementsUtility.logViewer(t);
+                        }
+                    }
+                })
             .Display();
         }
 
