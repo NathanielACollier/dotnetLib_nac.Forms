@@ -191,6 +191,11 @@ namespace TestApp
                 {
                     Name = "Threading: Modify UI in another thread",
                     CodeToRun = lib.TestFunctions.Test_Threading_ModifyUIInThread
+                },
+                new TestEntry
+                {
+                    Name = "Child Form: Show and ShowDialog",
+                    CodeToRun = lib.TestFunctions.Test_ChildForm_ShowAndShowDialog
                 }
 
 

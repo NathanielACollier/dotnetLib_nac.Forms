@@ -850,5 +850,26 @@ namespace TestApp.lib
                     });
             }, useIsolatedModelForThisChildForm: true);
         }
+
+        public static void Test_ChildForm_ShowAndShowDialog(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.Button("Show", (_args) =>
+                {
+                    f.DisplayChildForm(child =>
+                    {
+                        child.Text("I'm show");
+                    }, isDialog: false);
+                }).Button("ShowDialog", (_args) =>
+                {
+                    f.DisplayChildForm(child =>
+                    {
+                        child.Text("I'm Show Dialog");
+                    }, isDialog:true);
+                });
+
+            }, useIsolatedModelForThisChildForm: true);
+        }
     }
 }

@@ -21,6 +21,7 @@ namespace nac.Forms
         public lib.BindableDynamicDictionary Model { get; set; }
         private Application app;
         private Window win;
+        private Form parentForm;
         private bool isMainForm;
         private bool isDisplayed;
 
@@ -67,7 +68,7 @@ namespace nac.Forms
 
         public Form(Form _parentForm) : this(__app: _parentForm.app, _model: _parentForm.Model)
         {
-            
+            this.parentForm = _parentForm;
         }
 
 
@@ -374,7 +375,8 @@ namespace nac.Forms
         public void DisplayChildForm(Action<Form> setupChildForm, int height = 600, int width = 800,
             Func<Form,bool?> onClosing = null,
             Action<Form> onDisplay = null,
-            bool useIsolatedModelForThisChildForm = false)
+            bool useIsolatedModelForThisChildForm = false,
+            bool isDialog = false)
         {
             // default to use the parent's model, but some child will use a DataContext and need an isolated model
             var childFormModel = this.Model;
@@ -382,17 +384,24 @@ namespace nac.Forms
             {
                 childFormModel = new BindableDynamicDictionary();
             }
-            var childForm = new Form(this.app, childFormModel);
+            var childForm = new Form(_parentForm: this);
 
             setupChildForm(childForm);
 
             childForm.Display_Internal(height: height, width: width, onClosing: onClosing,
-                onDisplay: onDisplay);
+                onDisplay: onDisplay,
+                isDialog: isDialog);
         }
 
+        public void _Internal_ShowDialog(Window subWindow)
+        {
+            subWindow.ShowDialog(win);
+        }
+        
         private void Display_Internal(int height, int width,
             Func<Form,bool?> onClosing = null,
-            Action<Form> onDisplay = null)
+            Action<Form> onDisplay = null,
+            bool isDialog = false)
         {
             win.Height = height;
             win.Width = width;
@@ -408,7 +417,24 @@ namespace nac.Forms
             };
             
             onDisplay?.Invoke(this); // showing the form, so notify people if they wanted notification
-            win.Show();
+
+            if (isDialog)
+            {
+                if (parentForm != null)
+                {
+                    parentForm._Internal_ShowDialog(win);
+                }
+                else
+                {
+                    var fakeOwner = new Window();
+                    win.ShowDialog(fakeOwner);
+                }
+            }
+            else
+            {
+                win.Show();
+            }
+            
         }
 
         public void Display(int height = 600, int width = 800,
