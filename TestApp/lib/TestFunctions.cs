@@ -763,20 +763,21 @@ namespace TestApp.lib
 
         public static void Test_ChildForm_ShowAndShowDialog(Form f)
         {
-            f.Button("Show", (_args) =>
+            f.Button("Show", async (_args) =>
             {
-                f.DisplayChildForm(child =>
+                await f.DisplayChildForm(child =>
                 {
                     child.Text("I'm show");
                 }, isDialog: false);
-                    
+
                 log.info("After show is displayed");
-            }).Button("ShowDialog", (_args) =>
+            }).Button("ShowDialog", async (_args) =>
             {
-                f.DisplayChildForm(child =>
+                await f.DisplayChildForm(child =>
                 {
                     child.Text("I'm Show Dialog");
-                }, isDialog:true);
+                }, isDialog: true);
+
                 log.info("After show dialog is displayed");
             });
         }
