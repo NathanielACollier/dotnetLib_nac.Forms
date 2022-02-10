@@ -105,12 +105,14 @@ namespace TestApp
                 new model.TestEntry
                 {
                     Name = "Test Button: Close on click",
-                    CodeToRun = lib.TestFunctions.TestButton_CloseForm
+                    CodeToRun = lib.TestFunctions.TestButton_CloseForm,
+                    SetupChildForm = false
                 },
                 new model.TestEntry
                 {
                     Name = "Test Event: OnDisplay",
-                    CodeToRun = lib.TestFunctions.TestEvent_OnDisplay
+                    CodeToRun = lib.TestFunctions.TestEvent_OnDisplay,
+                    SetupChildForm = false
                 },
                 new model.TestEntry
                 {
@@ -191,36 +193,78 @@ namespace TestApp
                 {
                     Name = "Threading: Modify UI in another thread",
                     CodeToRun = lib.TestFunctions.Test_Threading_ModifyUIInThread
+                },
+                new TestEntry
+                {
+                    Name = "Child Form: Show and ShowDialog",
+                    CodeToRun = lib.TestFunctions.Test_ChildForm_ShowAndShowDialog
                 }
 
 
 
             };
-            f.SimpleDropDown(methods, (i) => {
-                try
+            
+            f.Tabs(new[]
                 {
-                    selectedTestEntry = i;
-                    i.CodeToRun(f);
-                }
-                catch (Exception ex)
-                {
-                    writeLineError($"Error, trying [{i.Name}].  Exception: {ex}");
-                }
-
-            })
-            .Button("Run", _args =>
-            {
-                try
-                {
-                    selectedTestEntry.CodeToRun(f);
-                }catch(Exception ex)
-                {
-                    writeLineError($"Error, manually running {selectedTestEntry?.Name ?? "NULL"}.  Exception: {ex}");
-                }
-            })
+                    new nac.Forms.model.TabCreationInfo
+                    {
+                        Header = "Methods",
+                        Populate = (t) =>
+                        {
+                            t.SimpleDropDown(methods, (i) =>
+                                {
+                                    selectedTestEntry = i;
+                                    invokeTest(f, selectedTestEntry);
+                                })
+                                .Button("Run", _args =>
+                                {
+                                    invokeTest(f,selectedTestEntry);
+                                });
+                        }
+                    }, new nac.Forms.model.TabCreationInfo
+                    {
+                        Header = "Log",
+                        Populate = (t) =>
+                        {
+                            lib.UIElementsUtility.logViewer(t);
+                        }
+                    }
+                })
             .Display();
         }
 
+
+        private static void invokeTest(nac.Forms.Form parentForm, model.TestEntry test)
+        {
+            model.LogEntry.info($"Test: [name={test.Name}] starting");
+            try
+            {
+                if (test.SetupChildForm)
+                {
+                    parentForm.DisplayChildForm(childForm =>
+                    {
+                        test.CodeToRun(childForm);
+                    }, useIsolatedModelForThisChildForm: true)
+                    .ContinueWith(t =>
+                    {
+                        model.LogEntry.info($"Test: [name={test.Name}] is complete");
+                    });
+                }
+                else
+                {
+                    // just run it directly
+                    test.CodeToRun(parentForm);
+                }
+            }
+            catch (Exception ex)
+            {
+                string errorMessage = $"Error, trying [{test.Name}].  Exception: {ex}";
+                model.LogEntry.error(errorMessage);
+                writeLineError(errorMessage);
+            }
+            
+
+        }
 
         private static void writeLineError(string message)
         {

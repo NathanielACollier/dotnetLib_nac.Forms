@@ -21,6 +21,7 @@ namespace nac.Forms
         public lib.BindableDynamicDictionary Model { get; set; }
         private Application app;
         private Window win;
+        private Form parentForm;
         private bool isMainForm;
         private bool isDisplayed;
 
@@ -67,7 +68,13 @@ namespace nac.Forms
 
         public Form(Form _parentForm) : this(__app: _parentForm.app, _model: _parentForm.Model)
         {
-            
+            this.parentForm = _parentForm;
+        }
+
+        public Form(Form _parentForm, lib.BindableDynamicDictionary _model) : this(__app: _parentForm.app,
+            _model: _model)
+        {
+            this.parentForm = _parentForm;
         }
 
 
@@ -371,29 +378,45 @@ namespace nac.Forms
         }
         
 
-        public void DisplayChildForm(Action<Form> setupChildForm, int height = 600, int width = 800,
+        public Task<bool> DisplayChildForm(Action<Form> setupChildForm, int height = 600, int width = 800,
             Func<Form,bool?> onClosing = null,
             Action<Form> onDisplay = null,
-            bool useIsolatedModelForThisChildForm = false)
+            bool useIsolatedModelForThisChildForm = false,
+            bool isDialog = false)
         {
+            var promise = new System.Threading.Tasks.TaskCompletionSource<bool>();
             // default to use the parent's model, but some child will use a DataContext and need an isolated model
             var childFormModel = this.Model;
             if (useIsolatedModelForThisChildForm == true)
             {
                 childFormModel = new BindableDynamicDictionary();
             }
-            var childForm = new Form(this.app, childFormModel);
+            var childForm = new Form(_parentForm: this, _model: childFormModel);
 
             setupChildForm(childForm);
 
             childForm.Display_Internal(height: height, width: width, onClosing: onClosing,
-                onDisplay: onDisplay);
+                    onDisplay: onDisplay,
+                    isDialog: isDialog)
+                .ContinueWith(t =>
+                {
+                    promise.SetResult(t.Result);
+                });
+
+            return promise.Task;
         }
 
-        private void Display_Internal(int height, int width,
-            Func<Form,bool?> onClosing = null,
-            Action<Form> onDisplay = null)
+        public Task _Internal_ShowDialog(Window subWindow)
         {
+            return subWindow.ShowDialog(win);
+        }
+        
+        private Task<bool> Display_Internal(int height, int width,
+            Func<Form,bool?> onClosing = null,
+            Action<Form> onDisplay = null,
+            bool isDialog = false)
+        {
+            var promise = new System.Threading.Tasks.TaskCompletionSource<bool>();
             win.Height = height;
             win.Width = width;
             win.Content = this.Host;
@@ -404,11 +427,42 @@ namespace nac.Forms
                  _args.Cancel = true => stops the window from closing
                     + So what we do if they didn't specif an onClosing, is we set cancel to false
                  */
-                _args.Cancel = onClosing?.Invoke(this) ?? false; 
+                _args.Cancel = onClosing?.Invoke(this) ?? false;
+                if (_args.Cancel == false && promise.Task.IsCompleted == false)
+                {
+                    promise.SetResult(true); // window is closed
+                }
+                
             };
             
             onDisplay?.Invoke(this); // showing the form, so notify people if they wanted notification
-            win.Show();
+
+            if (isDialog)
+            {
+                if (parentForm != null)
+                {
+                    parentForm._Internal_ShowDialog(win)
+                    .ContinueWith(t =>
+                    {
+                        if (!promise.Task.IsCompleted)
+                        {
+                            promise.SetResult(true);
+                        }
+                        
+                    });
+                }
+                else
+                {
+                    throw new Exception(
+                        "Cannot show window as ShowDialog unless you have a parent form.  parentForm was null");
+                }
+            }
+            else
+            {
+                win.Show();
+            }
+
+            return promise.Task;
         }
 
         public void Display(int height = 600, int width = 800,
