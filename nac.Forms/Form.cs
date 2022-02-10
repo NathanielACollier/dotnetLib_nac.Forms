@@ -71,6 +71,12 @@ namespace nac.Forms
             this.parentForm = _parentForm;
         }
 
+        public Form(Form _parentForm, lib.BindableDynamicDictionary _model) : this(__app: _parentForm.app,
+            _model: _model)
+        {
+            this.parentForm = _parentForm;
+        }
+
 
         private void FireOnNext<T>(Subject<T> bindingSource, string modelFieldName)
         {
@@ -385,7 +391,7 @@ namespace nac.Forms
             {
                 childFormModel = new BindableDynamicDictionary();
             }
-            var childForm = new Form(_parentForm: this);
+            var childForm = new Form(_parentForm: this, _model: childFormModel);
 
             setupChildForm(childForm);
 
