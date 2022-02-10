@@ -58,7 +58,7 @@ namespace nac.Forms
                 }
             };
 
-            AddRowToHost(itemsCtrl);
+            AddRowToHost(itemsCtrl, rowAutoHeight:false);
 
             var debugTest = itemsCtrl.Items;
             var debugTemplate = itemsCtrl.ItemTemplate;
