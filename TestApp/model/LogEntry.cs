@@ -23,6 +23,17 @@ namespace TestApp.model
 
         public static event EventHandler<LogEntry> onNewMessage;
 
+
+        public static void __translateNacFormsLogMessage(nac.Forms.lib.Log.LogMessage __formLogEntry)
+        {
+            onNewMessage?.Invoke(null, new LogEntry
+            {
+                date = __formLogEntry.EventDate,
+                level = __formLogEntry.Level,
+                message = __formLogEntry.Message
+            });
+        }
+
         public static void info(string message)
         {
             onNewMessage?.Invoke(null,new LogEntry()

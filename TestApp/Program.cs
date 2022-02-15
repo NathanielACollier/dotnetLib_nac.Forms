@@ -18,6 +18,7 @@ namespace TestApp
         
         static void Main(string[] args)
         {
+            setupNacFormsLogging();
             var f = Avalonia.AppBuilder.Configure<nac.Forms.App>()
                 .NewForm(beforeAppBuilderInit: (appBuilder) =>
                 {
@@ -27,6 +28,15 @@ namespace TestApp
                 .DebugAvalonia();
 
             mainUI(f);
+        }
+
+        private static void setupNacFormsLogging()
+        {
+            nac.Forms.lib.Log.OnNewMessage += (_s, _logEntry) =>
+            {
+                // feed it into our app logging
+                model.LogEntry.__translateNacFormsLogMessage(_logEntry);
+            };
         }
 
         static void mainUI(Form f)
