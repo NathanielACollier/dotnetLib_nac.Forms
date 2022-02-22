@@ -137,10 +137,6 @@ namespace nac.Forms.controls
             {
                 FilePath = result.First();
             }
-            else
-            {
-                FilePath = "";
-            }
         }
         
         
@@ -166,10 +162,6 @@ namespace nac.Forms.controls
             if (!string.IsNullOrWhiteSpace(result))
             {
                 FilePath = result;
-            }
-            else
-            {
-                FilePath = "";
             }
         }
         
