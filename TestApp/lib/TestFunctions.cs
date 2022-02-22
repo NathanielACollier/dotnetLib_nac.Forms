@@ -404,18 +404,25 @@ namespace TestApp.lib
             f.DataContext = myModel;
 
             myModel.myPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                
+
             f.DirectoryPathFor(nameof(model.DirectoryPathFormWindowModel.myPath),
                     onDirectoryPathChanged: (newFilePath) =>
                     {
-                        Console.WriteLine($"New Directory path is: {newFilePath}");
-                        Console.WriteLine($"\t\tModel myPath: {myModel.myPath}");
+                        model.LogEntry.info($"New Directory path is: {newFilePath}");
+                        model.LogEntry.info($"      Model myPath: {myModel.myPath}");
                     })
                 .HorizontalGroup(hg =>
                 {
                     hg.Text("You picked directory: ")
                         .TextFor(nameof(model.DirectoryPathFormWindowModel.myPath));
-                });
+                })
+                .Text("The below directory picker doesn't start with a path")
+                .DirectoryPathFor(nameof(model.DirectoryPathFormWindowModel.pathWithoutBeingInit),
+                    onDirectoryPathChanged: (newPath) =>
+                    {
+                        model.LogEntry.info($"Old path: {myModel.pathWithoutBeingInit}");
+                        model.LogEntry.info($"New path: {newPath}");
+                    });
         }
         
         
