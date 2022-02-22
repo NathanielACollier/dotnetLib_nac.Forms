@@ -82,10 +82,6 @@ public class DirectoryPicker: UserControl
         {
             DirectoryPath = result;
         }
-        else
-        {
-            DirectoryPath = "";
-        }
     }
     
     private void DirectoryPath_Changed(AvaloniaPropertyChangedEventArgs e)
