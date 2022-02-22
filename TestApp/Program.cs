@@ -18,6 +18,7 @@ namespace TestApp
         
         static void Main(string[] args)
         {
+            setupNacFormsLogging();
             var f = Avalonia.AppBuilder.Configure<nac.Forms.App>()
                 .NewForm(beforeAppBuilderInit: (appBuilder) =>
                 {
@@ -27,6 +28,27 @@ namespace TestApp
                 .DebugAvalonia();
 
             mainUI(f);
+        }
+
+        private static void setupNacFormsLogging()
+        {
+            nac.Forms.lib.Log.OnNewMessage += (_s, _logEntry) =>
+            {
+                string line = $"[{_logEntry.EventDate:hh_mm_tt}] - {_logEntry.Level} - {_logEntry.CallingMemberName} - {_logEntry.Message}";
+
+                if( string.Equals(_logEntry.Level, "Info", StringComparison.OrdinalIgnoreCase)){
+                    System.Console.ForegroundColor = ConsoleColor.White;
+                }else if( string.Equals(_logEntry.Level, "Debug", StringComparison.OrdinalIgnoreCase)){
+                    System.Console.ForegroundColor = ConsoleColor.Cyan;
+                }else if( string.Equals(_logEntry.Level, "Warn", StringComparison.OrdinalIgnoreCase)){
+                    System.Console.ForegroundColor = ConsoleColor.DarkYellow;
+                }else if( string.Equals(_logEntry.Level, "Error", StringComparison.OrdinalIgnoreCase)){
+                    System.Console.ForegroundColor = ConsoleColor.Red;
+                }
+                System.Console.WriteLine(line);
+
+                System.Console.ResetColor();
+            };
         }
 
         static void mainUI(Form f)

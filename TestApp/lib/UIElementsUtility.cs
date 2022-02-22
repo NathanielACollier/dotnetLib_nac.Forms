@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading;
 using nac.Forms.model;
 
 namespace TestApp.lib
@@ -11,7 +13,12 @@ namespace TestApp.lib
             var entries = new ObservableCollection<model.LogEntry>();
             model.LogEntry.onNewMessage += (_s, _e) =>
             {
-                entries.Insert(0, _e);
+                // Modifying the entries list has to be thread safe so use Invoke
+                f.InvokeAsync(async () =>
+                {
+                    entries.Insert(0, _e);
+                });
+
             };
 
             f.Model["logEntriesList"] = entries;
