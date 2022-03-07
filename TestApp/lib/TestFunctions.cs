@@ -499,10 +499,9 @@ namespace TestApp.lib
                         hg.Text("Loading")
                             .LoadingTextAnimation(style: new Style()
                             {
-                                width = 20,
-                                isVisibleModelName = "InProgress"
+                                width = 20
                             });
-                    })
+                    }, style: new Style{isVisibleModelName = "InProgress"})
                     .Button("Toggle Loading", (_a) =>
                     {
                         f.Model["InProgress"] = !(bool) f.Model["InProgress"];
