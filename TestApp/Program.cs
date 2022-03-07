@@ -201,6 +201,11 @@ namespace TestApp
                     Name = "Test Loading Indicator: Text Display",
                     CodeToRun = lib.TestFunctions.Test_LoadingIndicator_TextDisplay
                 },
+                new TestEntry
+                {
+                    Name = "Test Loading Indicator: DataContext Based",
+                    CodeToRun = lib.TestFunctions.Test_LoadingIndictator_DataContextTest
+                },
                 new TestEntry()
                 {
                     Name = "Test Dropdown: Simple Text Selection",
