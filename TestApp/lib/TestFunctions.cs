@@ -508,6 +508,28 @@ namespace TestApp.lib
                     });
             });
         }
+        
+        public static void Test_LoadingIndictator_DataContextTest(Form f)
+        {
+            var model = new model.DataContext_HelloWorld();
+            f.DataContext = model;
+
+            f.VerticalGroup(vg =>
+            {
+                vg.HorizontalStack(hg =>
+                    {
+                        hg.Text("Loading")
+                            .LoadingTextAnimation(style: new Style()
+                            {
+                                width = 20
+                            });
+                    }, style: new Style{isVisibleModelName = nameof(model.Loading)})
+                    .Button("Toggle Loading", (_a) =>
+                    {
+                        model.Loading = !(bool) model.Loading;
+                    });
+            });
+        }
 
         public static void Test_DropDown_SimpleTextSelection(Form f)
         {

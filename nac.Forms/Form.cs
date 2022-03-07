@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -77,13 +78,6 @@ namespace nac.Forms
             this.parentForm = _parentForm;
         }
 
-
-        private void FireOnNext<T>(Subject<T> bindingSource, string modelFieldName)
-        {
-            FireOnNextWithValue<T>(bindingSource, this.Model[modelFieldName]);
-        }
-
-
         private void FireOnNextWithValue<T>(Subject<T> bindingSource, object value)
         {
             // field value has changed
@@ -112,29 +106,74 @@ namespace nac.Forms
             });
         }
 
+        private INotifyPropertyChanged getBindingSource()
+        {
+            // does model contain a datacontext???
+            if (this.Model.HasKey(SpecialModelKeys.DataContext))
+            {
+                // bind to the data context
+                var dataContext = this.Model[SpecialModelKeys.DataContext];
+
+                if (dataContext is System.ComponentModel.INotifyPropertyChanged prop)
+                {
+                    return prop;
+                }
+                else
+                {
+                    /*
+                     !!REMEMBER!! You can use the bindabledictionary
+                     If you don't want to go to the trouble of implementing INotifyPropertyChanged just have your items use BindableDictionary and it's pretty easy
+                     */
+                    throw new Exception(
+                        $"Special DataContext used in model, but DataContext is not INotifyPropertyChanged. Type given is {dataContext?.GetType().Name ?? "null"}.  There is no way to read properties without INotifyPropertyChanged");
+                }
+            }
+            else // need to fire what it is now if there is anything there
+            {
+                return this.Model;
+            }
+        }
 
 
         private void notifyOnModelChange(string modelFieldName, Action<object> codeToRunOnChange)
         {
-            // need to fire what it is now if there is anything there
-            if (this.Model.HasKey(modelFieldName))
+            var bindingSource = getBindingSource();
+
+            if (bindingSource is nac.Forms.lib.BindableDynamicDictionary bindDict)
             {
-                // fire OnNext
-                codeToRunOnChange(this.Model[modelFieldName]);
+                if (bindDict.HasKey(modelFieldName))
+                {
+                    var val = bindDict[modelFieldName];
+                    log.Info($"AddBinding-Dictionary-Initial value [Key: {modelFieldName}; Value: {val}]");
+                    codeToRunOnChange(val);
+                }
+            }
+            else
+            {
+                var val = getDataContextValue(bindingSource, modelFieldName);
+                log.Info($"AddBinding-Initial value [property: {modelFieldName}; value: {val}]");
+                codeToRunOnChange(val);
             }
 
-
-            // Default we grab all changes to model field and apply them to property
-            this.Model.PropertyChanged += (_s, _args) =>
+            bindingSource.PropertyChanged += (_s, args) =>
             {
-                if (string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase))
+                if (bindingSource is nac.Forms.lib.BindableDynamicDictionary bindDict)
                 {
-                    codeToRunOnChange(this.Model[modelFieldName]);
+                    var val = bindDict[modelFieldName];
+                    log.Debug($"AddBinding-Dictionary-Model value change [Key: {modelFieldName}; New Value: {val}]");
+                    codeToRunOnChange(val);
                 }
+                else
+                {
+                    var val = getDataContextValue(bindingSource, modelFieldName);
+                    log.Debug($"AddBinding-Model Value Change [Field: {modelFieldName}; New Value: {val}]");
+                    codeToRunOnChange(val);
+                }
+
             };
         }
 
-
+        
         private object getDataContextValue(object dataContext, string modelFieldName){
             if (dataContext == null)
             {
@@ -310,50 +349,11 @@ namespace nac.Forms
             var bindingSource = new Subject<T>();
             control.Bind<T>(property, bindingSource.AsObservable());
 
-            bool bindingIsDataContext = false;
-            object dataContext = null;
-
-            // does model contain a datacontext???
-            if( this.Model.HasKey(SpecialModelKeys.DataContext)){
-                // bind to the data context
-                dataContext = this.Model[SpecialModelKeys.DataContext];
-
-                if( dataContext is System.ComponentModel.INotifyPropertyChanged prop){
-                    // It's INotifyPropertyChanged so set this as handled
-                    bindingIsDataContext = true;
-
-                    // need to fire it's current value.  Then start watching for changes
-                    var currentValue = getDataContextValue(dataContext, modelFieldName);
-                    log.Debug(
-                        $"AddBinding-Model Value Change [*Initial* Field: {modelFieldName}; New Value: {currentValue}]");
-                    FireOnNextWithValue<T>(bindingSource, currentValue );
-
-                    prop.PropertyChanged += (_s,_args) => {
-                        if( string.Equals(_args.PropertyName, modelFieldName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            var newCurrentValue = getDataContextValue(dataContext, modelFieldName);
-                            log.Debug($"AddBinding-Model Value Change [Field: {modelFieldName}; New Value: {newCurrentValue}]");
-                            FireOnNextWithValue<T>(bindingSource, newCurrentValue );
-                        }
-                    };
-                }
-                else
-                {
-                    /*
-                     !!REMEMBER!! You can use the bindabledictionary
-                     If you don't want to go to the trouble of implementing INotifyPropertyChanged just have your items use BindableDictionary and it's pretty easy
-                     */
-                    throw new Exception(
-                        $"Special DataContext used in model, but DataContext is not INotifyPropertyChanged.  [modelFileName: {modelFieldName}] Type given is {dataContext?.GetType().Name ?? "null"}.  There is no way to read properties without INotifyPropertyChanged");
-                }
-            }
-
-            if(!bindingIsDataContext){
-                notifyOnModelChange(modelFieldName, (val) =>
-                {
-                    FireOnNext<T>(bindingSource, modelFieldName);
-                });
-            }
+            notifyOnModelChange(modelFieldName, (val) =>
+            {
+                FireOnNextWithValue<T>(bindingSource, val);
+            });
+            
             // If they say two way then we setup a watch on the property observable and apply the values back to the model
             if(isTwoWayDataBinding)
             {

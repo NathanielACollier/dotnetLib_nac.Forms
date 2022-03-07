@@ -7,5 +7,13 @@ namespace TestApp.model
             get { return GetValue(() => Message); }
             set { SetValue(() => Message, value);}
         }
+
+
+        public bool Loading
+        {
+            get { return GetValue(() => Loading); }
+            set { SetValue(() => Loading, value);}
+        }
+        
     }
 }
