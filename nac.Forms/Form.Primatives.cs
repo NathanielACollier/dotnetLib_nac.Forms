@@ -45,13 +45,15 @@ namespace nac.Forms
                         Action<string> onTextChanged=null,
                         bool isPassword = false,
                         bool isReadOnly = false,
-                        string watermarkText = null)
+                        string watermarkText = null,
+                        Func<string,object> convertFromUIToModel = null)
         {
             var tb = new TextBox();
             lib.styleUtil.style(this, tb, style);
 
             AddBinding<string>(modelFieldName, tb, TextBox.TextProperty,
-				isTwoWayDataBinding: true);
+				isTwoWayDataBinding: true,
+                convertFromUIToModel: convertFromUIToModel);
 
             // for text changed you do observable because Avalonia hasn't implemented TextChanged for TextBox yet
             //  see: https://github.com/AvaloniaUI/Avalonia/issues/418

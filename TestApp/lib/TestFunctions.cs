@@ -789,6 +789,32 @@ namespace TestApp.lib
                 });
         }
 
+        
+        public static void TestTextBox_NumberCounter(Form f)
+        {
+            var model = new model.DataContext_HelloWorld();
+            f.DataContext = model;
+
+            f.HorizontalGroup(hg =>
+            {
+                hg.Text("Counter: ")
+                    .TextBoxFor(nameof(model.myCounter),
+                        convertFromUIToModel: (string text) =>
+                        {
+                            if (int.TryParse(text, out int myNumber))
+                            {
+                                return myNumber;
+                            }
+
+                            return 0;
+                        });
+            }).Button("Incriment", (args) =>
+            {
+                ++model.myCounter;
+            });
+        }
+        
+        
         public static void Test_ChildForm_ShowAndShowDialog(Form f)
         {
             f.Button("Show", async (_args) =>

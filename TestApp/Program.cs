@@ -148,6 +148,11 @@ namespace TestApp
                 },
                 new model.TestEntry
                 {
+                    Name = "Test Textbox: Number Counter",
+                    CodeToRun = lib.TestFunctions.TestTextBox_NumberCounter
+                },
+                new model.TestEntry
+                {
                     Name  = "Test Image: From Web URL",
                     CodeToRun = lib.TestFunctions.TestImage_FromWebURL
                 },
