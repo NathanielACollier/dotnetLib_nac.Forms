@@ -21,6 +21,7 @@ namespace nac.Forms.controls
 {
     public class FilePicker : UserControl
     {
+        private static lib.Log log = new lib.Log();
         /*
          -----
          Events
@@ -68,7 +69,8 @@ namespace nac.Forms.controls
         {
             base.OnPropertyChanged(change);
             if (change.Property == FilePathProperty) {
-                Console.WriteLine($"OnPropertyChanged FilePath:[{FilePath}]");
+                
+                log.Debug($"OnPropertyChanged FilePath:[{FilePath}]");
                 this.FilePathChanged?.Invoke(this, FilePath);
             }
         }

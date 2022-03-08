@@ -357,7 +357,7 @@ namespace TestApp.lib
         {
             f.FilePathFor("myPath", onFilePathChanged: (newFileName) =>
                 {
-                    Console.WriteLine($"New Filename is: {newFileName}");
+                    model.LogEntry.debug($"New Filename is: {newFileName}");
                 })
                 .HorizontalGroup(hg =>
                 {
@@ -371,7 +371,7 @@ namespace TestApp.lib
             f.HorizontalGroup(h => {
                 h.FilePathFor("myPath1", onFilePathChanged: (newFileName1) =>
                 {
-                    Console.WriteLine($"------New Filename for path1 is: {newFileName1}");
+                    model.LogEntry.debug($"------New Filename for path1 is: {newFileName1}");
                 })
                 .HorizontalGroup(hg =>
                 {
@@ -382,7 +382,7 @@ namespace TestApp.lib
             .HorizontalGroup(h => {
                 h.FilePathFor("myPath2", onFilePathChanged: (newFileName2) =>
                 {
-                    Console.WriteLine($"++++++New Filename for path2 is: {newFileName2}");
+                    model.LogEntry.debug($"++++++New Filename for path2 is: {newFileName2}");
                 })
                 .HorizontalGroup(hg =>
                 {
@@ -393,7 +393,7 @@ namespace TestApp.lib
             .HorizontalGroup(h => {
                 h.DirectoryPathFor("myDirPath1", onDirectoryPathChanged: (newDirPath1) =>
                 {
-                    Console.WriteLine($"++++++New DirectoryPath for path1 is: {newDirPath1}");
+                    model.LogEntry.debug($"++++++New DirectoryPath for path1 is: {newDirPath1}");
                 })
                 .HorizontalGroup(hg =>
                 {
@@ -404,7 +404,7 @@ namespace TestApp.lib
             .HorizontalGroup(h => {
                 h.DirectoryPathFor("myDirPath2", onDirectoryPathChanged: (newDirPath2) =>
                 {
-                    Console.WriteLine($"------New DirectoryPath for path2 is: {newDirPath2}");
+                    model.LogEntry.debug($"------New DirectoryPath for path2 is: {newDirPath2}");
                 })
                 .HorizontalGroup(hg =>
                 {
@@ -419,7 +419,7 @@ namespace TestApp.lib
             f.FilePathFor("myPath", fileMustExist: false,
                     onFilePathChanged: (newFileName) =>
                     {
-                        Console.WriteLine($"New filename is: {newFileName}");
+                        model.LogEntry.debug($"New filename is: {newFileName}");
                     })
                 .HorizontalGroup(hg =>
                 {
@@ -437,7 +437,7 @@ namespace TestApp.lib
             f.DirectoryPathFor("myPath",
                     onDirectoryPathChanged: (newFilePath) =>
                     {
-                        Console.WriteLine($"New Directory path is: {newFilePath}");
+                        model.LogEntry.debug($"New Directory path is: {newFilePath}");
                     })
                 .HorizontalGroup(hg =>
                 {

@@ -10,7 +10,7 @@ namespace nac.Forms.controls;
 
 public class DirectoryPicker: UserControl
 {
-    
+    private static lib.Log log = new lib.Log();
     /*
      -----
      Events
@@ -84,7 +84,7 @@ public class DirectoryPicker: UserControl
     {
         base.OnPropertyChanged(change);
         if (change.Property == DirectoryPathProperty) {
-            Console.WriteLine($"OnPropertyChanged FilePath:[{DirectoryPath}]");
+            log.Debug($"OnPropertyChanged FilePath:[{DirectoryPath}]");
             this.DirectoryPathChanged?.Invoke(this, DirectoryPath);
         }
     }
