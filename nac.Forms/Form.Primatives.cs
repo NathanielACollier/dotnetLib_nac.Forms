@@ -203,6 +203,8 @@ namespace nac.Forms
             var imgControl = new Avalonia.Controls.Image();
             lib.styleUtil.style(this, imgControl, style);
 
+            imgControl.Stretch = Stretch.Uniform;
+
             AddBinding<Avalonia.Media.IImage>(modelFieldName: modelFieldName,
                                                     control: imgControl,
                                                     property: Avalonia.Controls.Image.SourceProperty,
@@ -216,7 +218,7 @@ namespace nac.Forms
                                                     }
                                                 });
             
-            AddRowToHost(imgControl);
+            AddRowToHost(imgControl, rowAutoHeight: false);
             return this;
         }
         
