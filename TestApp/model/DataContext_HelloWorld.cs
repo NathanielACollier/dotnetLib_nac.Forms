@@ -14,6 +14,12 @@ namespace TestApp.model
             get { return GetValue(() => Loading); }
             set { SetValue(() => Loading, value);}
         }
-        
+
+
+        public int myCounter
+        {
+            get { return GetValue(() => myCounter); }
+            set { SetValue(() => myCounter, value);}
+        }
     }
 }

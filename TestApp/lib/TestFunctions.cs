@@ -837,6 +837,32 @@ namespace TestApp.lib
                 });
         }
 
+        
+        public static void TestTextBox_NumberCounter(Form f)
+        {
+            var model = new model.DataContext_HelloWorld();
+            f.DataContext = model;
+
+            f.HorizontalGroup(hg =>
+            {
+                hg.Text("Counter: ")
+                    .TextBoxFor(nameof(model.myCounter),
+                        convertFromUIToModel: (string text) =>
+                        {
+                            if (int.TryParse(text, out int myNumber))
+                            {
+                                return myNumber;
+                            }
+
+                            return 0;
+                        });
+            }).Button("Incriment", (args) =>
+            {
+                ++model.myCounter;
+            });
+        }
+        
+        
         public static void Test_ChildForm_ShowAndShowDialog(Form f)
         {
             f.Button("Show", async (_args) =>
@@ -856,6 +882,32 @@ namespace TestApp.lib
 
                 log.info("After show dialog is displayed");
             });
+        }
+
+        public static void TestImage_FromWebURL(Form f)
+        {
+            // default the URL
+            f.Model["url"] = "https://preview.redd.it/p9o46zrc21m81.jpg?auto=webp&s=f2f9c88a8e91c836f2b6377d5c900b416f02d62f";
+            f.Text("Image from URL")
+                .HorizontalGroup(hg =>
+                {
+                    hg.Text("URL: ")
+                        .TextBoxFor("url",
+                            style: new Style
+                            {
+                                width = 350
+                            })
+                        .Button("Go", (args) =>
+                        {
+                            string url = f.Model["url"] as string;
+                            // download it and convert it to an avalonia Bitmap
+                            using (var client = new System.Net.WebClient())
+                            {
+                                f.Model["img"] = client.DownloadData(url);
+                            }
+                        });
+                })
+                .Image(modelFieldName: "img");
         }
     }
 }

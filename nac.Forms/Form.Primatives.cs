@@ -45,13 +45,15 @@ namespace nac.Forms
                         Action<string> onTextChanged=null,
                         bool isPassword = false,
                         bool isReadOnly = false,
-                        string watermarkText = null)
+                        string watermarkText = null,
+                        Func<string,object> convertFromUIToModel = null)
         {
             var tb = new TextBox();
             lib.styleUtil.style(this, tb, style);
 
             AddBinding<string>(modelFieldName, tb, TextBox.TextProperty,
-				isTwoWayDataBinding: true);
+				isTwoWayDataBinding: true,
+                convertFromUIToModel: convertFromUIToModel);
 
             // for text changed you do observable because Avalonia hasn't implemented TextChanged for TextBox yet
             //  see: https://github.com/AvaloniaUI/Avalonia/issues/418
@@ -193,7 +195,32 @@ namespace nac.Forms
 
             return this;
         }
-        
+
+
+        public Form Image(string modelFieldName,
+            model.Style style = null)
+        {
+            var imgControl = new Avalonia.Controls.Image();
+            lib.styleUtil.style(this, imgControl, style);
+
+            imgControl.Stretch = Stretch.Uniform;
+
+            AddBinding<Avalonia.Media.IImage>(modelFieldName: modelFieldName,
+                                                    control: imgControl,
+                                                    property: Avalonia.Controls.Image.SourceProperty,
+                                                convertFromModelToUI: (val) =>
+                                                {
+                                                    byte[] imgData = val as byte[];
+                                                    using (var ms = new System.IO.MemoryStream(imgData))
+                                                    {
+                                                        var image = new Avalonia.Media.Imaging.Bitmap(ms);
+                                                        return image;
+                                                    }
+                                                });
+            
+            AddRowToHost(imgControl, rowAutoHeight: false);
+            return this;
+        }
         
         
     }

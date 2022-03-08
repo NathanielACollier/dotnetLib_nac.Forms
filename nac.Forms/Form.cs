@@ -343,7 +343,9 @@ namespace nac.Forms
         private void AddBinding<T>(string modelFieldName,
             AvaloniaObject control,
             AvaloniaProperty<T> property,
-            bool isTwoWayDataBinding = false)
+            bool isTwoWayDataBinding = false,
+            Func<object, T> convertFromModelToUI = null,
+            Func<T, object> convertFromUIToModel = null)
         {
             // (ideas from here)[http://avaloniaui.net/docs/binding/binding-from-code]
             var bindingSource = new Subject<T>();
@@ -351,6 +353,12 @@ namespace nac.Forms
 
             notifyOnModelChange(modelFieldName, (val) =>
             {
+                if (convertFromModelToUI != null)
+                {
+                    log.Debug($"ConvertFromModelToUI [model val: {val}]");
+                    val = convertFromModelToUI(val);
+                    log.Debug($"ConvertFromModelToUI [ui val: {val}]");
+                }
                 FireOnNextWithValue<T>(bindingSource, val);
             });
             
@@ -362,14 +370,20 @@ namespace nac.Forms
 
                 controlValueChangesObservable.Subscribe(newVal =>
                 {
-                    if( newVal == null)
+                    object objVal = newVal;
+                    if (convertFromUIToModel != null)
+                    {
+                        objVal = convertFromUIToModel(newVal);
+                        log.Debug($"ConvertFromUIToModel [ui val: {newVal}; converted val: {objVal}]");
+                    }
+                    if( objVal == null)
                     {
                         // there is never a situation where the UI would need to make a model property null right???
                         return;
                     }
 
-                    log.Debug($"AddBinding-TwoWay-Control Value Change [Control Property: {property.Name}; Field: {modelFieldName}; New Value: {newVal}]");
-                    setModelValue(modelFieldName, newVal);
+                    log.Debug($"AddBinding-TwoWay-Control Value Change [Control Property: {property.Name}; Field: {modelFieldName}; New Value: {objVal}]");
+                    setModelValue(modelFieldName, objVal);
                 });
             }
             
