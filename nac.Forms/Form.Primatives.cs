@@ -193,7 +193,21 @@ namespace nac.Forms
 
             return this;
         }
-        
+
+
+        public Form Image(string modelFieldName,
+            model.Style style = null)
+        {
+            var imgControl = new Avalonia.Controls.Image();
+            lib.styleUtil.style(this, imgControl, style);
+
+            AddBinding<Avalonia.Media.IImage>(modelFieldName: modelFieldName,
+                                                    control: imgControl,
+                                                    property: Avalonia.Controls.Image.SourceProperty);
+            
+            AddRowToHost(imgControl);
+            return this;
+        }
         
         
     }

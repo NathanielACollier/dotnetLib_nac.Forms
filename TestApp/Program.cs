@@ -146,6 +146,11 @@ namespace TestApp
                     Name  = "Test Textbox: Password",
                     CodeToRun = lib.TestFunctions.TestTextBox_Password
                 },
+                new model.TestEntry
+                {
+                    Name  = "Test Image: From Web URL",
+                    CodeToRun = lib.TestFunctions.TestImage_FromWebURL
+                },
                 new TestEntry
                 {
                     Name = "Test Style: TextBlock: Basic font changes",
