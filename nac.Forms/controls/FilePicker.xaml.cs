@@ -60,15 +60,17 @@ namespace nac.Forms.controls
         public FilePicker()
         {
             this.InitializeComponent();
-
-            // docs on Property change: https://avaloniaui.net/docs/binding/binding-from-code
-            FilePathProperty.Changed.AddClassHandler<FilePicker>(x => FilePath_Changed);
         }
 
+        
 
-        private void FilePath_Changed(AvaloniaPropertyChangedEventArgs e)
+        protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
         {
-            this.FilePathChanged?.Invoke(this, e.NewValue as string);
+            base.OnPropertyChanged(change);
+            if (change.Property == FilePathProperty) {
+                Console.WriteLine($"OnPropertyChanged FilePath:[{FilePath}]");
+                this.FilePathChanged?.Invoke(this, FilePath);
+            }
         }
         
         
