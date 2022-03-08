@@ -46,9 +46,6 @@ public class DirectoryPicker: UserControl
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);
-        
-        // docs on Property change: https://avaloniaui.net/docs/binding/binding-from-code
-        DirectoryPathProperty.Changed.AddClassHandler<DirectoryPicker>(x => DirectoryPath_Changed);
     }
     
     /*
@@ -83,9 +80,12 @@ public class DirectoryPicker: UserControl
             DirectoryPath = result;
         }
     }
-    
-    private void DirectoryPath_Changed(AvaloniaPropertyChangedEventArgs e)
+    protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
     {
-        this.DirectoryPathChanged?.Invoke(this, e.NewValue as string);
+        base.OnPropertyChanged(change);
+        if (change.Property == DirectoryPathProperty) {
+            Console.WriteLine($"OnPropertyChanged FilePath:[{DirectoryPath}]");
+            this.DirectoryPathChanged?.Invoke(this, DirectoryPath);
+        }
     }
 }

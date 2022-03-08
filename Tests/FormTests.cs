@@ -54,10 +54,10 @@ namespace Tests
             var f = Avalonia.AppBuilder.Configure<App>()
                 .NewForm();
 
-            f.VerticalGroupSplit(grp=>{
-                grp.Text("Text Above")
-                    .Text("Text Below");
-            });
+            // f.VerticalGroupSplit(grp=>{
+            //     grp.Text("Text Above")
+            //         .Text("Text Below");
+            // });
         }
     }
 }
