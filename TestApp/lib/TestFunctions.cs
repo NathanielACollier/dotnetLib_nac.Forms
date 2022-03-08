@@ -829,12 +829,7 @@ namespace TestApp.lib
                             // download it and convert it to an avalonia Bitmap
                             using (var client = new System.Net.WebClient())
                             {
-                                var imgBytes = client.DownloadData(url);
-                                using (var ms = new System.IO.MemoryStream(imgBytes))
-                                {
-                                    var image = new Avalonia.Media.Imaging.Bitmap(ms);
-                                    f.Model["img"] = image;
-                                }
+                                f.Model["img"] = client.DownloadData(url);
                             }
                         });
                 })

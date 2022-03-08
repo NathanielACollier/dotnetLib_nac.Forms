@@ -203,7 +203,16 @@ namespace nac.Forms
 
             AddBinding<Avalonia.Media.IImage>(modelFieldName: modelFieldName,
                                                     control: imgControl,
-                                                    property: Avalonia.Controls.Image.SourceProperty);
+                                                    property: Avalonia.Controls.Image.SourceProperty,
+                                                convertFromModelToUI: (val) =>
+                                                {
+                                                    byte[] imgData = val as byte[];
+                                                    using (var ms = new System.IO.MemoryStream(imgData))
+                                                    {
+                                                        var image = new Avalonia.Media.Imaging.Bitmap(ms);
+                                                        return image;
+                                                    }
+                                                });
             
             AddRowToHost(imgControl);
             return this;
