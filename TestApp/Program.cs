@@ -168,6 +168,11 @@ namespace TestApp
                 },
                 new TestEntry()
                 {
+                    Name = "Test FilePickerFor: Test change on two different file pickers.",
+                    CodeToRun = lib.TestFunctions.TestFilePickerFor_TwoWithDifferentChangeEvents
+                },
+                new TestEntry()
+                {
                     Name  = "Test DirectoryPathFor: Simple example",
                     CodeToRun = lib.TestFunctions.TestDirectoryPathFor_Simple
                 },

@@ -366,6 +366,54 @@ namespace TestApp.lib
                 });
         }
 
+        public static void TestFilePickerFor_TwoWithDifferentChangeEvents(Form f)
+        {
+            f.HorizontalGroup(h => {
+                h.FilePathFor("myPath1", onFilePathChanged: (newFileName1) =>
+                {
+                    Console.WriteLine($"------New Filename for path1 is: {newFileName1}");
+                })
+                .HorizontalGroup(hg =>
+                {
+                    hg.Text("myPath1 You picked file: ")
+                        .TextFor("myPath1");
+                });
+            })
+            .HorizontalGroup(h => {
+                h.FilePathFor("myPath2", onFilePathChanged: (newFileName2) =>
+                {
+                    Console.WriteLine($"++++++New Filename for path2 is: {newFileName2}");
+                })
+                .HorizontalGroup(hg =>
+                {
+                    hg.Text("myPath2 You picked file: ")
+                        .TextFor("myPath2");
+                });
+            })
+            .HorizontalGroup(h => {
+                h.DirectoryPathFor("myDirPath1", onDirectoryPathChanged: (newDirPath1) =>
+                {
+                    Console.WriteLine($"++++++New DirectoryPath for path1 is: {newDirPath1}");
+                })
+                .HorizontalGroup(hg =>
+                {
+                    hg.Text("myDirPath1 You picked file: ")
+                        .TextFor("myDirPath1");
+                });
+            })
+            .HorizontalGroup(h => {
+                h.DirectoryPathFor("myDirPath2", onDirectoryPathChanged: (newDirPath2) =>
+                {
+                    Console.WriteLine($"------New DirectoryPath for path2 is: {newDirPath2}");
+                })
+                .HorizontalGroup(hg =>
+                {
+                    hg.Text("myDirPath2 You picked file: ")
+                        .TextFor("myDirPath2");
+                });
+            });
+        }
+
         public static void TestFilePickerFor_NewFile(Form f)
         {
             f.FilePathFor("myPath", fileMustExist: false,
