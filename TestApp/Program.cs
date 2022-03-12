@@ -245,6 +245,8 @@ namespace TestApp
 
 
             };
+
+            f.Title = "Test App (nac.forms Tests)";
             
             f.Tabs(new[]
                 {

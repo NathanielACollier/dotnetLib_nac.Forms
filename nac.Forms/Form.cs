@@ -32,6 +32,12 @@ namespace nac.Forms
             set { this.Model[model.SpecialModelKeys.DataContext] = value; }
         }
 
+        public string Title
+        {
+            get { return this.win.Title; }
+            set { this.win.Title = value; }
+        }
+
         public Form(Application __app, lib.BindableDynamicDictionary _model=null)
         {
             if( _model == null)
