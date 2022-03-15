@@ -156,6 +156,11 @@ namespace TestApp
                     Name  = "Test Image: From Web URL",
                     CodeToRun = lib.TestFunctions.TestImage_FromWebURL
                 },
+                new model.TestEntry
+                {
+                    Name = "Test Image: Empty",
+                    CodeToRun = lib.TestFunctions.TestImage_Empty
+                },
                 new TestEntry
                 {
                     Name = "Test Style: TextBlock: Basic font changes",

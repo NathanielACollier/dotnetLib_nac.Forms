@@ -909,5 +909,15 @@ namespace TestApp.lib
                 })
                 .Image(modelFieldName: "img");
         }
+        
+        
+        public static void TestImage_Empty(Form f)
+        {
+            f.Model["img"] = null;
+
+            f.Text("Display no image")
+                .Image("img");
+        }
+        
     }
 }

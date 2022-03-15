@@ -211,6 +211,12 @@ namespace nac.Forms
                                                 convertFromModelToUI: (val) =>
                                                 {
                                                     byte[] imgData = val as byte[];
+
+                                                    if (imgData == null)
+                                                    {
+                                                        return null; // can't do a memorystream on null so get out somehow
+                                                    }
+                                                    
                                                     using (var ms = new System.IO.MemoryStream(imgData))
                                                     {
                                                         var image = new Avalonia.Media.Imaging.Bitmap(ms);
