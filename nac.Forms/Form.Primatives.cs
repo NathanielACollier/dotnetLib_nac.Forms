@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
@@ -96,7 +97,7 @@ namespace nac.Forms
             public Action<model.Style> setStyle;
         }
 
-		public Form Button(string displayText, Action<object> onClick, 
+		public Form Button(string displayText, Func<Task> onClick, 
                 Style style = null,
                 ButtonFunctions functions = null)
         {
@@ -104,9 +105,9 @@ namespace nac.Forms
             lib.styleUtil.style(this, btn, style);
             btn.Content = displayText;
 
-            btn.Click += (_s, _args) =>
+            btn.Click += async (_s, _args) =>
             {
-                onClick(null);
+                await onClick();
             };
 
             if (functions != null)
