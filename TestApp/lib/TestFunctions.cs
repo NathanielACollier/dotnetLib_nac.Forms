@@ -31,7 +31,7 @@ namespace TestApp.lib
                     
                 row.HorizontalGroup(hg=>{
                     hg.TextFor("Label")
-                        .Button("Next", (arg)=>{
+                        .Button("Next", async ()=>{
                             var model = row.Model[SpecialModelKeys.DataContext] as TestList_ButtonCounterExample_ItemModel;
                             ++model.Counter;
                         })
@@ -63,7 +63,7 @@ namespace TestApp.lib
             {
                 hori.Text("Click Count: ", style: new Style(){ width = 100})
                     .TextBoxFor("clickCount")
-                    .Button("Click Me!", arg =>
+                    .Button("Click Me!", async () =>
                     {
                         var current = child.Model.GetOrDefault<int>("clickCount", 0);
                         ++current;
@@ -81,7 +81,7 @@ namespace TestApp.lib
         public static void Test2_ButtonWithClickCount(Form child)
         {
             child.TextFor("txt1", "When you click button I'll change to count!")
-                .Button("Click Me!", arg =>
+                .Button("Click Me!", async () =>
                 {
                     var current = child.Model.GetOrDefault<int>("txt1", 0);
                     ++current;
@@ -92,9 +92,9 @@ namespace TestApp.lib
         public static void Test1(Form child)
         {
             child.TextBoxFor("txt")
-                .Button("Click Me!", (_args) =>
+                .Button("Click Me!", async () =>
                 {
-
+                    log.info("Button clicked");
                 });
 
         }
@@ -132,7 +132,7 @@ namespace TestApp.lib
 
                     hgChild.Text("Prop1: ")
                         .TextBoxFor("NewItem.Prop1")
-                        .Button("Add Item", (_args) =>
+                        .Button("Add Item", async () =>
                         {
                             newItem = new nac.Forms.lib.BindableDynamicDictionary();
                             newItem["Prop1"] = child.Model["NewItem.Prop1"] as string;
@@ -152,17 +152,17 @@ namespace TestApp.lib
                 hgForm.VerticalGroup((vg1) =>
                     {
                         vg1.Text("Here is a column of controls in a vertical group")
-                            .Button("Click Me!", (_args)=>
+                            .Button("Click Me!", async ()=>
                             {
-
+                                log.info("vg1 button click");
                             });
                     })
                     .VerticalGroup((vg2) =>
                     {
                         vg2.Text("Here is a second column of controls")
-                            .Button("Click me 2!!", (_args) =>
+                            .Button("Click me 2!!", async () =>
                             {
-
+                                log.info("vg2 button click");
                             });
                     });
             });
@@ -175,17 +175,17 @@ namespace TestApp.lib
                 hgForm.VerticalDock((vg1) =>
                     {
                         vg1.Text("Here is a column of controls in a vertical group")
-                            .Button("Click Me!", (_args)=>
+                            .Button("Click Me!", async ()=>
                             {
-
+                                log.info("vg1 button click");
                             });
                     })
                     .VerticalDock((vg2) =>
                     {
                         vg2.Text("Here is a second column of controls")
-                            .Button("Click me 2!!", (_args) =>
+                            .Button("Click me 2!!", async () =>
                             {
-
+                                log.info("vg2 button click");
                             });
                     });
             });
@@ -205,7 +205,7 @@ namespace TestApp.lib
                         {
                             isVisibleModelName = "isHoriVis"
                         })
-                        .Button("Hide/show ME!", (_args) =>
+                        .Button("Hide/show ME!", async () =>
                         {
                             mainForm.Model["isHoriVis"] = !(mainForm.Model["isHoriVis"] as bool? ?? true);
                         }, style: new Style(){width = 120});
@@ -213,7 +213,7 @@ namespace TestApp.lib
                 {
                     isVisibleModelName = "isTextVisible"
                 } )
-                .Button("Show or Hide Text", (_args) =>
+                .Button("Show or Hide Text", async () =>
                 {
                     mainForm.Model["isTextVisible"] = !(mainForm.Model["isTextVisible"] as bool? ?? true);
                 });
@@ -230,7 +230,7 @@ namespace TestApp.lib
                     height = 50,
                     isVisibleModelName = "isDisplay"
                 })
-                .Button("Hide or Show", (_args) =>
+                .Button("Hide or Show", async () =>
                 {
                     f.Model["isDisplay"] = !(f.Model["isDisplay"] as bool? ?? true);
                 }, style: new Style(){width = 100});
@@ -282,10 +282,10 @@ namespace TestApp.lib
                     })
                     .HorizontalGroup(hg =>
                     {
-                        hg.Button("Quit", (_args) =>
+                        hg.Button("Quit", async () =>
                         {
                             f.Close();
-                        }).Button("Force Quit", (_args) =>
+                        }).Button("Force Quit", async () =>
                         {
                             f.Model["isQuit"] = true;
                             f.Close();
@@ -340,9 +340,9 @@ namespace TestApp.lib
                 })
                 .HorizontalGroup(hg =>
                 {
-                    hg.Button("Red", (_args) =>
+                    hg.Button("Red", async () =>
                     {
-
+                        log.info("Red button click");
                     }, style: new nac.Forms.model.Style
                     {
                         backgroundColor = Avalonia.Media.Colors.Red,
@@ -355,7 +355,7 @@ namespace TestApp.lib
 
         public static void TestFilePickerFor_Basic(Form f)
         {
-            f.FilePathFor("myPath", onFilePathChanged: (newFileName) =>
+            f.FilePathFor("myPath", onFilePathChanged: async (newFileName) =>
                 {
                     model.LogEntry.debug($"New Filename is: {newFileName}");
                 })
@@ -369,7 +369,7 @@ namespace TestApp.lib
         public static void TestFilePickerFor_TwoWithDifferentChangeEvents(Form f)
         {
             f.HorizontalGroup(h => {
-                h.FilePathFor("myPath1", onFilePathChanged: (newFileName1) =>
+                h.FilePathFor("myPath1", onFilePathChanged: async (newFileName1) =>
                 {
                     model.LogEntry.debug($"------New Filename for path1 is: {newFileName1}");
                 })
@@ -380,7 +380,7 @@ namespace TestApp.lib
                 });
             })
             .HorizontalGroup(h => {
-                h.FilePathFor("myPath2", onFilePathChanged: (newFileName2) =>
+                h.FilePathFor("myPath2", onFilePathChanged: async (newFileName2) =>
                 {
                     model.LogEntry.debug($"++++++New Filename for path2 is: {newFileName2}");
                 })
@@ -391,7 +391,7 @@ namespace TestApp.lib
                 });
             })
             .HorizontalGroup(h => {
-                h.DirectoryPathFor("myDirPath1", onDirectoryPathChanged: (newDirPath1) =>
+                h.DirectoryPathFor("myDirPath1", onDirectoryPathChanged: async (newDirPath1) =>
                 {
                     model.LogEntry.debug($"++++++New DirectoryPath for path1 is: {newDirPath1}");
                 })
@@ -402,7 +402,7 @@ namespace TestApp.lib
                 });
             })
             .HorizontalGroup(h => {
-                h.DirectoryPathFor("myDirPath2", onDirectoryPathChanged: (newDirPath2) =>
+                h.DirectoryPathFor("myDirPath2", onDirectoryPathChanged: async (newDirPath2) =>
                 {
                     model.LogEntry.debug($"------New DirectoryPath for path2 is: {newDirPath2}");
                 })
@@ -417,7 +417,7 @@ namespace TestApp.lib
         public static void TestFilePickerFor_NewFile(Form f)
         {
             f.FilePathFor("myPath", fileMustExist: false,
-                    onFilePathChanged: (newFileName) =>
+                    onFilePathChanged: async (newFileName) =>
                     {
                         model.LogEntry.debug($"New filename is: {newFileName}");
                     })
@@ -435,7 +435,7 @@ namespace TestApp.lib
         {
             f.Model["myPath"] = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             f.DirectoryPathFor("myPath",
-                    onDirectoryPathChanged: (newFilePath) =>
+                    onDirectoryPathChanged: async (newFilePath) =>
                     {
                         model.LogEntry.debug($"New Directory path is: {newFilePath}");
                     })
@@ -454,7 +454,7 @@ namespace TestApp.lib
             myModel.myPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
             f.DirectoryPathFor(nameof(model.DirectoryPathFormWindowModel.myPath),
-                    onDirectoryPathChanged: (newFilePath) =>
+                    onDirectoryPathChanged: async (newFilePath) =>
                     {
                         model.LogEntry.info($"New Directory path is: {newFilePath}");
                         model.LogEntry.info($"      Model myPath: {myModel.myPath}");
@@ -466,7 +466,7 @@ namespace TestApp.lib
                 })
                 .Text("The below directory picker doesn't start with a path")
                 .DirectoryPathFor(nameof(model.DirectoryPathFormWindowModel.pathWithoutBeingInit),
-                    onDirectoryPathChanged: (newPath) =>
+                    onDirectoryPathChanged: async (newPath) =>
                     {
                         model.LogEntry.info($"Old path: {myModel.pathWithoutBeingInit}");
                         model.LogEntry.info($"New path: {newPath}");
@@ -504,7 +504,7 @@ namespace TestApp.lib
                     PopulateHeader = (header) =>
                     {
                         header.Text("My Tab 1")
-                            .Button("Click Me!", (args) =>
+                            .Button("Click Me!", async () =>
                             {
                                 header.Model["tab1ClickCount"] =
                                     Convert.ToInt32(header.Model["tab1ClickCount"] ?? 0) + 1;
@@ -550,7 +550,7 @@ namespace TestApp.lib
                                 width = 20
                             });
                     }, style: new Style{isVisibleModelName = "InProgress"})
-                    .Button("Toggle Loading", (_a) =>
+                    .Button("Toggle Loading", async () =>
                     {
                         f.Model["InProgress"] = !(bool) f.Model["InProgress"];
                     });
@@ -572,7 +572,7 @@ namespace TestApp.lib
                                 width = 20
                             });
                     }, style: new Style{isVisibleModelName = nameof(model.Loading)})
-                    .Button("Toggle Loading", (_a) =>
+                    .Button("Toggle Loading", async () =>
                     {
                         model.Loading = !(bool) model.Loading;
                     });
@@ -597,12 +597,12 @@ namespace TestApp.lib
                     {
                         h.Text("New Item Text: ")
                             .TextBoxFor("newItemText", style: new Style(){width = 100})
-                            .Button("Add", (_a) =>
+                            .Button("Add", async () =>
                             {
                                 var _curItems = f.Model["items"] as ObservableCollection<string>;
                                 _curItems.Add(f.Model["newItemText"] as string);
                             })
-                            .Button("Swap Lists", (_a) =>
+                            .Button("Swap Lists", async () =>
                             {
                                 if (f.Model["items"] == items)
                                 {
@@ -648,7 +648,7 @@ namespace TestApp.lib
             f.HorizontalGroup(h =>
             {
                 h.Text("My List")
-                    .Button("Add", (args) =>
+                    .Button("Add", async () =>
                     {
                         Task.Run(() =>
                         {
@@ -706,7 +706,7 @@ namespace TestApp.lib
                             });
                         }
                     })
-                    .Button("Incriment", (args) =>
+                    .Button("Incriment", async () =>
                     {
                         int counterInt = Convert.ToInt32(f.Model["counter"] as string);
                         f.Model["counter"] = ++counterInt;
@@ -737,10 +737,10 @@ namespace TestApp.lib
                 })
                 .HorizontalGroup(h =>
                 {
-                    h.Button("New", (obj) =>
+                    h.Button("New", async () =>
                     {
                         model.Contact = new model.Contact();
-                    }).Button("save", (obj) =>
+                    }).Button("save", async () =>
                     {
                         model.Results = $@"
                         Display Name: {model.Contact.DisplayName}
@@ -856,7 +856,7 @@ namespace TestApp.lib
 
                             return 0;
                         });
-            }).Button("Incriment", (args) =>
+            }).Button("Incriment", async () =>
             {
                 ++model.myCounter;
             });
@@ -865,7 +865,7 @@ namespace TestApp.lib
         
         public static void Test_ChildForm_ShowAndShowDialog(Form f)
         {
-            f.Button("Show", async (_args) =>
+            f.Button("Show", async () =>
             {
                 await f.DisplayChildForm(child =>
                 {
@@ -873,7 +873,7 @@ namespace TestApp.lib
                 }, isDialog: false);
 
                 log.info("After show is displayed");
-            }).Button("ShowDialog", async (_args) =>
+            }).Button("ShowDialog", async () =>
             {
                 await f.DisplayChildForm(child =>
                 {
@@ -897,7 +897,7 @@ namespace TestApp.lib
                             {
                                 width = 350
                             })
-                        .Button("Go", (args) =>
+                        .Button("Go", async () =>
                         {
                             string url = f.Model["url"] as string;
                             // download it and convert it to an avalonia Bitmap
