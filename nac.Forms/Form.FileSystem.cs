@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace nac.Forms
 {
@@ -13,7 +14,7 @@ namespace nac.Forms
             string fileFilter = null,
             string initialFileName = null,
             bool fileMustExist = true,
-            Action<string> onFilePathChanged = null,
+            Func<string, Task> onFilePathChanged = null,
             FilePathFor_Functions functions = null
         )
         {
@@ -25,9 +26,9 @@ namespace nac.Forms
             
             AddBinding<string>(fieldName, filePicker, controls.FilePicker.FilePathProperty, true);
 
-            filePicker.FilePathChanged += (_s, _args) =>
+            filePicker.FilePathChanged += async (_s, _args) =>
             {
-                onFilePathChanged?.Invoke(_args);
+                await onFilePathChanged?.Invoke(_args);
             };
             
             this.AddRowToHost(filePicker);
@@ -37,7 +38,7 @@ namespace nac.Forms
 
 
         public Form DirectoryPathFor(string fieldName,
-            Action<string> onDirectoryPathChanged = null)
+            Func<string, Task> onDirectoryPathChanged = null)
         {
             setModelIfNull(fieldName, ""); // make sure the model has a value for this to start out
 
@@ -45,9 +46,9 @@ namespace nac.Forms
             
             AddBinding<string>(fieldName, directoryPicker, controls.DirectoryPicker.DirectoryPathProperty, true);
 
-            directoryPicker.DirectoryPathChanged += (_s, _args) =>
+            directoryPicker.DirectoryPathChanged += async (_s, _args) =>
             {
-                onDirectoryPathChanged?.Invoke(_args);
+                await onDirectoryPathChanged?.Invoke(_args);
             };
             
             this.AddRowToHost(directoryPicker);

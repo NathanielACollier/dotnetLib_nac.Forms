@@ -265,7 +265,7 @@ namespace TestApp
                                     selectedTestEntry = i;
                                     invokeTest(f, selectedTestEntry);
                                 })
-                                .Button("Run", _args =>
+                                .Button("Run", async () =>
                                 {
                                     invokeTest(f,selectedTestEntry);
                                 });
