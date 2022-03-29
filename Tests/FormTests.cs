@@ -26,7 +26,7 @@ namespace Tests
                 .NewForm();
 
             f.TextFor("txt1", "When you click button I'll change to count!")
-                .Button("Click Me!", arg =>
+                .Button("Click Me!", async () =>
                 {
                     var current = f.Model.GetOrDefault<int>("txt1", 0);
                     ++current;
@@ -54,10 +54,14 @@ namespace Tests
             var f = Avalonia.AppBuilder.Configure<App>()
                 .NewForm();
 
-            // f.VerticalGroupSplit(grp=>{
-            //     grp.Text("Text Above")
-            //         .Text("Text Below");
-            // });
+            f.VerticalGroup(grp=>{
+                grp.Text("Text Above")
+                       .Text("Text Below");
+             }, isSplit: true)
+                .Display();
         }
+        
+        
+        
     }
 }
