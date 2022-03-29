@@ -474,7 +474,19 @@ namespace TestApp.lib
         }
         
         
-        
+        public static void TestDirectAndFilePathFor_NoEvents(Form f)
+        {
+            f.HorizontalGroup(hg =>
+                {
+                    hg.Text("FilePath ")
+                        .FilePathFor("f1");
+                })
+                .HorizontalGroup(hg =>
+                {
+                    hg.Text("DirectoryPath ")
+                        .DirectoryPathFor("d1");
+                });
+        }
 
 
         public static void Test_Tabs_BasicTest(Form f)

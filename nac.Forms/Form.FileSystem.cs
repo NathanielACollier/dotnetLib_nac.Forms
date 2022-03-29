@@ -28,7 +28,10 @@ namespace nac.Forms
 
             filePicker.FilePathChanged += async (_s, _args) =>
             {
-                await onFilePathChanged?.Invoke(_args);
+                if (onFilePathChanged != null)
+                {
+                    await onFilePathChanged(_args);
+                }
             };
             
             this.AddRowToHost(filePicker);
@@ -48,7 +51,10 @@ namespace nac.Forms
 
             directoryPicker.DirectoryPathChanged += async (_s, _args) =>
             {
-                await onDirectoryPathChanged?.Invoke(_args);
+                if (onDirectoryPathChanged != null)
+                {
+                    await onDirectoryPathChanged(_args);
+                }
             };
             
             this.AddRowToHost(directoryPicker);
