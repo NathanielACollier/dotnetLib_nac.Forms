@@ -250,6 +250,11 @@ namespace TestApp
                 {
                     Name = "Child Form: Show and ShowDialog",
                     CodeToRun = lib.TestFunctions.Test_ChildForm_ShowAndShowDialog
+                },
+                new TestEntry
+                {
+                    Name = "TreeView: ObjectViewer: Basic",
+                    CodeToRun = lib.TestFunctions.Test_TreeView_ObjectViewer_Basic
                 }
 
 

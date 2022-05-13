@@ -930,6 +930,17 @@ namespace TestApp.lib
             f.Text("Display no image")
                 .Image("img");
         }
-        
+
+        public static async void Test_TreeView_ObjectViewer_Basic(Form f)
+        { 
+            f.Text("Basic View");
+
+            await f.ObjectViewer(initialItemValue: new
+            {
+                A = "Dinosaur",
+                B = "Penguin"
+            });
+
+        }
     }
 }
