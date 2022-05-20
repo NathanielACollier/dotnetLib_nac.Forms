@@ -942,5 +942,42 @@ namespace TestApp.lib
             });
 
         }
+
+        public static async void Test_TreeView_ObjectViewer_UpdateFunction_Counter(Form f)
+        {
+            var objViewerOperations = new nac.Forms.Form.ObjectViewerFunctions<object>();
+            var model = new
+            {
+                Message = "Initial Value",
+                Counter = 0
+            };
+
+            f.Text("Button Counter on TreeView")
+                .HorizontalGroup(hg =>
+                {
+                    hg.Text("Model: ")
+                        .Button("Incriment", async () =>
+                        {
+                            model = new
+                            {
+                                Message = "Incrimented",
+                                Counter = model.Counter + 1
+                            };
+                            objViewerOperations.updateValue(model);
+                        });
+                });
+            
+            await f.ObjectViewer<object>(initialItemValue: model, functions: objViewerOperations);
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     }
 }
