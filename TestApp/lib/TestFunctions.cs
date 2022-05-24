@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Avalonia.Media;
 using nac.Forms;
 using nac.Forms.model;
@@ -930,6 +931,62 @@ namespace TestApp.lib
             f.Text("Display no image")
                 .Image("img");
         }
-        
+
+        public static async void Test_TreeView_ObjectViewer_Basic(Form f)
+        { 
+            f.Text("Basic View");
+
+            await f.ObjectViewer(initialItemValue: new
+            {
+                A = "Dinosaur",
+                B = "Penguin"
+            });
+
+        }
+
+        public static async void Test_TreeView_ObjectViewer_UpdateFunction_Counter(Form f)
+        {
+            var objViewerOperations = new nac.Forms.Form.ObjectViewerFunctions<object>();
+            var model = new
+            {
+                Message = "Initial Value",
+                Counter = 0
+            };
+
+            f.Text("Button Counter on TreeView")
+                .HorizontalGroup(hg =>
+                {
+                    hg.Text("Model: ")
+                        .Button("Incriment", async () =>
+                        {
+                            model = new
+                            {
+                                Message = "Incrimented",
+                                Counter = model.Counter + 1
+                            };
+                            objViewerOperations.updateValue(model);
+                        });
+                });
+            
+            await f.ObjectViewer<object>(initialItemValue: model, functions: objViewerOperations);
+        }
+
+
+        public static async void Test_TreeView_ObjectViewer_XML_Basic(Form f)
+        {
+            f.Text("XML View");
+
+            await f.ObjectViewer(initialItemValue: XElement.Parse(@"
+                <cars>
+                    <car make='Chevrolet' model='Silverado'>
+                        <passengers>
+                           <passenger name='George' />
+                        </passengers>
+                    </car>
+                    <car make='Ford' model='F150' />
+                    <car make='Ford' model='Bronco' />
+                </cars>
+            "));
+        }
     }
 }
