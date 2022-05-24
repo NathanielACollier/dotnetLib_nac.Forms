@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Avalonia.Media;
 using nac.Forms;
 using nac.Forms.model;
@@ -969,15 +970,23 @@ namespace TestApp.lib
             
             await f.ObjectViewer<object>(initialItemValue: model, functions: objViewerOperations);
         }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
+
+        public static async void Test_TreeView_ObjectViewer_XML_Basic(Form f)
+        {
+            f.Text("XML View");
+
+            await f.ObjectViewer(initialItemValue: XElement.Parse(@"
+                <cars>
+                    <car make='Chevrolet' model='Silverado'>
+                        <passengers>
+                           <passenger name='George' />
+                        </passengers>
+                    </car>
+                    <car make='Ford' model='F150' />
+                    <car make='Ford' model='Bronco' />
+                </cars>
+            "));
+        }
     }
 }
