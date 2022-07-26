@@ -228,6 +228,45 @@ namespace nac.Forms
             AddRowToHost(imgControl, rowAutoHeight: false);
             return this;
         }
+
+
+        public Form DateFor(string modelFieldName,
+            model.Style style = null)
+        {
+            var dateCtrl = new Avalonia.Controls.DatePicker();
+            lib.styleUtil.style(this, dateCtrl, style);
+            
+            AddBinding<DateTimeOffset?>(modelFieldName: modelFieldName,
+                control: dateCtrl,
+                property: Avalonia.Controls.DatePicker.SelectedDateProperty,
+                isTwoWayDataBinding: true,
+                convertFromModelToUI: (val) =>
+                {
+                    if (val is string dateText &&
+                        DateTime.TryParse(dateText, out DateTime dateVal)
+                        )
+                    {
+                        return new DateTimeOffset(dateVal);
+                    }else if (val is DateTime dateval)
+                    {
+                        return new DateTimeOffset(dateval);
+                    }
+
+                    return null;
+                },
+                convertFromUIToModel: (uiValue) =>
+                {
+                    if (uiValue.HasValue)
+                    {
+                        return uiValue.Value.DateTime;
+                    }
+
+                    return null;
+                });
+            
+            AddRowToHost(dateCtrl);
+            return this;
+        }
         
         
     }

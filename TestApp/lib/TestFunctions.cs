@@ -849,6 +849,27 @@ namespace TestApp.lib
                         .TextBoxFor("password2", isReadOnly: true);
                 });
         }
+        
+        
+        public static void TestDatePicker_Simple(Form f)
+        {
+            f.Model["currentDate"] = DateTime.Now;
+            f.HorizontalGroup(h =>
+                {
+                    h.Text("Current Date")
+                        .DateFor("currentDate");
+                })
+                .HorizontalGroup(h =>
+                {
+                    h.Text("Empty Date")
+                        .DateFor("emptyDate");
+                })
+                .HorizontalGroup(h =>
+                {
+                    h.Text("Empty Date(Text)")
+                        .TextBoxFor("emptyDate");
+                });
+        }
 
         
         public static void TestTextBox_NumberCounter(Form f)
@@ -988,5 +1009,7 @@ namespace TestApp.lib
                 </cars>
             "));
         }
+
+
     }
 }
