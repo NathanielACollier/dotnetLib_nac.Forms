@@ -239,6 +239,7 @@ namespace nac.Forms
             AddBinding<DateTimeOffset?>(modelFieldName: modelFieldName,
                 control: dateCtrl,
                 property: Avalonia.Controls.DatePicker.SelectedDateProperty,
+                isTwoWayDataBinding: true,
                 convertFromModelToUI: (val) =>
                 {
                     if (val is string dateText &&
