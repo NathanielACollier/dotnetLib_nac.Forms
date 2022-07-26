@@ -148,6 +148,11 @@ namespace TestApp
                 },
                 new model.TestEntry
                 {
+                    Name  = "Test DatePicker: Simple",
+                    CodeToRun = lib.TestFunctions.TestDatePicker_Simple
+                },
+                new model.TestEntry
+                {
                     Name = "Test Textbox: Number Counter",
                     CodeToRun = lib.TestFunctions.TestTextBox_NumberCounter
                 },
