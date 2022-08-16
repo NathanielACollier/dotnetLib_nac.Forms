@@ -292,7 +292,7 @@ namespace TestApp.lib
                             f.Close();
                         });
                     });
-            }, onClosing: (f) =>
+            }, onClosing: async (f) =>
             {
                 dynamic closeCount = f.Model["closeCount"];
                 f.Model["closeCount"] = ++closeCount;
@@ -315,7 +315,7 @@ namespace TestApp.lib
             parentForm.DisplayChildForm(f =>
             {
                 f.TextFor("message");
-            }, onDisplay: (f) =>
+            }, onDisplay: async (f) =>
             {
                 f.Model["message"] = "Form is displayed";
             }, useIsolatedModelForThisChildForm: true);
