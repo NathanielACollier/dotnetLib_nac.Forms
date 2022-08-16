@@ -398,13 +398,12 @@ namespace nac.Forms
         }
         
 
-        public Task<bool> DisplayChildForm(Action<Form> setupChildForm, int height = 600, int width = 800,
-            Func<Form,bool?> onClosing = null,
-            Action<Form> onDisplay = null,
+        public async Task<bool> DisplayChildForm(Action<Form> setupChildForm, int height = 600, int width = 800,
+            Func<Form, Task<bool?>> onClosing = null,
+            Func<Form, Task> onDisplay = null,
             bool useIsolatedModelForThisChildForm = false,
             bool isDialog = false)
         {
-            var promise = new System.Threading.Tasks.TaskCompletionSource<bool>();
             // default to use the parent's model, but some child will use a DataContext and need an isolated model
             var childFormModel = this.Model;
             if (useIsolatedModelForThisChildForm == true)
@@ -415,15 +414,10 @@ namespace nac.Forms
 
             setupChildForm(childForm);
 
-            childForm.Display_Internal(height: height, width: width, onClosing: onClosing,
-                    onDisplay: onDisplay,
-                    isDialog: isDialog)
-                .ContinueWith(t =>
-                {
-                    promise.SetResult(t.Result);
-                });
-
-            return promise.Task;
+            return await childForm.Display_Internal(height: height, width: width, onClosing: onClosing,
+                onDisplay: onDisplay,
+                isDialog: isDialog
+                );
         }
 
         public Task _Internal_ShowDialog(Window subWindow)
@@ -431,45 +425,46 @@ namespace nac.Forms
             return subWindow.ShowDialog(win);
         }
         
-        private Task<bool> Display_Internal(int height, int width,
-            Func<Form,bool?> onClosing = null,
-            Action<Form> onDisplay = null,
+        private async Task<bool> Display_Internal(int height, int width,
+            Func<Form, Task<bool?>> onClosing = null,
+            Func<Form, Task> onDisplay = null,
             bool isDialog = false)
         {
             var promise = new System.Threading.Tasks.TaskCompletionSource<bool>();
             win.Height = height;
             win.Width = width;
             win.Content = this.Host;
-            win.Closing += (_sender, _args) =>
+            win.Closing += async (_sender, _args) =>
             {
                 log.Debug("Window is closing");
                 /*
                  _args.Cancel = true => stops the window from closing
                     + So what we do if they didn't specif an onClosing, is we set cancel to false
                  */
-                _args.Cancel = onClosing?.Invoke(this) ?? false;
+                if (onClosing != null)
+                {
+                    bool? stopCancel = await onClosing.Invoke(this);
+                    _args.Cancel = stopCancel ?? false;
+                }
+
                 if (_args.Cancel == false && promise.Task.IsCompleted == false)
                 {
                     promise.SetResult(true); // window is closed
                 }
                 
             };
-            
-            onDisplay?.Invoke(this); // showing the form, so notify people if they wanted notification
+
+            if (onDisplay != null)
+            {
+                // showing the form, so notify people if they wanted notification
+                onDisplay.Invoke(this);
+            }
 
             if (isDialog)
             {
                 if (parentForm != null)
                 {
-                    parentForm._Internal_ShowDialog(win)
-                    .ContinueWith(t =>
-                    {
-                        if (!promise.Task.IsCompleted)
-                        {
-                            promise.SetResult(true);
-                        }
-                        
-                    });
+                    await parentForm._Internal_ShowDialog(win);
                 }
                 else
                 {
@@ -482,12 +477,12 @@ namespace nac.Forms
                 win.Show();
             }
 
-            return promise.Task;
+            return await promise.Task;
         }
 
         public void Display(int height = 600, int width = 800,
-            Func<Form, bool?> onClosing = null,
-            Action<Form> onDisplay = null)
+            Func<Form, Task<bool?>> onClosing = null,
+            Func<Form, Task> onDisplay = null)
         {
             if( this.isDisplayed)
             {

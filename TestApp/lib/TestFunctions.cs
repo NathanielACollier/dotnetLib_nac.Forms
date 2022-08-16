@@ -292,7 +292,7 @@ namespace TestApp.lib
                             f.Close();
                         });
                     });
-            }, onClosing: (f) =>
+            }, onClosing: async (f) =>
             {
                 dynamic closeCount = f.Model["closeCount"];
                 f.Model["closeCount"] = ++closeCount;
@@ -315,9 +315,30 @@ namespace TestApp.lib
             parentForm.DisplayChildForm(f =>
             {
                 f.TextFor("message");
-            }, onDisplay: (f) =>
+            }, onDisplay: async (f) =>
             {
                 f.Model["message"] = "Form is displayed";
+            }, useIsolatedModelForThisChildForm: true);
+        }
+
+        public static void TestEvent_OnDisplay_LongRunning(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.Text("OnDisplay update current clock for 1 minute")
+                    .TextFor("currentTime");
+            }, onDisplay: async (f) =>
+            {
+                int secondsOfRuntime = 0;
+                await Task.Run(async () =>
+                {
+                    while (secondsOfRuntime < 60*1)
+                    {
+                        f.Model["currentTime"] = DateTime.Now.ToLongTimeString();
+                        await Task.Delay(millisecondsDelay: 1000);
+                        ++secondsOfRuntime;
+                    }
+                });
             }, useIsolatedModelForThisChildForm: true);
         }
 

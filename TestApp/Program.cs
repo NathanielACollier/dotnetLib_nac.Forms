@@ -138,6 +138,12 @@ namespace TestApp
                 },
                 new model.TestEntry
                 {
+                    Name  = "Test Event: OnDIsplay (Long Running)",
+                    CodeToRun = lib.TestFunctions.TestEvent_OnDisplay_LongRunning,
+                    SetupChildForm = false
+                },
+                new model.TestEntry
+                {
                     Name = "Test Textbox: Multiline",
                     CodeToRun = lib.TestFunctions.TestTextBox_Multiline
                 },
