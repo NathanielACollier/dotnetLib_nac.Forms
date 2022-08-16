@@ -499,7 +499,11 @@ namespace nac.Forms
                 throw new Exception("Cannot call Display on child form.  If you already have a main form, you must call DisplayChildForm.  Main form manages the avalonia app.");
             }
 
-            this.Display_Internal(height: height, width: width, onClosing: onClosing);
+            this.Display_Internal(height: height, 
+                            width: width, 
+                            onClosing: onClosing,
+                            onDisplay: onDisplay
+                            );
 
             this.app.Run(win);
         }
