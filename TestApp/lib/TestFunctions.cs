@@ -321,6 +321,27 @@ namespace TestApp.lib
             }, useIsolatedModelForThisChildForm: true);
         }
 
+        public static void TestEvent_OnDisplay_LongRunning(Form parentForm)
+        {
+            parentForm.DisplayChildForm(f =>
+            {
+                f.Text("OnDisplay update current clock for 1 minute")
+                    .TextFor("currentTime");
+            }, onDisplay: async (f) =>
+            {
+                int secondsOfRuntime = 0;
+                await Task.Run(async () =>
+                {
+                    while (secondsOfRuntime < 60*1)
+                    {
+                        f.Model["currentTime"] = DateTime.Now.ToLongTimeString();
+                        await Task.Delay(millisecondsDelay: 1000);
+                        ++secondsOfRuntime;
+                    }
+                });
+            }, useIsolatedModelForThisChildForm: true);
+        }
+
         public static void TestTextBox_Multiline(Form f)
         {
             f.VerticalGroup(vg =>
