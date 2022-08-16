@@ -465,8 +465,6 @@ namespace nac.Forms
                 if (parentForm != null)
                 {
                     await parentForm._Internal_ShowDialog(win);
-                    
-                    promise.SetResult(true);
                 }
                 else
                 {
