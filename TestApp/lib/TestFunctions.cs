@@ -603,7 +603,11 @@ namespace TestApp.lib
 
             f.VerticalGroup(vg =>
             {
-                vg.HorizontalStack(hg =>
+                vg.HorizontalGroup(hg =>
+                    {
+                        hg.Text("I'm visible when not loading");
+                    }, style: new nac.Forms.model.Style{isHiddenModelName = nameof(model.Loading)})
+                    .HorizontalStack(hg =>
                     {
                         hg.Text("Loading")
                             .LoadingTextAnimation(style: new Style()
