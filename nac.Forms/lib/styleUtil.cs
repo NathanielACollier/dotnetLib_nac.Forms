@@ -65,7 +65,7 @@ namespace nac.Forms.lib
 
             if (style?.isHiddenModelName.IsSet == true)
             {
-                
+                form.AddVisibilityTrigger(ctrl, isVisibleModelName: style.isHiddenModelName.Value, trueResultMeansVisible: false);
             }
         }
         
