@@ -60,7 +60,12 @@ namespace nac.Forms.lib
 
             if (style?.isVisibleModelName.IsSet == true)
             {
-                form.AddVisibilityTrigger(ctrl, isVisibleModelName: style.isVisibleModelName.Value);
+                form.AddVisibilityTrigger(ctrl, isVisibleModelName: style.isVisibleModelName.Value, trueResultMeansVisible: true);
+            }
+
+            if (style?.isHiddenModelName.IsSet == true)
+            {
+                
             }
         }
         

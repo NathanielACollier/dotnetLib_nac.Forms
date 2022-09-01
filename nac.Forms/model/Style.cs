@@ -11,5 +11,7 @@ namespace nac.Forms.model
         public model.Optional<int> width { get; set; } = new Optional<int>();
 
         public model.Optional<string> isVisibleModelName { get; set; } = new Optional<string>();
+        public model.Optional<string> isHiddenModelName { get; set; } = new Optional<string>();
     }
+
 }
