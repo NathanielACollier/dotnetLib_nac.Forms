@@ -969,6 +969,10 @@ namespace TestApp.lib
                             {
                                 f.Model["img"] = client.DownloadData(url);
                             }
+                        })
+                        .Button("Clear", async () =>
+                        {
+                            f.Model["img"] = null;
                         });
                 })
                 .Image(modelFieldName: "img");
