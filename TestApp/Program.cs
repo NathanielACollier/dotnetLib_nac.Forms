@@ -69,6 +69,11 @@ namespace TestApp
                 },
                 new model.TestEntry
                 {
+                    Name  = "Test Button: Click count in button",
+                    CodeToRun = lib.TestFunctions.TestButton_ClickCountInButton
+                },
+                new model.TestEntry
+                {
                     Name = "Test Display what is typed",
                     CodeToRun = lib.TestFunctions.Test3_DisplayWhatIsTyped
                 },

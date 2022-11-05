@@ -1067,5 +1067,17 @@ namespace TestApp.lib
             f.Text("Embeded Resource Test")
                 .Image("playIcon");
         }
+
+        public static void TestButton_ClickCountInButton(Form f)
+        {
+            f.Model["count"] = 0;
+            f.Button("", async () =>
+                {
+                    f.Model["count"] = Convert.ToInt32(f.Model["count"]) + 1;
+                }, buttonContent: (_b) => _b.Text("Click (")
+                    .TextFor("count", style: new nac.Forms.model.Style { foregroundColor = Avalonia.Media.Colors.Red })
+                    .Text(")")
+            );
+        }
     }
 }
