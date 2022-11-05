@@ -100,11 +100,30 @@ namespace nac.Forms
 
 		public Form Button(string displayText, Func<Task> onClick, 
                 Style style = null,
+                Action<Form> buttonContent=null,
                 ButtonFunctions functions = null)
         {
             var btn = new Button();
             lib.styleUtil.style(this, btn, style);
-            btn.Content = displayText;
+
+            if (buttonContent != null)
+            {
+                btn.ContentTemplate = new Avalonia.Controls.Templates.FuncDataTemplate<object>((itemModel, nameScope) =>
+                {
+                    var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
+                    // this has to have a unique model
+                    rowForm.DataContext = itemModel;
+                    buttonContent(rowForm);
+
+                    rowForm.Host.DataContext = itemModel;
+
+                    return rowForm.Host;
+                });
+            }
+            else
+            {
+                btn.Content = displayText;
+            }
 
             btn.Click += async (_s, _args) =>
             {

@@ -172,6 +172,11 @@ namespace TestApp
                     Name = "Test Image: Empty",
                     CodeToRun = lib.TestFunctions.TestImage_Empty
                 },
+                new model.TestEntry
+                {
+                    Name = "Test Image: Button: Simple Icons",
+                    CodeToRun = lib.TestFunctions.TestImage_ButtonSimpleIcons
+                },
                 new TestEntry
                 {
                     Name = "Test Style: TextBlock: Basic font changes",

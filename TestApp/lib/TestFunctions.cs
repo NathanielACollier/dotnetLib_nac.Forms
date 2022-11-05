@@ -1045,5 +1045,19 @@ namespace TestApp.lib
         }
 
 
+        public static void TestImage_ButtonSimpleIcons(Form f)
+        {
+            f.Model["playIcon"] = lib.Resources.GetImage("TestApp.resources.playIcon.png");
+            
+            f.Text("Image Button Testing")
+                .HorizontalGroup(hg =>
+                {
+                    hg.Button("", async () =>
+                    {
+                        f.Model["out"] = "Play Icon Clicked";
+                    }, buttonContent: (_c) => _c.Image("playIcon"));
+                })
+                .TextFor("out");
+        }
     }
 }
