@@ -1059,5 +1059,13 @@ namespace TestApp.lib
                 })
                 .TextFor("out");
         }
+
+        public static void TestImage_EmbdedResourceTest(Form f)
+        {
+            f.Model["playIcon"] = lib.Resources.GetImage("TestApp.resources.playIcon.png");
+
+            f.Text("Embeded Resource Test")
+                .Image("playIcon");
+        }
     }
 }

@@ -174,6 +174,11 @@ namespace TestApp
                 },
                 new model.TestEntry
                 {
+                    Name  = "Test Image: Embded Resource Test",
+                    CodeToRun = lib.TestFunctions.TestImage_EmbdedResourceTest
+                },
+                new model.TestEntry
+                {
                     Name = "Test Image: Button: Simple Icons",
                     CodeToRun = lib.TestFunctions.TestImage_ButtonSimpleIcons
                 },
