@@ -1055,7 +1055,7 @@ namespace TestApp.lib
                     hg.Button("", async () =>
                     {
                         f.Model["out"] = "Play Icon Clicked";
-                    }, buttonContent: (_c) => _c.Image("playIcon"));
+                    }, buttonContent: (_c) => _c.Image("playIcon", style: new Style{width = 10}));
                 })
                 .TextFor("out");
         }
