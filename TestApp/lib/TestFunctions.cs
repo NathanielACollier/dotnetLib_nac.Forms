@@ -1079,5 +1079,27 @@ namespace TestApp.lib
                     .Text(")")
             );
         }
+
+        private class Model_ClickCountInButtonWithTypedDataContext : nac.Forms.model.ViewModelBase
+        {
+            public int Count
+            {
+                get { return GetValue(() => Count); }
+                set { SetValue(() => Count, value);}
+            }
+        }
+        public static void TestButton_ClickCountInButtonWithTypedDataContext(Form f)
+        {
+            var model = new Model_ClickCountInButtonWithTypedDataContext();
+            f.DataContext = model;
+            
+            f.Button("", async () =>
+                {
+                    ++model.Count;
+                }, buttonContent: (_b) => _b.Text("Click (")
+                    .TextFor(nameof(model.Count), style: new nac.Forms.model.Style { foregroundColor = Avalonia.Media.Colors.Red })
+                    .Text(")")
+            );
+        }
     }
 }
