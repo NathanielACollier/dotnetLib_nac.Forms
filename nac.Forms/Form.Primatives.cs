@@ -108,17 +108,7 @@ namespace nac.Forms
 
             if (buttonContent != null)
             {
-                btn.ContentTemplate = new Avalonia.Controls.Templates.FuncDataTemplate<object>((itemModel, nameScope) =>
-                {
-                    var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
-                    // this has to have a unique model
-                    rowForm.DataContext = itemModel;
-                    buttonContent(rowForm);
-
-                    rowForm.Host.DataContext = itemModel;
-
-                    return rowForm.Host;
-                });
+                btn.Content = getBoundControlFromPopulateForm(buttonContent);
             }
             else
             {

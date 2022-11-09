@@ -526,5 +526,17 @@ namespace nac.Forms
                 await codeToRun();
             });
         }
+
+        private object getBoundControlFromPopulateForm(Action<Form> buildFormAction)
+        {
+            var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
+            // this has to have a unique model
+            rowForm.DataContext = getBindingSource();
+            buildFormAction(rowForm);
+
+            rowForm.Host.DataContext = getBindingSource();
+
+            return rowForm.Host;
+        }
     }
 }
