@@ -1048,14 +1048,20 @@ namespace TestApp.lib
         public static void TestImage_ButtonSimpleIcons(Form f)
         {
             f.Model["playIcon"] = lib.Resources.GetImage("TestApp.resources.playIcon.png");
+            f.Model["stopIcon"] = lib.Resources.GetImage("TestApp.resources.stop.png");
             
             f.Text("Image Button Testing")
                 .HorizontalGroup(hg =>
                 {
                     hg.Button("", async () =>
-                    {
-                        f.Model["out"] = "Play Icon Clicked";
-                    }, buttonContent: (_c) => _c.Image("playIcon", style: new Style{width = 10}));
+                        {
+                            f.Model["out"] = "Play Icon Clicked";
+                        }, buttonContent: (_c) => _c.Image("playIcon", style: new Style { width = 30 }))
+                        .Button("", async () =>
+                            {
+                                f.Model["out"] = "Stop Icon Clicked";
+                            }, buttonContent: (_c) => _c.Image("stopIcon"),
+                        style: new Style { width = 30 });
                 })
                 .TextFor("out");
         }
