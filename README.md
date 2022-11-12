@@ -1,10 +1,9 @@
-# Avalonia NCForms
+# nac.Forms
 
-## Building
-+ Avalonia
-	+ https://github.com/AvaloniaUI/Avalonia
-	+ Use nuget packages from nuget `Avalonia.Desktop`
-				
+## Description
+
+Provides a quick way to create a GUI application for Linux, macOS, and Windows.  Provides model binding with INotifyPropertyChange using both a dynamic bindable dictionary as the default and typed classes by setting DataContext.		
+
 ## Control Examples
 
 + Textbox
@@ -59,7 +58,7 @@
 	```c#
 	var f = Avalonia.AppBuilder.Configure<App>()
 							.NewForm();
-
+	
 	f.Tabs(t=> {
 		t.Header = "Tab 1";
 		t.Populate = f => {
