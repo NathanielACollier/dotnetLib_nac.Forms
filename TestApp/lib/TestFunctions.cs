@@ -1053,14 +1053,16 @@ namespace TestApp.lib
             f.Text("Image Button Testing")
                 .HorizontalGroup(hg =>
                 {
-                    hg.Button("", async () =>
+                    hg.Button(_c => _c.Image("playIcon", style: new Style { width = 30 }), 
+                            async () =>
                         {
                             f.Model["out"] = "Play Icon Clicked";
-                        }, buttonContent: (_c) => _c.Image("playIcon", style: new Style { width = 30 }))
-                        .Button("", async () =>
+                        })
+                        .Button(_c => _c.Image("stopIcon"), 
+                            async () =>
                             {
                                 f.Model["out"] = "Stop Icon Clicked";
-                            }, buttonContent: (_c) => _c.Image("stopIcon"),
+                            },
                         style: new Style { width = 30 });
                 })
                 .TextFor("out");
@@ -1077,17 +1079,17 @@ namespace TestApp.lib
         public static void TestButton_ClickCountInButton(Form f)
         {
             f.Model["count"] = 0;
-            f.Button("", async () =>
-                {
-                    f.Model["count"] = Convert.ToInt32(f.Model["count"]) + 1;
-                }, buttonContent: (_b) => _b.HorizontalGroup(hg =>
+            f.Button(_b => _b.HorizontalGroup(hg =>
                 {
                     hg.Text("Click (")
                         .TextFor("count",
                             style: new nac.Forms.model.Style { foregroundColor = Avalonia.Media.Colors.Red })
                         .Text(")");
-                })
-            );
+                }),
+                async () =>
+                {
+                    f.Model["count"] = Convert.ToInt32(f.Model["count"]) + 1;
+                });
         }
 
         private class Model_ClickCountInButtonWithTypedDataContext : nac.Forms.model.ViewModelBase
@@ -1103,18 +1105,18 @@ namespace TestApp.lib
             var model = new Model_ClickCountInButtonWithTypedDataContext();
             f.DataContext = model;
             
-            f.Button("", async () =>
+            f.Button(_b => _b
+                .HorizontalGroup(hg =>
+                {
+                    hg.Text("Click (")
+                        .TextFor(nameof(model.Count),
+                            style: new nac.Forms.model.Style { foregroundColor = Avalonia.Media.Colors.Red })
+                        .Text(")");
+                }),
+                async () =>
                 {
                     ++model.Count;
-                }, buttonContent: (_b) => _b
-                    .HorizontalGroup(hg =>
-                    {
-                        hg.Text("Click (")
-                            .TextFor(nameof(model.Count),
-                                style: new nac.Forms.model.Style { foregroundColor = Avalonia.Media.Colors.Red })
-                            .Text(")");
-                    })
-                    
+                }
             );
         }
     }
