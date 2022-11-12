@@ -1080,9 +1080,13 @@ namespace TestApp.lib
             f.Button("", async () =>
                 {
                     f.Model["count"] = Convert.ToInt32(f.Model["count"]) + 1;
-                }, buttonContent: (_b) => _b.Text("Click (")
-                    .TextFor("count", style: new nac.Forms.model.Style { foregroundColor = Avalonia.Media.Colors.Red })
-                    .Text(")")
+                }, buttonContent: (_b) => _b.HorizontalGroup(hg =>
+                {
+                    hg.Text("Click (")
+                        .TextFor("count",
+                            style: new nac.Forms.model.Style { foregroundColor = Avalonia.Media.Colors.Red })
+                        .Text(")");
+                })
             );
         }
 
@@ -1102,9 +1106,15 @@ namespace TestApp.lib
             f.Button("", async () =>
                 {
                     ++model.Count;
-                }, buttonContent: (_b) => _b.Text("Click (")
-                    .TextFor(nameof(model.Count), style: new nac.Forms.model.Style { foregroundColor = Avalonia.Media.Colors.Red })
-                    .Text(")")
+                }, buttonContent: (_b) => _b
+                    .HorizontalGroup(hg =>
+                    {
+                        hg.Text("Click (")
+                            .TextFor(nameof(model.Count),
+                                style: new nac.Forms.model.Style { foregroundColor = Avalonia.Media.Colors.Red })
+                            .Text(")");
+                    })
+                    
             );
         }
     }
