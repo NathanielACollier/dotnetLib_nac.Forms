@@ -69,6 +69,16 @@ namespace TestApp
                 },
                 new model.TestEntry
                 {
+                    Name  = "Test Button: Click count in button",
+                    CodeToRun = lib.TestFunctions.TestButton_ClickCountInButton
+                },
+                new model.TestEntry
+                {
+                    Name  = "Test Button: Click count in button (Typed DataContext)",
+                    CodeToRun = lib.TestFunctions.TestButton_ClickCountInButtonWithTypedDataContext
+                },
+                new model.TestEntry
+                {
                     Name = "Test Display what is typed",
                     CodeToRun = lib.TestFunctions.Test3_DisplayWhatIsTyped
                 },
@@ -171,6 +181,16 @@ namespace TestApp
                 {
                     Name = "Test Image: Empty",
                     CodeToRun = lib.TestFunctions.TestImage_Empty
+                },
+                new model.TestEntry
+                {
+                    Name  = "Test Image: Embded Resource Test",
+                    CodeToRun = lib.TestFunctions.TestImage_EmbdedResourceTest
+                },
+                new model.TestEntry
+                {
+                    Name = "Test Image: Button: Simple Icons",
+                    CodeToRun = lib.TestFunctions.TestImage_ButtonSimpleIcons
                 },
                 new TestEntry
                 {

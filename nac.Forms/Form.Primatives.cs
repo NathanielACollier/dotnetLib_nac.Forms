@@ -93,6 +93,20 @@ namespace nac.Forms
             return this;
         }
 
+
+        public Form Button(Action<Form> populateButtonContent,
+            Func<Task> onClick,
+            Style style = null,
+            ButtonFunctions functions = null)
+        {
+            return Button(displayText: "",
+                onClick: onClick,
+                populateButtonContent: populateButtonContent,
+                style: style,
+                functions: functions);
+        }
+        
+
         public class ButtonFunctions
         {
             public Action<model.Style> setStyle;
@@ -100,11 +114,20 @@ namespace nac.Forms
 
 		public Form Button(string displayText, Func<Task> onClick, 
                 Style style = null,
+                Action<Form> populateButtonContent=null,
                 ButtonFunctions functions = null)
         {
             var btn = new Button();
             lib.styleUtil.style(this, btn, style);
-            btn.Content = displayText;
+
+            if (populateButtonContent != null)
+            {
+                btn.Content = getBoundControlFromPopulateForm(populateButtonContent);
+            }
+            else
+            {
+                btn.Content = displayText;
+            }
 
             btn.Click += async (_s, _args) =>
             {

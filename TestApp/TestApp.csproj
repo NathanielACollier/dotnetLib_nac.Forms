@@ -9,4 +9,10 @@
   <ItemGroup>
     <ProjectReference Include="..\nac.Forms\nac.Forms.csproj" />
   </ItemGroup>
+  
+
+  <ItemGroup>
+    <None Remove="resources\*.*" />
+    <EmbeddedResource Include="resources\*.*" />
+  </ItemGroup>
 </Project>
