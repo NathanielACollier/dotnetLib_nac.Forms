@@ -1099,25 +1099,44 @@ namespace TestApp.lib
                 get { return GetValue(() => Count); }
                 set { SetValue(() => Count, value);}
             }
+
+            public int Count2
+            {
+                get { return GetValue(() => Count2); }
+                set { SetValue(() => Count2, value);}
+            }
         }
         public static void TestButton_ClickCountInButtonWithTypedDataContext(Form f)
         {
             var model = new Model_ClickCountInButtonWithTypedDataContext();
             f.DataContext = model;
-            
-            f.Button(_b => _b
-                .HorizontalGroup(hg =>
-                {
-                    hg.Text("Click (")
-                        .TextFor(nameof(model.Count),
-                            style: new nac.Forms.model.Style { foregroundColor = Avalonia.Media.Colors.Red })
-                        .Text(")");
-                }),
-                async () =>
-                {
-                    ++model.Count;
-                }
-            );
+
+            f.HorizontalGroup(buttonRow =>
+                buttonRow.Button(_b => _b
+                            .HorizontalGroup(hg =>
+                            {
+                                hg.Text("Click (")
+                                    .TextFor(nameof(model.Count),
+                                        style: new nac.Forms.model.Style
+                                            { foregroundColor = Avalonia.Media.Colors.Red })
+                                    .Text(")");
+                            }),
+                        async () =>
+                        {
+                            ++model.Count;
+                        }
+                    )
+                    .Button(_b => _b.HorizontalGroup(hg =>
+                    {
+                        hg.Text(" Click-2 (")
+                            .TextFor(nameof(model.Count2),
+                                style: new Style { foregroundColor = Avalonia.Media.Colors.Green })
+                            .Text(")");
+                    }), async () =>
+                    {
+                        ++model.Count2;
+                    })
+            ); // end of horizontal group button row
         }
     }
 }
