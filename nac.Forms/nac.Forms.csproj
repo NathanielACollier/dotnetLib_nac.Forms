@@ -5,15 +5,19 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RepositoryUrl>https://github.com/NathanielACollier/dotnetCoreAvaloniaNCForms</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.6</Version>
     <LangVersion>latest</LangVersion>
     <Authors>Nathaniel Collier</Authors>
     <Description>Provides shortcuts to create interative form made up of UI elements from Avalonia.  UI elements like textbox, buttons, lists, etc...</Description>
     <PackageProjectUrl>https://github.com/NathanielACollier/dotnetCoreAvaloniaNCForms</PackageProjectUrl>
     <PackageId>nac.Forms</PackageId>
-    <PackageVersion>1.8.1</PackageVersion>
+    <PackageVersion>1.8.2</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>NugetPackageReadme.md</PackageReadmeFile>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <None Include="docs\NugetPackageReadme.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="**\*.xaml" Subtype="Designer" Exclude="obj\**" />
