@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -15,6 +16,254 @@ namespace TestApp.lib
 {
     public static class TestFunctions
     {
+        public static void PopulateFunctions(List<model.TestEntry> functions)
+        {
+            functions.AddRange(new[]
+            { 
+                new model.TestEntry
+                {
+                    Name = "Test1",
+                    CodeToRun = Test1
+                },
+                new model.TestEntry
+                {
+                    Name = "Test Button with click count",
+                    CodeToRun = Test2_ButtonWithClickCount
+                },
+                new model.TestEntry
+                {
+                    Name  = "Test Button: Click count in button",
+                    CodeToRun = TestButton_ClickCountInButton
+                },
+                new model.TestEntry
+                {
+                    Name  = "Test Button: Click count in button (Typed DataContext)",
+                    CodeToRun = TestButton_ClickCountInButtonWithTypedDataContext
+                },
+                new model.TestEntry
+                {
+                    Name = "Test Display what is typed",
+                    CodeToRun = Test3_DisplayWhatIsTyped
+                },
+                new model.TestEntry
+                {
+                    Name = "Test Layout: Horizontal Group",
+                    CodeToRun = TestLayout1_SimpleHorizontal
+                },
+                new model.TestEntry
+                {
+                    Name = "Test Layout: Vertical Group",
+                    CodeToRun = TestVerticalGroup_Simple1
+                },
+                new model.TestEntry()
+                {
+                    Name = "Test Layout: Vertical Dock",
+                    CodeToRun = TestVerticalDock_Simple1
+                },
+                new model.TestEntry{
+                    Name = "Test Layout: Vertical Group Split",
+                    CodeToRun = TestLayout_VerticalSplit
+                },
+                new model.TestEntry{
+                    Name = "Test Layout: Horizontal Group Split",
+                    CodeToRun = TestLayout_HorizontalSplit
+                },
+                new model.TestEntry
+                {
+                    Name = "Test Layout: Visibility of Horizontal",
+                    CodeToRun = TestControllingVisibilityOfControls_HorizontalGroup
+                },
+                new model.TestEntry()
+                {
+                    Name = "Test Layout: Visibility of Vertical",
+                    CodeToRun = TestControlVisibilityOfControls_VerticalGroup
+                },
+                new model.TestEntry
+                {
+                    Name = "Test List: Simple Items Control",
+                    CodeToRun = TestCollections_SimpleItemsControl
+                },
+                new model.TestEntry{
+                    Name = "Test List: Button Counter via Model",
+                    CodeToRun = TestList_ButtonCounterExample
+                },
+                new model.TestEntry
+                {
+                    Name  = "Test List: Just Strings",
+                    CodeToRun = TestList_JustStrings
+                },
+                new model.TestEntry
+                {
+                    Name = "Test Menu: Simple",
+                    CodeToRun = TestMenu_Simple
+                },
+                new model.TestEntry
+                {
+                    Name = "Test Button: Close on click",
+                    CodeToRun = TestButton_CloseForm,
+                    SetupChildForm = false
+                },
+                new model.TestEntry
+                {
+                    Name = "Test Event: OnDisplay",
+                    CodeToRun = TestEvent_OnDisplay,
+                    SetupChildForm = false
+                },
+                new model.TestEntry
+                {
+                    Name  = "Test Event: OnDIsplay (Long Running)",
+                    CodeToRun = TestEvent_OnDisplay_LongRunning,
+                    SetupChildForm = false
+                },
+                new model.TestEntry
+                {
+                    Name = "Test Textbox: Multiline",
+                    CodeToRun = TestTextBox_Multiline
+                },
+                new model.TestEntry
+                {
+                    Name  = "Test Textbox: Password",
+                    CodeToRun = TestTextBox_Password
+                },
+                new model.TestEntry
+                {
+                    Name  = "Test DatePicker: Simple",
+                    CodeToRun = TestDatePicker_Simple
+                },
+                new model.TestEntry
+                {
+                    Name = "Test Textbox: Number Counter",
+                    CodeToRun = TestTextBox_NumberCounter
+                },
+                new model.TestEntry
+                {
+                    Name  = "Test Image: From Web URL",
+                    CodeToRun = TestImage_FromWebURL
+                },
+                new model.TestEntry
+                {
+                    Name = "Test Image: Empty",
+                    CodeToRun = TestImage_Empty
+                },
+                new model.TestEntry
+                {
+                    Name  = "Test Image: Embded Resource Test",
+                    CodeToRun = TestImage_EmbdedResourceTest
+                },
+                new model.TestEntry
+                {
+                    Name = "Test Image: Button: Simple Icons",
+                    CodeToRun = TestImage_ButtonSimpleIcons
+                },
+                new TestEntry
+                {
+                    Name = "Test Style: TextBlock: Basic font changes",
+                    CodeToRun = TestStyle_TextBlock_BasicFontChanges
+                },
+                new TestEntry
+                {
+                    Name  = "Test Style: Change button color",
+                    CodeToRun = TestStyle_Button_ChangeButtonBackground
+                },
+                new TestEntry
+                {
+                    Name = "Test FilePickerFor: Test file picker basics",
+                    CodeToRun = TestFilePickerFor_Basic
+                },
+                new TestEntry()
+                {
+                    Name = "Test FilePickerFor: Test save file dialog (New File)",
+                    CodeToRun = TestFilePickerFor_NewFile
+                },
+                new TestEntry()
+                {
+                    Name = "Test FilePickerFor: Test change on two different file pickers.",
+                    CodeToRun = TestFilePickerFor_TwoWithDifferentChangeEvents
+                },
+                new TestEntry()
+                {
+                    Name  = "Test DirectoryPathFor: Simple example",
+                    CodeToRun = TestDirectoryPathFor_Simple
+                },
+                new TestEntry()
+                {
+                    Name  = "Test DirectoryPathFor: Class Model binding Directory Path",
+                    CodeToRun = TestDirectoryPathFor_ClassBinding
+                },
+                new TestEntry
+                {
+                    Name  = "Test Directory/FilePathFor: No Events",
+                    CodeToRun = TestDirectAndFilePathFor_NoEvents
+                },
+                new TestEntry()
+                {
+                    Name = "Tabs: Basic Test",
+                    CodeToRun = Test_Tabs_BasicTest
+                },
+                new TestEntry()
+                {
+                    Name = "Tabs: Header from Template",
+                    CodeToRun = Test_Tabs_HeaderFromTemplate
+                },
+                new TestEntry()
+                {
+                    Name = "Test DataContext: Hello World!",
+                    CodeToRun = Test_DataContext_HelloWorld
+                },
+                new TestEntry
+                {
+                    Name = "Test DataContext: Contact Class Model",
+                    CodeToRun = Test_DataContext_ContactClassModel
+                },
+                new TestEntry()
+                {
+                    Name = "Test Loading Indicator: Text Display",
+                    CodeToRun = Test_LoadingIndicator_TextDisplay
+                },
+                new TestEntry
+                {
+                    Name = "Test Loading Indicator: DataContext Based",
+                    CodeToRun = Test_LoadingIndictator_DataContextTest
+                },
+                new TestEntry()
+                {
+                    Name = "Test Dropdown: Simple Text Selection",
+                    CodeToRun = Test_DropDown_SimpleTextSelection
+                },
+                new TestEntry
+                {
+                    Name = "Test Dropdown: DataContext SelectedItem Binding",
+                    CodeToRun = Test_DropDown_DataContext_SelectedItemBinding
+                },
+                new TestEntry()
+                {
+                    Name = "Threading: Modify UI in another thread",
+                    CodeToRun = Test_Threading_ModifyUIInThread
+                },
+                new TestEntry
+                {
+                    Name = "Child Form: Show and ShowDialog",
+                    CodeToRun = Test_ChildForm_ShowAndShowDialog
+                },
+                new TestEntry
+                {
+                    Name = "TreeView: ObjectViewer: Basic",
+                    CodeToRun = Test_TreeView_ObjectViewer_Basic
+                },
+                new TestEntry
+                {
+                    Name = "TreeView: ObjectViewer: Update Function - Counter",
+                    CodeToRun = Test_TreeView_ObjectViewer_UpdateFunction_Counter
+                },
+                new TestEntry
+                {
+                    Name = "TreeView: ObjectViewer: XML Basic",
+                    CodeToRun = Test_TreeView_ObjectViewer_XML_Basic
+                }
+            });
+        }
+        
+        
         public static void TestList_ButtonCounterExample(Form child)
         {   
             var items = new System.Collections.ObjectModel.ObservableCollection<TestList_ButtonCounterExample_ItemModel>();
