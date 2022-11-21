@@ -55,8 +55,7 @@ namespace TestApp
         {
             model.TestEntry selectedTestEntry = null;
             // setup test methods
-            var methods = new List<model.TestEntry>();
-            lib.TestFunctions.PopulateFunctions(methods);
+            var methods = lib.TestFunctions.PopulateFunctions();
 
             f.Title = "Test App (nac.forms Tests)";
             

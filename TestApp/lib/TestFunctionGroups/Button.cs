@@ -5,7 +5,7 @@ namespace TestApp.lib.TestFunctionGroups;
 
 public class Button
 {
-    private static void ButtonWithClickCount(Form child)
+    private static void ClickCount(Form child)
     {
         child.TextFor("txt1", "When you click button I'll change to count!")
             .Button("Click Me!", async () =>
@@ -31,4 +31,5 @@ public class Button
                 f.Model["count"] = Convert.ToInt32(f.Model["count"]) + 1;
             });
     }
+    
 }

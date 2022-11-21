@@ -18,8 +18,10 @@ namespace TestApp.lib;
 
 public static class TestFunctions
 {
-    public static void PopulateFunctions(List<model.TestEntry> functions)
+    public static List<model.TestEntry> PopulateFunctions()
     {
+        var functions = new List<model.TestEntry>();
+        
         var functionClasses = new Type[]
         {
             typeof(TestFunctionGroups.Button),
@@ -30,7 +32,8 @@ public static class TestFunctions
             functionClasses.SelectMany(c=> QuickGenerationTestEntries(c))
         );
 
-
+        // sort the functions in alphabetical order
+        return functions.OrderBy(f => f.Name).ToList();
     }
     
     private static Type GetDelegateType( MethodInfo methodInfo)
