@@ -83,4 +83,28 @@ public class Button
     }
     
     
+    
+    public static void Icons(Form f)
+    {
+        f.Model["playIcon"] = lib.Resources.GetImage("TestApp.resources.playIcon.png");
+        f.Model["stopIcon"] = lib.Resources.GetImage("TestApp.resources.stop.png");
+        
+        f.Text("Image Button Testing")
+            .HorizontalGroup(hg =>
+            {
+                hg.Button(_c => _c.Image("playIcon", style: new Style { width = 30 }), 
+                        async () =>
+                        {
+                            f.Model["out"] = "Play Icon Clicked";
+                        })
+                    .Button(_c => _c.Image("stopIcon"), 
+                        async () =>
+                        {
+                            f.Model["out"] = "Stop Icon Clicked";
+                        },
+                        style: new Style { width = 30 });
+            })
+            .TextFor("out");
+    }
+    
 }

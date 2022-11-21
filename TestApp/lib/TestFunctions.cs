@@ -25,6 +25,7 @@ public static class TestFunctions
         var functionClasses = new Type[]
         {
             typeof(TestFunctionGroups.Button),
+            typeof(TestFunctionGroups.TreeView),
             typeof(TestFunctions)
         };
         
@@ -1033,86 +1034,9 @@ public static class TestFunctions
             .Image("img");
     }
 
-    public static async void Test_TreeView_ObjectViewer_Basic(Form f)
-    { 
-        f.Text("Basic View");
-
-        await f.ObjectViewer(initialItemValue: new
-        {
-            A = "Dinosaur",
-            B = "Penguin"
-        });
-
-    }
-
-    public static async void Test_TreeView_ObjectViewer_UpdateFunction_Counter(Form f)
-    {
-        var objViewerOperations = new nac.Forms.Form.ObjectViewerFunctions<object>();
-        var model = new
-        {
-            Message = "Initial Value",
-            Counter = 0
-        };
-
-        f.Text("Button Counter on TreeView")
-            .HorizontalGroup(hg =>
-            {
-                hg.Text("Model: ")
-                    .Button("Incriment", async () =>
-                    {
-                        model = new
-                        {
-                            Message = "Incrimented",
-                            Counter = model.Counter + 1
-                        };
-                        objViewerOperations.updateValue(model);
-                    });
-            });
-        
-        await f.ObjectViewer<object>(initialItemValue: model, functions: objViewerOperations);
-    }
+    
 
 
-    public static async void Test_TreeView_ObjectViewer_XML_Basic(Form f)
-    {
-        f.Text("XML View");
-
-        await f.ObjectViewer(initialItemValue: XElement.Parse(@"
-            <cars>
-                <car make='Chevrolet' model='Silverado'>
-                    <passengers>
-                       <passenger name='George' />
-                    </passengers>
-                </car>
-                <car make='Ford' model='F150' />
-                <car make='Ford' model='Bronco' />
-            </cars>
-        "));
-    }
-
-
-    public static void TestImage_ButtonSimpleIcons(Form f)
-    {
-        f.Model["playIcon"] = lib.Resources.GetImage("TestApp.resources.playIcon.png");
-        f.Model["stopIcon"] = lib.Resources.GetImage("TestApp.resources.stop.png");
-        
-        f.Text("Image Button Testing")
-            .HorizontalGroup(hg =>
-            {
-                hg.Button(_c => _c.Image("playIcon", style: new Style { width = 30 }), 
-                        async () =>
-                    {
-                        f.Model["out"] = "Play Icon Clicked";
-                    })
-                    .Button(_c => _c.Image("stopIcon"), 
-                        async () =>
-                        {
-                            f.Model["out"] = "Stop Icon Clicked";
-                        },
-                    style: new Style { width = 30 });
-            })
-            .TextFor("out");
-    }
 
     public static void TestImage_EmbdedResourceTest(Form f)
     {
