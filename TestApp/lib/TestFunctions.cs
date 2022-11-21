@@ -16,24 +16,29 @@ namespace TestApp.lib
 {
     public static class TestFunctions
     {
+        public static List<model.TestEntry> QuickGenerationTestEntries(IEnumerable<Action<Form>> functions)
+        {
+            var entries = from f in functions
+                select new model.TestEntry
+                {
+                    Name = nameof(TestFunctionsButton) + "_" + f.Method.Name,
+                    CodeToRun = f,
+                    SetupChildForm = true
+                };
+
+            return entries.ToList();
+        }
+        
+        
         public static void PopulateFunctions(List<model.TestEntry> functions)
         {
+            TestFunctionsButton.PopulateFunctions(functions);
             functions.AddRange(new[]
             { 
                 new model.TestEntry
                 {
                     Name = "Test1",
                     CodeToRun = Test1
-                },
-                new model.TestEntry
-                {
-                    Name = "Test Button with click count",
-                    CodeToRun = Test2_ButtonWithClickCount
-                },
-                new model.TestEntry
-                {
-                    Name  = "Test Button: Click count in button",
-                    CodeToRun = TestButton_ClickCountInButton
                 },
                 new model.TestEntry
                 {
@@ -328,16 +333,7 @@ namespace TestApp.lib
                 .TextBoxFor("txt2");
         }
 
-        public static void Test2_ButtonWithClickCount(Form child)
-        {
-            child.TextFor("txt1", "When you click button I'll change to count!")
-                .Button("Click Me!", async () =>
-                {
-                    var current = child.Model.GetOrDefault<int>("txt1", 0);
-                    ++current;
-                    child.Model["txt1"] = current;
-                });
-        }
+
 
         public static void Test1(Form child)
         {
@@ -1325,21 +1321,7 @@ namespace TestApp.lib
                 .Image("playIcon");
         }
 
-        public static void TestButton_ClickCountInButton(Form f)
-        {
-            f.Model["count"] = 0;
-            f.Button(_b => _b.HorizontalGroup(hg =>
-                {
-                    hg.Text("Click (")
-                        .TextFor("count",
-                            style: new nac.Forms.model.Style { foregroundColor = Avalonia.Media.Colors.Red })
-                        .Text(")");
-                }),
-                async () =>
-                {
-                    f.Model["count"] = Convert.ToInt32(f.Model["count"]) + 1;
-                });
-        }
+
 
         private class Model_ClickCountInButtonWithTypedDataContext : nac.Forms.model.ViewModelBase
         {
