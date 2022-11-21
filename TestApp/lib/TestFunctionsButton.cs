@@ -7,17 +7,7 @@ namespace TestApp.lib;
 
 public static class TestFunctionsButton
 {
-    public static void PopulateFunctions(List<model.TestEntry> functions)
-    {
-        functions.AddRange(
-            TestFunctions.QuickGenerationTestEntries(new Action<Form>[]
-            {
-                ButtonWithClickCount,
-                ClickCountInButton
-            })
-        );
-    }
-    
+
     private static void ButtonWithClickCount(Form child)
     {
         child.TextFor("txt1", "When you click button I'll change to count!")
