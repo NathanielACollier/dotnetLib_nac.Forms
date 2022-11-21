@@ -42,19 +42,14 @@ public static class TestFunctions
         return delegateType;
     }
 
-    private static bool isStatic(Type functionClass)
-    {
-        return functionClass.IsSealed && functionClass.IsAbstract;
-    }
-    
     private static List<model.TestEntry> QuickGenerationTestEntries(Type functionClass)
     {
-        if (!isStatic(functionClass))
-        {
-            throw new Exception("Class " + functionClass.FullName + " is not a static class");
-        }
+        var methodList = functionClass.GetMethods(BindingFlags.Static | 
+                                                  BindingFlags.NonPublic |
+                                                  BindingFlags.Public
+                                                  );
         
-        var functions = from f in functionClass.GetMethods( BindingFlags.Static | BindingFlags.NonPublic)
+        var functions = from f in methodList
             let fDelegateType = GetDelegateType(f)
             where string.Equals("System.Action`1[nac.Forms.Form]", fDelegateType.ToString())
             select f.CreateDelegate<Action<Form>>();

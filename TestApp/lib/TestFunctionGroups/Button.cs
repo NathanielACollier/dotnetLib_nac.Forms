@@ -3,7 +3,7 @@ using nac.Forms;
 
 namespace TestApp.lib.TestFunctionGroups;
 
-public static class Button
+public class Button
 {
     private static void ButtonWithClickCount(Form child)
     {
