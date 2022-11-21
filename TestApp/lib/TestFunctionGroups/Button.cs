@@ -1,13 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using nac.Forms;
 
-namespace TestApp.lib;
+namespace TestApp.lib.TestFunctionGroups;
 
-public static class TestFunctionsButton
+public static class Button
 {
-
     private static void ButtonWithClickCount(Form child)
     {
         child.TextFor("txt1", "When you click button I'll change to count!")
