@@ -60,6 +60,23 @@ namespace nac.Forms
             this.AddRowToHost(directoryPicker);
             return this;
         }
+
+
+
+
+        public async Task<string> ShowOpenFolderDialog()
+        {
+            /* examples of using OpenFileDialog is here:
+             https://stackoverflow.com/questions/56604439/filedialog-opens-on-loop-using-openfiledialog-on-avalonia 
+             */
+            var diag = new Avalonia.Controls.OpenFolderDialog();
+            var result = await diag.ShowAsync(this.win);
+
+            return result;
+        }
+        
+        
+        
         
         
     }

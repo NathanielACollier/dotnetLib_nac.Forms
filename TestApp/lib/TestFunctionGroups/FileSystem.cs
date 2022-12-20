@@ -150,6 +150,23 @@ public class FileSystem
                     .DirectoryPathFor("d1");
             });
     }
+
+
+
+
+    public static void OpenFolderDialog_ButtonPress(Form f)
+    {
+        f.HorizontalGroup(hg =>
+        {
+            hg.Button("Choose Folder", async () =>
+            {
+                f.Model["CurrentPath"] = await f.ShowOpenFolderDialog();
+            }).TextFor("CurrentPath");
+        });
+    }
+    
+    
+    
     
     
     
