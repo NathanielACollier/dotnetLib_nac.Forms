@@ -132,50 +132,7 @@ public static class TestFunctions
     
 
 
-    public static void Test_Tabs_BasicTest(Form f)
-    {
-        f.Tabs(t =>
-        {
-            t.Header = "Tab 1";
-            t.Populate = f =>
-            {
-                f.Text("Hello from tab 1");
-            };
-        }, t =>
-        {
-            t.Header = "Tab 2";
-            t.Populate = f =>
-            {
-                f.Text("Hello from tab 2");
-            };
-        });
-    }
-
-    public static void Test_Tabs_HeaderFromTemplate(Form f)
-    {
-        f.Tabs( 
-            new TabCreationInfo
-            {
-                PopulateHeader = (header) =>
-                {
-                    header.Text("My Tab 1")
-                        .Button("Click Me!", async () =>
-                        {
-                            header.Model["tab1ClickCount"] =
-                                Convert.ToInt32(header.Model["tab1ClickCount"] ?? 0) + 1;
-                        });
-                },
-                Populate = (tab) =>
-                {
-                    tab.VerticalDock(vg =>
-                    {
-                        vg.Text("You have clicked the header this many: ")
-                            .TextFor(modelFieldName: "tab1ClickCount");
-                    });
-                }
-            }
-        );
-    }
+    
 
     public static void Test_DataContext_HelloWorld(Form f)
     {
