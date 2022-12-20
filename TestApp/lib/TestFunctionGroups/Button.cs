@@ -1,4 +1,5 @@
 using System;
+using Avalonia.Media;
 using nac.Forms;
 using nac.Forms.model;
 
@@ -106,5 +107,54 @@ public class Button
             })
             .TextFor("out");
     }
+    
+    
+    
+    public static void ChangeButtonBackground(Form f)
+    {
+        f.Model["counter"] = 0;
+        var incrimentButtonFunctions = new nac.Forms.Form.ButtonFunctions();
+
+        f.HorizontalGroup(h =>
+        {
+            h.Text("Counter: ")
+                .TextBoxFor("counter", onTextChanged: (newVal) =>
+                {
+                    var counterText = f.Model["counter"] as string;
+
+                    if (string.IsNullOrWhiteSpace(counterText) ||
+                        !int.TryParse(counterText, out int counterInt))
+                    {
+                        return;
+                    }
+                        
+                    if (counterInt % 2 == 0)
+                    {
+                        incrimentButtonFunctions.setStyle?.Invoke(new Style
+                        {
+                            backgroundColor = Colors.Purple
+                        });
+                    }
+                    else
+                    {
+                        incrimentButtonFunctions.setStyle?.Invoke(new Style
+                        {
+                            backgroundColor = Colors.Azure
+                        });
+                    }
+                })
+                .Button("Incriment", async () =>
+                {
+                    int counterInt = Convert.ToInt32(f.Model["counter"] as string);
+                    f.Model["counter"] = ++counterInt;
+                }, functions: incrimentButtonFunctions);
+        });
+    }
+    
+    
+    
+    
+    
+    
     
 }
