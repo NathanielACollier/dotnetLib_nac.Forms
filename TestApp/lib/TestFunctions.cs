@@ -27,6 +27,8 @@ public static class TestFunctions
             typeof(TestFunctionGroups.Button),
             typeof(TestFunctionGroups.TreeView),
             typeof(TestFunctionGroups.Image),
+            typeof(TestFunctionGroups.List),
+            typeof(TestFunctionGroups.Layout),
             typeof(TestFunctions)
         };
         
@@ -71,64 +73,6 @@ public static class TestFunctions
     }
     
     
-        
-    public static void TestList_ButtonCounterExample(Form child)
-    {   
-        var items = new System.Collections.ObjectModel.ObservableCollection<TestList_ButtonCounterExample_ItemModel>();
-
-        // display 5 counters
-        for( int i = 0; i < 10; ++i){
-            items.Add(new TestList_ButtonCounterExample_ItemModel{
-                Counter = 0,
-                Label = $"Counter {i}"
-            });
-        }
-
-        child.Model["items"] = items;
-        child.List<TestList_ButtonCounterExample_ItemModel>("items", row=>{
-                
-            row.HorizontalGroup(hg=>{
-                hg.TextFor("Label")
-                    .Button("Next", async ()=>{
-                        var model = row.Model[SpecialModelKeys.DataContext] as TestList_ButtonCounterExample_ItemModel;
-                        ++model.Counter;
-                    })
-                    .Text("Counter is: ")
-                    .TextFor("Counter");
-            });
-        });
-    }
-
-    public static void TestLayout_HorizontalSplit(Form child)
-    {
-        child.HorizontalGroup(grp=> {
-            grp.Text("Text to the Left")
-                .Text("Text to the right");
-        }, isSplit: true);
-    }
-
-    public static void TestLayout_VerticalSplit(Form child)
-    {
-        child.VerticalGroup(grp=> {
-            grp.Text("Text Above")
-                .Text("Text Below");
-        }, isSplit: true);
-    }
-
-    public static void TestLayout1_SimpleHorizontal(Form child)
-    {
-        child.HorizontalGroup(hori =>
-        {
-            hori.Text("Click Count: ", style: new Style(){ width = 100})
-                .TextBoxFor("clickCount")
-                .Button("Click Me!", async () =>
-                {
-                    var current = child.Model.GetOrDefault<int>("clickCount", 0);
-                    ++current;
-                    hori.Model["clickCount"] = current;
-                }, style: new Style(){width = 60});
-        });
-    }
 
     public static void Test3_DisplayWhatIsTyped(Form child)
     {
@@ -192,30 +136,7 @@ public static class TestFunctions
         lib.UIElementsUtility.logViewer(child);
         log.info("App Ready to go");
     }
-
-
-    public static void TestVerticalGroup_Simple1(Form mainForm)
-    {
-        mainForm.HorizontalGroup((hgForm) =>
-        {
-            hgForm.VerticalGroup((vg1) =>
-                {
-                    vg1.Text("Here is a column of controls in a vertical group")
-                        .Button("Click Me!", async ()=>
-                        {
-                            log.info("vg1 button click");
-                        });
-                })
-                .VerticalGroup((vg2) =>
-                {
-                    vg2.Text("Here is a second column of controls")
-                        .Button("Click me 2!!", async () =>
-                        {
-                            log.info("vg2 button click");
-                        });
-                });
-        });
-    }
+    
     
     public static void TestVerticalDock_Simple1(Form mainForm)
     {
