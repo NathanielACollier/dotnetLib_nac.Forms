@@ -138,6 +138,20 @@ public class Text
             ++model.myCounter;
         });
     }
+
+
+    public static void KeyPress_ShowKeyPressed(Form f)
+    {
+        f.HorizontalGroup(h =>
+        {
+            h.TextBoxFor("text", onKeyPress: (_key) =>
+                {
+                    f.Model["key"] = _key.Key.ToString();
+                })
+                .Text("You Pressed: ")
+                .TextFor("key");
+        });
+    }
     
     
     

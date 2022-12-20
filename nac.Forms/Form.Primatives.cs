@@ -48,7 +48,9 @@ namespace nac.Forms
                         bool isPassword = false,
                         bool isReadOnly = false,
                         string watermarkText = null,
-                        Func<string,object> convertFromUIToModel = null)
+                        Func<string,object> convertFromUIToModel = null,
+                        Action<Avalonia.Input.KeyEventArgs> onKeyPress = null
+                        )
         {
             var tb = new TextBox();
             lib.styleUtil.style(this, tb, style);
@@ -88,6 +90,15 @@ namespace nac.Forms
             else
             {
                 AddRowToHost(tb);
+            }
+
+
+            if (onKeyPress != null)
+            {
+                tb.KeyUp += (_s, _args) =>
+                {
+                    onKeyPress(_args);
+                };
             }
 
             return this;
