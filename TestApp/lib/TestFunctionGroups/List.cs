@@ -1,6 +1,9 @@
+using System.Linq;
 using nac.Forms;
 using nac.Forms.model;
 using TestApp.model;
+
+using log = TestApp.model.LogEntry;
 
 namespace TestApp.lib.TestFunctionGroups;
 
@@ -34,6 +37,56 @@ public class List
             });
         });
     }
+    
+    
+    
+    public static void ItemsControlSimple(Form child)
+    {
+        var items = new System.Collections.ObjectModel.ObservableCollection<nac.Forms.lib.BindableDynamicDictionary>();
+        child.Model["items"]  = items;
+        var newItem = new nac.Forms.lib.BindableDynamicDictionary();
+        newItem["Prop1"] = "fish";
+            
+        items.Add(newItem);
+        newItem = new nac.Forms.lib.BindableDynamicDictionary();
+        newItem["Prop1"] = "Blanket";
+        items.Add(newItem);
+
+        child.Text("Simple List")
+            .List<nac.Forms.lib.BindableDynamicDictionary>("items", (itemForm) =>
+            {
+                itemForm.TextFor("Prop1");
+            }, style: new Style()
+            {
+                height = 500,
+                width = 300,
+                backgroundColor = Avalonia.Media.Colors.Aquamarine
+            }, onSelectionChanged: (_selectedEntries) =>
+            {
+                log.info($"New items selected: {string.Join(",", _selectedEntries.Select(m=>m["Prop1"] as string))}");
+            })
+            .HorizontalGroup((hgChild) =>
+            {
+                // default some stuff
+                child.Model["NewItem.Prop1"] = "Frog Prince";
+
+                hgChild.Text("Prop1: ")
+                    .TextBoxFor("NewItem.Prop1")
+                    .Button("Add Item", async () =>
+                    {
+                        newItem = new nac.Forms.lib.BindableDynamicDictionary();
+                        newItem["Prop1"] = child.Model["NewItem.Prop1"] as string;
+                        items.Add(newItem);
+                    });
+            });
+
+        lib.UIElementsUtility.logViewer(child);
+        log.info("App Ready to go");
+    }
+    
+    
+    
+    
     
     
 }

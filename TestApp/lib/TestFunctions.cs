@@ -29,6 +29,8 @@ public static class TestFunctions
             typeof(TestFunctionGroups.Image),
             typeof(TestFunctionGroups.List),
             typeof(TestFunctionGroups.Layout),
+            typeof(TestFunctionGroups.Text),
+            typeof(TestFunctionGroups.Events),
             typeof(TestFunctions)
         };
         
@@ -74,11 +76,7 @@ public static class TestFunctions
     
     
 
-    public static void Test3_DisplayWhatIsTyped(Form child)
-    {
-        child.TextFor("txt2", "Type here")
-            .TextBoxFor("txt2");
-    }
+
 
 
 
@@ -92,119 +90,10 @@ public static class TestFunctions
 
     }
 
-
-    public static void TestCollections_SimpleItemsControl(Form child)
-    {
-        var items = new System.Collections.ObjectModel.ObservableCollection<nac.Forms.lib.BindableDynamicDictionary>();
-        child.Model["items"]  = items;
-        var newItem = new nac.Forms.lib.BindableDynamicDictionary();
-        newItem["Prop1"] = "fish";
-            
-        items.Add(newItem);
-        newItem = new nac.Forms.lib.BindableDynamicDictionary();
-        newItem["Prop1"] = "Blanket";
-        items.Add(newItem);
-
-        child.Text("Simple List")
-            .List<nac.Forms.lib.BindableDynamicDictionary>("items", (itemForm) =>
-            {
-                itemForm.TextFor("Prop1");
-            }, style: new Style()
-            {
-                height = 500,
-                width = 300,
-                backgroundColor = Avalonia.Media.Colors.Aquamarine
-            }, onSelectionChanged: (_selectedEntries) =>
-            {
-                log.info($"New items selected: {string.Join(",", _selectedEntries.Select(m=>m["Prop1"] as string))}");
-            })
-            .HorizontalGroup((hgChild) =>
-            {
-                // default some stuff
-                child.Model["NewItem.Prop1"] = "Frog Prince";
-
-                hgChild.Text("Prop1: ")
-                    .TextBoxFor("NewItem.Prop1")
-                    .Button("Add Item", async () =>
-                    {
-                        newItem = new nac.Forms.lib.BindableDynamicDictionary();
-                        newItem["Prop1"] = child.Model["NewItem.Prop1"] as string;
-                        items.Add(newItem);
-                    });
-            });
-
-        lib.UIElementsUtility.logViewer(child);
-        log.info("App Ready to go");
-    }
     
     
-    public static void TestVerticalDock_Simple1(Form mainForm)
-    {
-        mainForm.HorizontalGroup((hgForm) =>
-        {
-            hgForm.VerticalDock((vg1) =>
-                {
-                    vg1.Text("Here is a column of controls in a vertical group")
-                        .Button("Click Me!", async ()=>
-                        {
-                            log.info("vg1 button click");
-                        });
-                })
-                .VerticalDock((vg2) =>
-                {
-                    vg2.Text("Here is a second column of controls")
-                        .Button("Click me 2!!", async () =>
-                        {
-                            log.info("vg2 button click");
-                        });
-                });
-        });
-    }
-
-
-    public static void TestControllingVisibilityOfControls_HorizontalGroup(Form mainForm)
-    {
-        mainForm.Model["isTextVisible"] = false;
-
-        mainForm.HorizontalGroup(hg =>
-            {
-                hg.HorizontalGroup(hideableHG =>
-                    {
-                        hideableHG.Text("This text is visible");
-                    }, style: new Style()
-                    {
-                        isVisibleModelName = "isHoriVis"
-                    })
-                    .Button("Hide/show ME!", async () =>
-                    {
-                        mainForm.Model["isHoriVis"] = !(mainForm.Model["isHoriVis"] as bool? ?? true);
-                    }, style: new Style(){width = 120});
-            }, style: new Style()
-            {
-                isVisibleModelName = "isTextVisible"
-            } )
-            .Button("Show or Hide Text", async () =>
-            {
-                mainForm.Model["isTextVisible"] = !(mainForm.Model["isTextVisible"] as bool? ?? true);
-            });
-    }
     
-    
-    public static void TestControlVisibilityOfControls_VerticalGroup(Form f)
-    {
-        f.VerticalGroup(vg =>
-            {
-                vg.Text("I'm Visible");
-            }, style:new Style()
-            {
-                height = 50,
-                isVisibleModelName = "isDisplay"
-            })
-            .Button("Hide or Show", async () =>
-            {
-                f.Model["isDisplay"] = !(f.Model["isDisplay"] as bool? ?? true);
-            }, style: new Style(){width = 100});
-    }
+
 
     public static void TestMenu_Simple(Form f)
     {
@@ -238,110 +127,17 @@ public static class TestFunctions
     }
 
 
-    public static void TestButton_CloseForm(Form parentForm)
-    {
-        parentForm.DisplayChildForm(f =>
-        {
-            f.Model["closeCount"] = 0;
-            f.Model["isQuit"] = false;
-            f.Text("Clicking ok will close this form")
-                .HorizontalGroup(hg =>
-                {
-                    hg.Text("Close count: ")
-                        .TextFor("closeCount");
-                })
-                .HorizontalGroup(hg =>
-                {
-                    hg.Button("Quit", async () =>
-                    {
-                        f.Close();
-                    }).Button("Force Quit", async () =>
-                    {
-                        f.Model["isQuit"] = true;
-                        f.Close();
-                    });
-                });
-        }, onClosing: async (f) =>
-        {
-            dynamic closeCount = f.Model["closeCount"];
-            f.Model["closeCount"] = ++closeCount;
-
-            if (f.Model["isQuit"] as bool? == true)
-            {
-                return false; // don't cancel
-            }
-            else
-            {
-                return true; // prevent closing the window (return if cancel or not)
-            }
-            
-        }, useIsolatedModelForThisChildForm: true);
-    }
 
 
-    public static void TestEvent_OnDisplay(Form parentForm)
-    {
-        parentForm.DisplayChildForm(f =>
-        {
-            f.TextFor("message");
-        }, onDisplay: async (f) =>
-        {
-            f.Model["message"] = "Form is displayed";
-        }, useIsolatedModelForThisChildForm: true);
-    }
-
-    public static void TestEvent_OnDisplay_LongRunning(Form parentForm)
-    {
-        parentForm.DisplayChildForm(f =>
-        {
-            f.Text("OnDisplay update current clock for 1 minute")
-                .TextFor("currentTime");
-        }, onDisplay: async (f) =>
-        {
-            int secondsOfRuntime = 0;
-            await Task.Run(async () =>
-            {
-                while (secondsOfRuntime < 60*1)
-                {
-                    f.Model["currentTime"] = DateTime.Now.ToLongTimeString();
-                    await Task.Delay(millisecondsDelay: 1000);
-                    ++secondsOfRuntime;
-                }
-            });
-        }, useIsolatedModelForThisChildForm: true);
-    }
-
-    public static void TestTextBox_Multiline(Form f)
-    {
-        f.VerticalGroup(vg =>
-        {
-            vg.Text("Text above the Textbox", new Style(){height=20})
-                .TextBoxFor("message", multiline: true)
-                .Text("Text below the textbox", new Style(){height = 20});
-        }, isSplit: true);
-    }
 
 
-    public static void TestStyle_TextBlock_BasicFontChanges(Form f)
-    {
-        f.Text("Hello World!", style: new Style
-            {
-                foregroundColor = Colors.Green,
-                backgroundColor = Colors.Black
-            })
-            .HorizontalGroup(hg =>
-            {
-                hg.Button("Red", async () =>
-                {
-                    log.info("Red button click");
-                }, style: new nac.Forms.model.Style
-                {
-                    backgroundColor = Avalonia.Media.Colors.Red,
-                    foregroundColor = Avalonia.Media.Colors.White
-                });
 
-            });
-    }
+
+
+
+
+
+
 
 
     public static void TestFilePickerFor_Basic(Form f)
