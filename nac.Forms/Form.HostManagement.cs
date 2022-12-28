@@ -41,7 +41,7 @@ namespace nac.Forms
         }
 
 
-        private void AddRowToHost( Control ctrl,
+        internal void AddRowToHost( Control ctrl,
             AddRowToHostFunctions functions = null, string ctrlIndex=null,
             bool rowAutoHeight = true)
         {

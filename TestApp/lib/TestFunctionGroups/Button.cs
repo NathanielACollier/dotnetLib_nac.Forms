@@ -150,11 +150,20 @@ public class Button
                 }, functions: incrimentButtonFunctions);
         });
     }
-    
-    
-    
-    
-    
+
+
+
+
+    public static void ShowPopup(Form f)
+    {
+        f.Button("Show Pop Up", onClick:null, style: new Style
+        {
+            popUp = (_c) =>
+            {
+                _c.Text("Hello World!");
+            }
+        });
+    }
     
     
 }

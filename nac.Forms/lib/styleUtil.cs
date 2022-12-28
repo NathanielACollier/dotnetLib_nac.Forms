@@ -67,10 +67,26 @@ namespace nac.Forms.lib
             {
                 form.AddVisibilityTrigger(ctrl, isVisibleModelName: style.isHiddenModelName.Value, trueResultMeansVisible: false);
             }
+
+            if (style?.popUp != null)
+            {
+                setupPopUp(form: form, control: ctrl, contentOfPopup: style.popUp);
+            }
         }
-        
-        
-        
-        
+
+        private static void setupPopUp(Form form, Control control, Action<Form> contentOfPopup)
+        {
+            // create a popup and populate it
+            var popupControl = new Avalonia.Controls.Primitives.Popup();
+
+            popupControl.Child = form.getBoundControlFromPopulateForm(contentOfPopup);
+
+            popupControl.PlacementMode = PlacementMode.Bottom;
+            popupControl.PlacementTarget = control;
+            popupControl.IsLightDismissEnabled = true;
+            
+            // add the popup to the form
+            form.AddRowToHost(popupControl);
+        }
     }
 }
