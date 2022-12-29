@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Media;
@@ -73,6 +75,11 @@ namespace nac.Forms.lib
             {
                 setupContextMenu(form: form, control: ctrl, contentOfPopup: style.contextMenu);
             }
+
+            if (style?.contextMenuItems.IsSet == true)
+            {
+                setupContextMenu(form: form, control: ctrl, menuItems: style.contextMenuItems.Value);
+            }
         }
 
         private static void setupContextMenu(Form form, Control control, Action<Form> contentOfPopup)
@@ -91,5 +98,22 @@ namespace nac.Forms.lib
             // add the popup to the form
             control.ContextMenu = contextMenu;
         }
+
+
+        private static void setupContextMenu(Form form, Control control, IEnumerable<model.MenuItem> menuItems)
+        {
+            // create a popup and populate it
+            var contextMenu = new Avalonia.Controls.ContextMenu();
+
+            contextMenu.Items = menuItems.Select(i => lib.AvaloniaModelHelpers.convertModelToAvaloniaMenuItem(i));;
+            
+            contextMenu.PlacementMode = PlacementMode.Bottom;
+            contextMenu.PlacementTarget = control;
+
+            // add the popup to the form
+            control.ContextMenu = contextMenu;
+        }
+        
+        
     }
 }

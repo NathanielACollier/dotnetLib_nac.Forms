@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Avalonia.Media;
 
 namespace nac.Forms.model;
@@ -16,5 +17,7 @@ public class Style
 
 
     public Action<Form> contextMenu { get; set; }
-    
+
+    public model.Optional<IEnumerable<model.MenuItem>> contextMenuItems { get; set; } = new Optional<IEnumerable<MenuItem>>();
+
 }

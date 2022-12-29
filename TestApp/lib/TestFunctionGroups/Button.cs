@@ -168,6 +168,32 @@ public class Button
             }
         });
     }
+
+
+    public static void ContextMenuItems(Form f)
+    {
+        f.Model["counter"] = 0;
+        
+        f.HorizontalGroup(h =>
+            {
+                h.Text("Count is: ")
+                    .TextFor("counter");
+            })
+            .Button("Show Pop Up", onClick: async () => { }, style: new Style
+        {
+            contextMenuItems = new[]
+            {
+                new MenuItem
+                {
+                    Header = "Testing...",
+                    Action = () =>
+                    {
+                        f.Model["counter"] = (int)f.Model["counter"] + 1;
+                    }
+                }
+            }
+        });
+    }
     
     
 }
