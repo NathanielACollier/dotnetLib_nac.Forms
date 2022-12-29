@@ -15,6 +15,6 @@ public class Style
     public model.Optional<string> isHiddenModelName { get; set; } = new Optional<string>();
 
 
-    public Action<Form> popUp { get; set; }
+    public Action<Form> contextMenu { get; set; }
     
 }

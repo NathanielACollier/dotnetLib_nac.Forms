@@ -1,5 +1,6 @@
 using System;
 using Avalonia.Controls;
+using Avalonia.Controls.Templates;
 using Avalonia.Media;
 using nac.Forms.model;
 
@@ -68,25 +69,27 @@ namespace nac.Forms.lib
                 form.AddVisibilityTrigger(ctrl, isVisibleModelName: style.isHiddenModelName.Value, trueResultMeansVisible: false);
             }
 
-            if (style?.popUp != null)
+            if (style?.contextMenu != null)
             {
-                setupPopUp(form: form, control: ctrl, contentOfPopup: style.popUp);
+                setupContextMenu(form: form, control: ctrl, contentOfPopup: style.contextMenu);
             }
         }
 
-        private static void setupPopUp(Form form, Control control, Action<Form> contentOfPopup)
+        private static void setupContextMenu(Form form, Control control, Action<Form> contentOfPopup)
         {
             // create a popup and populate it
-            var popupControl = new Avalonia.Controls.Primitives.Popup();
+            var contextMenu = new Avalonia.Controls.ContextMenu();
+            contextMenu.Template = new FuncControlTemplate((templatedControl, scope) =>
+            {
+                var ctrl = form.getBoundControlFromPopulateForm(contentOfPopup);
+                return ctrl;
+            });
 
-            popupControl.Child = form.getBoundControlFromPopulateForm(contentOfPopup);
+            contextMenu.PlacementMode = PlacementMode.Bottom;
+            contextMenu.PlacementTarget = control;
 
-            popupControl.PlacementMode = PlacementMode.Bottom;
-            popupControl.PlacementTarget = control;
-            popupControl.IsLightDismissEnabled = true;
-            
             // add the popup to the form
-            form.AddRowToHost(popupControl);
+            control.ContextMenu = contextMenu;
         }
     }
 }

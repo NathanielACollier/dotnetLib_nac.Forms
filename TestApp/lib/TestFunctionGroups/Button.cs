@@ -154,13 +154,17 @@ public class Button
 
 
 
-    public static void ShowPopup(Form f)
+    public static void ContextMenu(Form f)
     {
-        f.Button("Show Pop Up", onClick:null, style: new Style
+        f.Button("Show Pop Up", onClick:async()=>{}, style: new Style
         {
-            popUp = (_c) =>
+            contextMenu = (_c) =>
             {
-                _c.Text("Hello World!");
+                _c.HorizontalGroup(h =>
+                {
+                    h.Text("GO")
+                        .Button("Click Me", async () => { });
+                });
             }
         });
     }
