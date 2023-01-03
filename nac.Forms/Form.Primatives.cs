@@ -184,42 +184,10 @@ namespace nac.Forms
         public Form Menu(model.MenuItem[] items)
         {
             var menu = new global::Avalonia.Controls.Menu();
-            menu.Items = items.Select(i => convertModelToAvaloniaMenuItem(i));
+            menu.Items = items.Select(i => lib.AvaloniaModelHelpers.convertModelToAvaloniaMenuItem(i));
             
             AddRowToHost(menu);
             return this;
-        }
-
-        private global::Avalonia.Controls.MenuItem convertModelToAvaloniaMenuItem(model.MenuItem item)
-        {
-            var avaloniaItem = new global::Avalonia.Controls.MenuItem
-            {
-                Header = item.Header
-            };
-
-            if (item.Action != null)
-            {
-                avaloniaItem.Click += (_s, _args) =>
-                {
-                    item.Action();
-                };
-            }
-
-            
-            if (item.Items?.Any() == true)
-            {
-                var subMenuItems = new List<global::Avalonia.Controls.MenuItem>();
-                foreach (var i in item.Items)
-                {
-                    subMenuItems.Add(
-                        convertModelToAvaloniaMenuItem(i)    
-                    );
-                }
-
-                avaloniaItem.Items = subMenuItems;
-            }
-
-            return avaloniaItem;
         }
 
 

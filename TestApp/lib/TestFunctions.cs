@@ -34,6 +34,7 @@ public static class TestFunctions
             typeof(TestFunctionGroups.Events),
             typeof(TestFunctionGroups.FileSystem),
             typeof(TestFunctionGroups.DropDown),
+            typeof(TestFunctionGroups.ContextMenu),
             typeof(TestFunctions)
         };
         

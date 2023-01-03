@@ -150,11 +150,6 @@ public class Button
                 }, functions: incrimentButtonFunctions);
         });
     }
-    
-    
-    
-    
-    
-    
-    
+
+
 }
