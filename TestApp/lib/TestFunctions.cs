@@ -29,6 +29,7 @@ public static class TestFunctions
             typeof(TestFunctionGroups.TreeView),
             typeof(TestFunctionGroups.Image),
             typeof(TestFunctionGroups.List),
+            typeof(TestFunctionGroups.Table),
             typeof(TestFunctionGroups.Layout),
             typeof(TestFunctionGroups.Text),
             typeof(TestFunctionGroups.Events),
