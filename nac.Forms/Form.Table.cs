@@ -78,8 +78,12 @@ public partial class Form
                     $"Model Items source property specified by name [{itemsModelFieldName}] must be IEnumerable<T>");
             }
             
+            /*
+             NOTE: two way data binding for ItemsSource should allways be false
+                - If it's set to true then it requires a setter for the property and can crash.  Often for an ItemsSource on the model it will just have a getter and use the auto creation functionality of ViewModelBase
+             */
             AddBinding<IEnumerable>(itemsModelFieldName, dg, Avalonia.Controls.DataGrid.ItemsProperty, 
-                isTwoWayDataBinding: true);
+                isTwoWayDataBinding: false);
             AddRowToHost(dg, rowAutoHeight: false);
 
             return this;

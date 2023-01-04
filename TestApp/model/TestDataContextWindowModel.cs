@@ -11,7 +11,6 @@ public class TestDataContextWindowModel : nac.Forms.model.ViewModelBase
         public ObservableCollection<model.Alphabet> Letters
         {
             get { return GetValue(() => Letters); }
-            set{ SetValue(() => Letters, value);}
         }
 
         private List<model.Alphabet> allLetters;
@@ -36,7 +35,6 @@ public class TestDataContextWindowModel : nac.Forms.model.ViewModelBase
 
         public TestDataContextWindowModel()
         {
-            this.Letters = new ObservableCollection<Alphabet>();
             this.NewLetter = new model.Alphabet();
             this.Filter = "";
         }
