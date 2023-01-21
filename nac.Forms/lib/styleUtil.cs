@@ -80,6 +80,19 @@ namespace nac.Forms.lib
             {
                 setupContextMenu(form: form, control: ctrl, menuItems: style.contextMenuItems.Value);
             }
+
+            if( style?.TooltipText.IsSet == true)
+            {
+                // It has a pretty strange API see this: https://github.com/AvaloniaUI/Avalonia/issues/5188
+                Avalonia.Controls.ToolTip.SetTip(ctrl, style.TooltipText.Value);
+            }
+
+            if( style?.Tooltip != null)
+            {
+                var tooltipCtrl = form.getBoundControlFromPopulateForm(style.Tooltip);
+                // again the same pretty strange API that is called an 'Attached Property'
+                Avalonia.Controls.ToolTip.SetTip(ctrl, tooltipCtrl);
+            }
         }
 
         private static void setupContextMenu(Form form, Control control, Action<Form> contentOfPopup)
