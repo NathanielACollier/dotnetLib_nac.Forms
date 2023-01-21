@@ -20,4 +20,7 @@ public class Style
 
     public model.Optional<IEnumerable<model.MenuItem>> contextMenuItems { get; set; } = new Optional<IEnumerable<MenuItem>>();
 
+    public Action<Form> Tooltip { get; set; }
+    public model.Optional<string> TooltipText { get; set; } = new Optional<string>();
+
 }

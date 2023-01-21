@@ -36,6 +36,7 @@ public static class TestFunctions
             typeof(TestFunctionGroups.FileSystem),
             typeof(TestFunctionGroups.DropDown),
             typeof(TestFunctionGroups.ContextMenu),
+            typeof(TestFunctionGroups.Tooltip),
             typeof(TestFunctions)
         };
         
