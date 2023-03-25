@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using nac.Forms;
 
 namespace TestApp.lib.TestFunctionGroups;
@@ -27,6 +28,24 @@ public class Autocomplete
     }
     
     
+    
+    public static void AsyncPopulator_SimpleRandomText(Form f)
+    {
+        f.Autocomplete<string>(selectedItemModelName: "i",
+                populateItemsOnTextChange: async (textboxValue) =>
+                {
+                    var n = new Random().Next(10000, 9999);
+                    return new[]
+                    {
+                        textboxValue + n.ToString()
+                    };
+                })
+            .HorizontalGroup(h =>
+            {
+                h.Text("Selected: ")
+                    .TextFor("i");
+            });
+    }
     
     
     
