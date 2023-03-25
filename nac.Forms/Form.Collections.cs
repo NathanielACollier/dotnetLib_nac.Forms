@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using nac.Forms.model;
@@ -135,11 +137,13 @@ namespace nac.Forms
 
 
 
-        public Form Autocomplete<T>(string itemSourceModelName,
+        public Form Autocomplete<T>(
             string selectedItemModelName,
+            string itemSourceModelName = null,
             Action<T> onSelectionChanged = null,
             Action<Form> populateItemRow = null,
-            model.Style style = null)
+            model.Style style = null,
+            Func<string, Task<IEnumerable<T>>> populateItemsOnTextChange = null)
         {
             var tb = new Avalonia.Controls.AutoCompleteBox();
             lib.styleUtil.style(this, tb, style);
@@ -150,12 +154,39 @@ namespace nac.Forms
                 throw new Exception($"Model {nameof(itemSourceModelName)} source property specified by name [{itemSourceModelName}] must be a IEnumerable<T>");
             }
             
-            // item source binding
-            AddBinding<IEnumerable>(modelFieldName: itemSourceModelName,
-                control: tb,
-                property: Avalonia.Controls.AutoCompleteBox.ItemsProperty,
-                isTwoWayDataBinding:false);
-            
+            // check to make sure they aren't trying to item source bind, and use a populator function
+            if (populateItemsOnTextChange != null &&
+                !string.IsNullOrWhiteSpace(itemSourceModelName))
+            {
+                throw new Exception("You cannot use an Item Source, and a populatoItems function");
+            }
+
+            if (populateItemsOnTextChange == null &&
+                string.IsNullOrWhiteSpace(itemSourceModelName))
+            {
+                throw new Exception(
+                    "You must either use an Item Source or use a populateItems function.  Neither where set");
+            }
+
+            if (populateItemsOnTextChange != null)
+            {
+                // setup the populate items
+                tb.AsyncPopulator = new Func<string, CancellationToken, Task<IEnumerable<object>>>(
+                    async (textboxValue, cancelToken) =>
+                    {
+                        var items = await populateItemsOnTextChange(textboxValue);
+                        return items.Select(i => (object)i);
+                    });
+            }
+            else if (!string.IsNullOrWhiteSpace(itemSourceModelName))
+            {
+                // item source binding
+                AddBinding<IEnumerable>(modelFieldName: itemSourceModelName,
+                    control: tb,
+                    property: Avalonia.Controls.AutoCompleteBox.ItemsProperty,
+                    isTwoWayDataBinding:false);
+            }
+
             // selected item binding
             AddBinding<object>(modelFieldName: selectedItemModelName,
                 control: tb,
