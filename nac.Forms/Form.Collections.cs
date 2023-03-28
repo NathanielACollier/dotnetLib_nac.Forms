@@ -147,13 +147,7 @@ namespace nac.Forms
         {
             var tb = new Avalonia.Controls.AutoCompleteBox();
             lib.styleUtil.style(this, tb, style);
-            
-            // Just as a safety check, make them init the model first
-            if( !(getModelValue(itemSourceModelName) is IEnumerable<T>))
-            {
-                throw new Exception($"Model {nameof(itemSourceModelName)} source property specified by name [{itemSourceModelName}] must be a IEnumerable<T>");
-            }
-            
+                        
             // check to make sure they aren't trying to item source bind, and use a populator function
             if (populateItemsOnTextChange != null &&
                 !string.IsNullOrWhiteSpace(itemSourceModelName))
@@ -180,6 +174,12 @@ namespace nac.Forms
             }
             else if (!string.IsNullOrWhiteSpace(itemSourceModelName))
             {
+                // Just as a safety check, make them init the model first
+                if (!(getModelValue(itemSourceModelName) is IEnumerable<T>))
+                {
+                    throw new Exception($"Model {nameof(itemSourceModelName)} source property specified by name [{itemSourceModelName}] must be a IEnumerable<T>");
+                }
+
                 // item source binding
                 AddBinding<IEnumerable>(modelFieldName: itemSourceModelName,
                     control: tb,
