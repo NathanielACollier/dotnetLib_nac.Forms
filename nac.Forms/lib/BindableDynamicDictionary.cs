@@ -126,6 +126,11 @@ namespace nac.Forms.lib
 
         public bool HasKey(string key)
         {
+            if(string.IsNullOrWhiteSpace(key))
+            {
+                return false;
+            }
+
             return this.GetDynamicMemberNames().Contains(key);
         }
     }
