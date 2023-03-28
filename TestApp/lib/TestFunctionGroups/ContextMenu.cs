@@ -19,7 +19,7 @@ public class ContextMenu
     
     public static void CustomUI(Form f)
     {
-        f.Button("Show Pop Up", onClick:async()=>{}, style: new Style
+        f.Button("Right Click Me!", onClick:async()=>{}, style: new Style
         {
             contextMenu = (_c) =>
             {
@@ -42,7 +42,7 @@ public class ContextMenu
                 h.Text("Count is: ")
                     .TextFor("counter");
             })
-            .Button("Show Pop Up", onClick: async () => { }, style: new Style
+            .Button("Right Click Me!", onClick: async () => { }, style: new Style
             {
                 contextMenuItems = new[]
                 {
