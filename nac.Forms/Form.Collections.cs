@@ -164,6 +164,7 @@ namespace nac.Forms
 
             if (populateItemsOnTextChange != null)
             {
+                tb.FilterMode = AutoCompleteFilterMode.None; // this is important! it will make it show all options
                 // setup the populate items
                 tb.AsyncPopulator = new Func<string, CancellationToken, Task<IEnumerable<object>>>(
                     async (textboxValue, cancelToken) =>
