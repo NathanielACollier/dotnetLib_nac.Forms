@@ -102,6 +102,11 @@ namespace TestApp
                     }, useIsolatedModelForThisChildForm: true)
                     .ContinueWith(t =>
                     {
+                        if( t.Exception != null)
+                        {
+                            logException(test, t.Exception);
+                            return; // skip whatever else is going on
+                        }
                         model.LogEntry.info($"Test: [name={test.Name}] is complete");
                     });
                 }
@@ -113,13 +118,21 @@ namespace TestApp
             }
             catch (Exception ex)
             {
-                string errorMessage = $"Error, trying [{test.Name}].  Exception: {ex}";
-                model.LogEntry.error(errorMessage);
-                writeLineError(errorMessage);
+                logException(test, ex);
             }
             
 
         }
+
+
+        private static void logException(model.TestEntry test, Exception ex)
+        {
+            string errorMessage = $"Error, trying [{test.Name}].  Exception: {ex}";
+            model.LogEntry.error(errorMessage);
+            writeLineError(errorMessage);
+        }
+
+
 
         private static void writeLineError(string message)
         {
