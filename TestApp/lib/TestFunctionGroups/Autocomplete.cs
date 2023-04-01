@@ -34,7 +34,7 @@ public class Autocomplete
         f.Autocomplete<string>(selectedItemModelName: "i",
                 populateItemsOnTextChange: async (textboxValue) =>
                 {
-                    var n = new Random().Next(10000, 9999);
+                    var n = new Random().Next(1000, 9999);
                     return new[]
                     {
                         textboxValue + n.ToString()
