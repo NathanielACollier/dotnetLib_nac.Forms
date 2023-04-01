@@ -169,8 +169,18 @@ namespace nac.Forms
                 tb.AsyncPopulator = new Func<string, CancellationToken, Task<IEnumerable<object>>>(
                     async (textboxValue, cancelToken) =>
                     {
-                        var items = await populateItemsOnTextChange(textboxValue);
-                        return items.Select(i => (object)i);
+                        IEnumerable<object> results = null;
+                        try
+                        {
+                            var items = await populateItemsOnTextChange(textboxValue);
+                            results = items.Select(i => (object) i);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error($"[Autocomplete] Failure in populating async items.  Exception: {ex}");
+                        }
+
+                        return results;
                     });
             }
             else if (!string.IsNullOrWhiteSpace(itemSourceModelName))
