@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using nac.Forms;
 
 namespace TestApp.lib.TestFunctionGroups;
@@ -40,6 +41,35 @@ public class Autocomplete
                         textboxValue + n.ToString()
                     };
                 })
+            .HorizontalGroup(h =>
+            {
+                h.Text("Selected: ")
+                    .TextFor("i");
+            });
+    }
+
+
+    public static void AsyncPopulator_ModelWithTemplate(Form f)
+    {
+        var dataList = new[]
+        {
+            new model.Alphabet {A = "Spider Man", B = "New York"},
+            new model.Alphabet {A = "Bat Man", B = "Gotham"},
+            new model.Alphabet {A = "Super Man", B = "Smallville"},
+            new model.Alphabet {A = "Clark Kent", B = "Metropollis"}
+        };
+
+        f.Autocomplete<model.Alphabet>(selectedItemModelName: "i",
+            populateItemsOnTextChange: async (text) =>
+            {
+                return dataList.Where(row => row.A.Contains(text, StringComparison.OrdinalIgnoreCase) ||
+                                             row.B.Contains(text, StringComparison.OrdinalIgnoreCase)
+                );
+            },
+            populateItemRow: r =>
+            {
+                r.Text("Name: ").TextFor("A").Text("\t\tCity: ").TextFor("B");
+            })
             .HorizontalGroup(h =>
             {
                 h.Text("Selected: ")
