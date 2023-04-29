@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Avalonia.Media;
 using nac.Forms;
+using nac.Forms.model;
 
 namespace TestApp.lib.TestFunctionGroups;
 
@@ -68,12 +70,13 @@ public class Autocomplete
             },
             populateItemRow: r =>
             {
-                r.Text("Name: ").TextFor("A").Text("\t\tCity: ").TextFor("B");
+                r.HorizontalGroup(hg => hg.Text("Name: ", style: new Style{foregroundColor = Colors.Blue}).TextFor("A")
+                    .Text("  City: ", style: new Style{foregroundColor = Colors.Blue}).TextFor("B"));
             })
             .HorizontalGroup(h =>
             {
                 h.Text("Selected: ")
-                    .TextFor("i");
+                    .TextFor("i.A");
             });
     }
     
