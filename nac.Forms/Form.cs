@@ -105,7 +105,7 @@ namespace nac.Forms
                                     string isVisibleModelName, 
                                     bool trueResultMeansVisible)
         {
-            notifyOnModelChange(isVisibleModelName, (val) =>
+            notifyOnModelChange(isVisibleModelName, (context, val) =>
             {
                 if( val is bool isVisible)
                 {
@@ -150,8 +150,9 @@ namespace nac.Forms
             }
         }
 
+        private delegate void CodeToRunOnModelChange(INotifyPropertyChanged bindingSource, object value);
 
-        private void notifyOnModelChange(string modelFieldName, Action<object> codeToRunOnChange)
+        private void notifyOnModelChange(string modelFieldName, CodeToRunOnModelChange codeToRunOnChange)
         {
             var bindingSource = getBindingSource();
 
@@ -164,10 +165,15 @@ namespace nac.Forms
             }
 
             log.Info($"AddBinding-Initial value [property: {modelFieldName}; value: {valueResult.Value}]");
-            codeToRunOnChange(valueResult.Value);
+            codeToRunOnChange(valueResult.DataContext, valueResult.Value);
 
             valueResult.DataContext.PropertyChanged += (_s, args) =>
             {
+                if (!string.Equals(valueResult.FieldName, args.PropertyName))
+                {
+                    return; // ignore this
+                }
+                
                 var changedValue = getDataContextValue(valueResult.DataContext, args.PropertyName);
 
                 if (changedValue.invalid)
@@ -177,7 +183,7 @@ namespace nac.Forms
                 }
                 
                 log.Debug($"AddBinding-Model Value Change [Field: {modelFieldName}; New Value: {changedValue.Value}]");
-                codeToRunOnChange(changedValue.Value);
+                codeToRunOnChange(changedValue.DataContext, changedValue.Value);
             };
         }
 
@@ -186,6 +192,7 @@ namespace nac.Forms
         {
             DataContextValueResult result = new();
             result.DataContext = dataContext;
+            result.FieldName = modelFieldName;
             
             if (dataContext == null)
             {
@@ -351,7 +358,7 @@ namespace nac.Forms
             var bindingSource = new Subject<T>();
             control.Bind<T>(property, bindingSource.AsObservable());
 
-            notifyOnModelChange(modelFieldName, (val) =>
+            notifyOnModelChange(modelFieldName, (context, val) =>
             {
                 if (convertFromModelToUI != null)
                 {

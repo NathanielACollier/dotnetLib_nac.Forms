@@ -6,6 +6,7 @@ public class DataContextValueResult
 {
     public INotifyPropertyChanged DataContext;
     public object Value;
+    public string FieldName;
     public bool invalid;
 
     public DataContextValueResult()
