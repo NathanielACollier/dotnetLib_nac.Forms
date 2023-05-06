@@ -61,6 +61,8 @@ public class Autocomplete
             new model.Alphabet {A = "Clark Kent", B = "Metropollis"}
         };
 
+        f.Model["i"] = new model.Alphabet();
+
         f.Autocomplete<model.Alphabet>(selectedItemModelName: "i",
             populateItemsOnTextChange: async (text) =>
             {

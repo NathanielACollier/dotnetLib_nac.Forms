@@ -105,7 +105,7 @@ namespace nac.Forms
                                     string isVisibleModelName, 
                                     bool trueResultMeansVisible)
         {
-            notifyOnModelChange(isVisibleModelName, (context, val) =>
+            notifyOnRootModelChange(isVisibleModelName, (context, val) =>
             {
                 if( val is bool isVisible)
                 {
@@ -150,13 +150,31 @@ namespace nac.Forms
             }
         }
 
-        private delegate void CodeToRunOnModelChange(INotifyPropertyChanged bindingSource, object value);
 
-        private void notifyOnModelChange(string modelFieldName, CodeToRunOnModelChange codeToRunOnChange)
+        private void notifyOnRootModelChange(string modelFieldName, CodeToRunOnModelChange codeToRunOnModelChange)
         {
             var bindingSource = getBindingSource();
+            
+            notifyOnModelChange(bindingSource, modelFieldName, codeToRunOnModelChange);
+        }
+        
 
-            var valueResult = getDataContextValue(bindingSource, modelFieldName);
+        private delegate void CodeToRunOnModelChange(INotifyPropertyChanged bindingSource, object value);
+
+        private void notifyOnModelChange(INotifyPropertyChanged dataContext, string modelFieldName, CodeToRunOnModelChange codeToRunOnChange)
+        {
+            var valueResult = getDataContextValue(parentContext:null,
+                datacontext: dataContext,
+                modelFieldName: modelFieldName);
+
+            if (valueResult.ParentContext != null)
+            {
+                // we have to watch for our property to be set
+                notifyOnModelChange(valueResult.ParentContext.DataContext, valueResult.FieldName, (context, val) =>
+                {
+                    log.Info($"Field {valueResult.FieldName} just got set to: {val}.  What do we need to do here??");
+                });
+            }
 
             if (valueResult.invalid)
             {
@@ -186,15 +204,16 @@ namespace nac.Forms
                 codeToRunOnChange(changedValue.DataContext, changedValue.Value);
             };
         }
-
         
-        private model.DataContextValueResult getDataContextValue(INotifyPropertyChanged dataContext, string modelFieldName)
+        
+        private model.DataContextValueResult getDataContextValue(model.DataContextValueResult parentContext, INotifyPropertyChanged datacontext, string modelFieldName)
         {
             DataContextValueResult result = new();
-            result.DataContext = dataContext;
+            result.ParentContext = parentContext;
+            result.DataContext = datacontext;
             result.FieldName = modelFieldName;
             
-            if (dataContext == null)
+            if (datacontext == null)
             {
                 result.invalid = true;
                 log.Warn($"Error accessing [field: {modelFieldName}]. DataContext is null, or is not INotifyPropertyChanged");
@@ -203,7 +222,7 @@ namespace nac.Forms
 
             var fieldPath = new model.ModelFieldNamePathInfo(modelFieldName);
 
-            if( dataContext is lib.BindableDynamicDictionary dynDict){
+            if( datacontext is lib.BindableDynamicDictionary dynDict){
                 if (!dynDict.HasKey(fieldPath.Current))
                 {
                     result.invalid = true;
@@ -214,13 +233,15 @@ namespace nac.Forms
                 result.Value = dynDict[fieldPath.Current];
                 if (fieldPath.ChildPath.Length > 0)
                 {
-                    return getDataContextValue(result.Value as INotifyPropertyChanged, fieldPath.ChildPath);
+                    return getDataContextValue( parentContext: result,
+                        datacontext: result.Value as INotifyPropertyChanged,
+                        modelFieldName: fieldPath.ChildPath);
                 }
                 
                 return result;
             }
             
-            Type dcType = dataContext.GetType();
+            Type dcType = datacontext.GetType();
             var prop = dcType.GetProperty(fieldPath.Current);
             if (prop == null)
             {
@@ -229,7 +250,7 @@ namespace nac.Forms
                 return result;
             }
                 
-            result.Value = prop.GetValue(dataContext);
+            result.Value = prop.GetValue(datacontext);
 
             if (fieldPath.ChildPath.Length > 0)
             {
@@ -241,7 +262,9 @@ namespace nac.Forms
                     return result;
                 }
                 
-                return getDataContextValue(result.Value as INotifyPropertyChanged, fieldPath.ChildPath);
+                return getDataContextValue(parentContext: result,
+                    datacontext: result.Value as INotifyPropertyChanged,
+                    modelFieldName: fieldPath.ChildPath);
             }
 
             return result;
@@ -358,7 +381,7 @@ namespace nac.Forms
             var bindingSource = new Subject<T>();
             control.Bind<T>(property, bindingSource.AsObservable());
 
-            notifyOnModelChange(modelFieldName, (context, val) =>
+            notifyOnRootModelChange(modelFieldName, (context, val) =>
             {
                 if (convertFromModelToUI != null)
                 {

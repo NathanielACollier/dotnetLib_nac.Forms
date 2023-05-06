@@ -8,9 +8,12 @@ public class DataContextValueResult
     public object Value;
     public string FieldName;
     public bool invalid;
+    public DataContextValueResult ParentContext { get; set; }
 
     public DataContextValueResult()
     {
         this.invalid = false;
     }
+
+    
 }
