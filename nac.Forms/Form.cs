@@ -155,45 +155,43 @@ namespace nac.Forms
         {
             var bindingSource = getBindingSource();
 
-            if (bindingSource is nac.Forms.lib.BindableDynamicDictionary bindDict)
+            var valueResult = getDataContextValue(bindingSource, modelFieldName);
+
+            if (valueResult.invalid)
             {
-                if (bindDict.HasKey(modelFieldName))
-                {
-                    var val = bindDict[modelFieldName];
-                    log.Info($"AddBinding-Dictionary-Initial value [Key: {modelFieldName}; Value: {val}]");
-                    codeToRunOnChange(val);
-                }
-            }
-            else
-            {
-                var val = getDataContextValue(bindingSource, modelFieldName);
-                log.Info($"AddBinding-Initial value [property: {modelFieldName}; value: {val}]");
-                codeToRunOnChange(val);
+                log.Info($"Failed to setup notify model change on field: {modelFieldName}.  Binding is invalid");
+                return;
             }
 
-            bindingSource.PropertyChanged += (_s, args) =>
-            {
-                if (bindingSource is nac.Forms.lib.BindableDynamicDictionary bindDict)
-                {
-                    var val = bindDict[modelFieldName];
-                    log.Debug($"AddBinding-Dictionary-Model value change [Key: {modelFieldName}; New Value: {val}]");
-                    codeToRunOnChange(val);
-                }
-                else
-                {
-                    var val = getDataContextValue(bindingSource, modelFieldName);
-                    log.Debug($"AddBinding-Model Value Change [Field: {modelFieldName}; New Value: {val}]");
-                    codeToRunOnChange(val);
-                }
+            log.Info($"AddBinding-Initial value [property: {modelFieldName}; value: {valueResult.Value}]");
+            codeToRunOnChange(valueResult.Value);
 
+            valueResult.DataContext.PropertyChanged += (_s, args) =>
+            {
+                var changedValue = getDataContextValue(valueResult.DataContext, args.PropertyName);
+
+                if (changedValue.invalid)
+                {
+                    log.Warn($"PropertyChanged: Field: [{args.PropertyName}] is not valid for datacontext");
+                    return;
+                }
+                
+                log.Debug($"AddBinding-Model Value Change [Field: {modelFieldName}; New Value: {changedValue.Value}]");
+                codeToRunOnChange(changedValue.Value);
             };
         }
 
         
-        private object getDataContextValue(object dataContext, string modelFieldName){
+        private model.DataContextValueResult getDataContextValue(INotifyPropertyChanged dataContext, string modelFieldName)
+        {
+            DataContextValueResult result = new();
+            result.DataContext = dataContext;
+            
             if (dataContext == null)
             {
-                throw new Exception($"Error accessing [field: {modelFieldName}]. DataContext special field in model is null");
+                result.invalid = true;
+                log.Warn($"Error accessing [field: {modelFieldName}]. DataContext is null, or is not INotifyPropertyChanged");
+                return result;
             }
 
             var fieldPath = new model.ModelFieldNamePathInfo(modelFieldName);
@@ -201,45 +199,45 @@ namespace nac.Forms
             if( dataContext is lib.BindableDynamicDictionary dynDict){
                 if (!dynDict.HasKey(fieldPath.Current))
                 {
-                    throw new Exception($"Field [{fieldPath.Current}] does not exist on DataContext object");
+                    result.invalid = true;
+                    log.Warn($"Field [{fieldPath.Current}] does not exist on DataContext object");
+                    return result;
                 }
 
-                var val = dynDict[fieldPath.Current];
+                result.Value = dynDict[fieldPath.Current];
                 if (fieldPath.ChildPath.Length > 0)
                 {
-                    return getDataContextValue(val, fieldPath.ChildPath);
-                }
-                else
-                {
-                    return val;
-                }
-            }else
-            {
-                Type dcType = dataContext.GetType();
-                var prop = dcType.GetProperty(fieldPath.Current);
-                if (prop == null)
-                {
-                    throw new Exception(
-                        $"Field [{fieldPath.Current}] does not exist on DataContext object of [type: {dcType.Name}]");
+                    return getDataContextValue(result.Value as INotifyPropertyChanged, fieldPath.ChildPath);
                 }
                 
-                var val = prop.GetValue(dataContext);
-
-                if (fieldPath.ChildPath.Length > 0)
-                {
-                    if (val == null)
-                    {
-                        // warn that we have a child path but a parent is null
-                        log.Warn($"DataContext warning.  Child Path found [FullPath: {modelFieldName}] but current [Path: {fieldPath.Current}] is null.  Would not be able to find [child path: {fieldPath.ChildPath}] while parent is null.");
-                    }
-                    return getDataContextValue(val, fieldPath.ChildPath);
-                }
-                else
-                {
-                    return val;
-                }
-                
+                return result;
             }
+            
+            Type dcType = dataContext.GetType();
+            var prop = dcType.GetProperty(fieldPath.Current);
+            if (prop == null)
+            {
+                result.invalid = true;
+                log.Warn($"Field [{fieldPath.Current}] does not exist on DataContext object of [type: {dcType.Name}]");
+                return result;
+            }
+                
+            result.Value = prop.GetValue(dataContext);
+
+            if (fieldPath.ChildPath.Length > 0)
+            {
+                if (result.Value == null)
+                {
+                    result.invalid = true;
+                    // warn that we have a child path but a parent is null
+                    log.Warn($"DataContext warning.  Child Path found [FullPath: {modelFieldName}] but current [Path: {fieldPath.Current}] is null.  Would not be able to find [child path: {fieldPath.ChildPath}] while parent is null.");
+                    return result;
+                }
+                
+                return getDataContextValue(result.Value as INotifyPropertyChanged, fieldPath.ChildPath);
+            }
+
+            return result;
         }
         
         private void setDataContextValue(object dataContext, string modelFieldName,  object val)
@@ -298,60 +296,46 @@ namespace nac.Forms
         /*
          This is used at least by the nac.Forms.Table project to get access to the List itemsource even if it's on the DataContext
          */
-        public object getModelValue(string modelFieldName)
+        public model.DataContextValueResult getModelValue(string modelFieldName)
         {
+            model.DataContextValueResult result = new();
+            
             if (this.Model.HasKey(model.SpecialModelKeys.DataContext))
             {
                 var dataContext = this.Model[SpecialModelKeys.DataContext];
-                return getDataContextValue(dataContext, modelFieldName:  modelFieldName);
+                return getDataContextValue(dataContext as INotifyPropertyChanged, modelFieldName:  modelFieldName);
             }
-            else
-            {
-                if (this.Model.HasKey(modelFieldName))
-                {
-                    return this.Model[modelFieldName];
-                }
-                else
-                {
-                    throw new Exception($"Form Model does not contain [key={modelFieldName}]");
-                }
-            }
+
+            return getDataContextValue(this.Model, modelFieldName);
         }
 
 
         public void setModelValue(string modelFieldName, object val)
         {
+            INotifyPropertyChanged dataContext = this.Model;
+            
             if (this.Model.HasKey(model.SpecialModelKeys.DataContext))
             {
-                var dataContext = this.Model[SpecialModelKeys.DataContext];
-                setDataContextValue(dataContext, modelFieldName, val);
+                dataContext = this.Model[SpecialModelKeys.DataContext] as INotifyPropertyChanged;
             }
-            else
-            {
-                this.Model[modelFieldName] = val;
-            }
+            
+            setDataContextValue(dataContext, modelFieldName, val);
         }
 
 
         public void setModelIfNull(string modelFieldName, object val)
         {
-            if (this.Model.HasKey(model.SpecialModelKeys.DataContext))
-            {
-                var dataContext = this.Model[SpecialModelKeys.DataContext];
+            var result = getModelValue(modelFieldName);
 
-                object currentValue = getDataContextValue(dataContext, modelFieldName);
-                if (currentValue is null)
-                {
-                    setDataContextValue(dataContext, modelFieldName, val);
-                }
-            }
-            else
+            if (result.invalid)
             {
-                if (!this.Model.HasKey(modelFieldName) ||
-                    this.Model[modelFieldName] is null)
-                {
-                    this.Model[modelFieldName] = val;
-                }
+                log.Warn($"Trying to set model field: [{modelFieldName}] but it is invalid for DataContext");
+                return;
+            }
+            
+            if (result.Value is null)
+            {
+                setDataContextValue(result.DataContext, modelFieldName, val);
             }
         }
         

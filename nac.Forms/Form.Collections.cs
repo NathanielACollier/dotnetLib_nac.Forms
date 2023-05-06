@@ -42,7 +42,7 @@ namespace nac.Forms
                 });
             }
             
-            if( !(getModelValue(itemSourcePropertyName) is IEnumerable<T>))
+            if( !(getModelValue(itemSourcePropertyName)?.Value is IEnumerable<T>))
             {
                 throw new Exception($"Model items source property specified by name [{itemSourcePropertyName}] must be a IEnumerable<T>");
             }
@@ -79,7 +79,7 @@ namespace nac.Forms
             lib.styleUtil.style(this,dp,style);
             
             // Just as a safety check, make them init the model first
-            if( !(getModelValue(itemSourceModelName) is IEnumerable<T>))
+            if( !(getModelValue(itemSourceModelName)?.Value is IEnumerable<T>))
             {
                 throw new Exception($"Model {nameof(itemSourceModelName)} source property specified by name [{itemSourceModelName}] must be a IEnumerable<T>");
             }
@@ -186,7 +186,7 @@ namespace nac.Forms
             else if (!string.IsNullOrWhiteSpace(itemSourceModelName))
             {
                 // Just as a safety check, make them init the model first
-                if (!(getModelValue(itemSourceModelName) is IEnumerable<T>))
+                if (!(getModelValue(itemSourceModelName)?.Value is IEnumerable<T>))
                 {
                     throw new Exception($"Model {nameof(itemSourceModelName)} source property specified by name [{itemSourceModelName}] must be a IEnumerable<T>");
                 }
