@@ -9,6 +9,7 @@ public class DataContextValueResult
     public string FieldName;
     public bool invalid;
     public DataContextValueResult ParentContext { get; set; }
+    public string CurrentFieldName { get; set; }
 
     public DataContextValueResult()
     {

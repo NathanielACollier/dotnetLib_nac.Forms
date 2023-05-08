@@ -155,44 +155,49 @@ namespace nac.Forms
         {
             var bindingSource = getBindingSource();
             
-            notifyOnModelChange(bindingSource, modelFieldName, codeToRunOnModelChange);
-        }
-        
-
-        private delegate void CodeToRunOnModelChange(INotifyPropertyChanged bindingSource, object value);
-
-        private void notifyOnModelChange(INotifyPropertyChanged dataContext, string modelFieldName, CodeToRunOnModelChange codeToRunOnChange)
-        {
             var valueResult = getDataContextValue(parentContext:null,
-                datacontext: dataContext,
+                datacontext: bindingSource,
                 modelFieldName: modelFieldName);
 
             if (valueResult.ParentContext != null)
             {
-                // we have to watch for our property to be set
-                notifyOnModelChange(valueResult.ParentContext.DataContext, valueResult.FieldName, (context, val) =>
+                /*
+                 We need to mnitor for changes on every part of the parent tree
+                 */
+                var parentContext = valueResult.ParentContext;
+                do
                 {
-                    log.Info($"Field {valueResult.FieldName} just got set to: {val}.  What do we need to do here??");
-                });
+                    notifyOnModelChange(context: parentContext,
+                        codeToRunOnChange: (context, value) =>
+                        {
+                            log.Info($"Parent of root path [{modelFieldName}] with current path [{context.FieldName}] and current field [{context.CurrentFieldName}] has value change to: [{value}]");
+                        });
+
+                    parentContext = parentContext.ParentContext;
+                } while (parentContext != null);
             }
+            
+            notifyOnModelChange(context: valueResult,
+                codeToRunOnChange: codeToRunOnModelChange);
+        }
 
-            if (valueResult.invalid)
+        private delegate void CodeToRunOnModelChange(model.DataContextValueResult bindingSource, object value);
+
+        private void notifyOnModelChange( model.DataContextValueResult context , CodeToRunOnModelChange codeToRunOnChange)
+        {
+            log.Info($"AddBinding-Initial value [property: {context.FieldName}; value: {context.Value}]");
+            codeToRunOnChange(context, context.Value);
+
+            context.DataContext.PropertyChanged += (_s, args) =>
             {
-                log.Info($"Failed to setup notify model change on field: {modelFieldName}.  Binding is invalid");
-                return;
-            }
-
-            log.Info($"AddBinding-Initial value [property: {modelFieldName}; value: {valueResult.Value}]");
-            codeToRunOnChange(valueResult.DataContext, valueResult.Value);
-
-            valueResult.DataContext.PropertyChanged += (_s, args) =>
-            {
-                if (!string.Equals(valueResult.FieldName, args.PropertyName))
+                if (!string.Equals(context.CurrentFieldName, args.PropertyName))
                 {
                     return; // ignore this
                 }
                 
-                var changedValue = getDataContextValue(valueResult.DataContext, args.PropertyName);
+                var changedValue = getDataContextValue(parentContext:null,
+                    datacontext: context.DataContext,
+                    modelFieldName: args.PropertyName);
 
                 if (changedValue.invalid)
                 {
@@ -200,8 +205,8 @@ namespace nac.Forms
                     return;
                 }
                 
-                log.Debug($"AddBinding-Model Value Change [Field: {modelFieldName}; New Value: {changedValue.Value}]");
-                codeToRunOnChange(changedValue.DataContext, changedValue.Value);
+                log.Debug($"AddBinding-Model Value Change [Field: {context.FieldName}; New Value: {changedValue.Value}]");
+                codeToRunOnChange(changedValue, changedValue.Value);
             };
         }
         
@@ -212,6 +217,7 @@ namespace nac.Forms
             result.ParentContext = parentContext;
             result.DataContext = datacontext;
             result.FieldName = modelFieldName;
+            result.CurrentFieldName = modelFieldName;
             
             if (datacontext == null)
             {
@@ -221,6 +227,7 @@ namespace nac.Forms
             }
 
             var fieldPath = new model.ModelFieldNamePathInfo(modelFieldName);
+            result.CurrentFieldName = fieldPath.Current;
 
             if( datacontext is lib.BindableDynamicDictionary dynDict){
                 if (!dynDict.HasKey(fieldPath.Current))
@@ -229,7 +236,7 @@ namespace nac.Forms
                     log.Warn($"Field [{fieldPath.Current}] does not exist on DataContext object");
                     return result;
                 }
-
+                
                 result.Value = dynDict[fieldPath.Current];
                 if (fieldPath.ChildPath.Length > 0)
                 {
@@ -270,7 +277,7 @@ namespace nac.Forms
             return result;
         }
         
-        private void setDataContextValue(object dataContext, string modelFieldName,  object val)
+        private void setDataContextValue(INotifyPropertyChanged dataContext, string modelFieldName,  object val)
         {
 
             var fieldPath = new model.ModelFieldNamePathInfo(modelFieldName);
@@ -285,7 +292,7 @@ namespace nac.Forms
                         throw new Exception($"Field [{fieldPath.Current}] does not exist on DataContext object");
                     }
 
-                    var currentPathVal = dyncDict[fieldPath.Current];
+                    var currentPathVal = dyncDict[fieldPath.Current] as INotifyPropertyChanged;
                     setDataContextValue(currentPathVal, fieldPath.ChildPath, val); 
                 }
                 else
@@ -298,7 +305,7 @@ namespace nac.Forms
                             $"Field [{fieldPath.Current}] does not exist on DataContext object of [type: {dcType.Name}]");
                     }
 
-                    var currentPathVal = prop.GetValue(dataContext);
+                    var currentPathVal = prop.GetValue(dataContext) as INotifyPropertyChanged;
                     setDataContextValue(currentPathVal, fieldPath.ChildPath, val);
                 }
             }
@@ -328,28 +335,19 @@ namespace nac.Forms
          */
         public model.DataContextValueResult getModelValue(string modelFieldName)
         {
-            model.DataContextValueResult result = new();
-            
-            if (this.Model.HasKey(model.SpecialModelKeys.DataContext))
-            {
-                var dataContext = this.Model[SpecialModelKeys.DataContext];
-                return getDataContextValue(dataContext as INotifyPropertyChanged, modelFieldName:  modelFieldName);
-            }
+            var datacontext = getBindingSource();
 
-            return getDataContextValue(this.Model, modelFieldName);
+            return getDataContextValue(parentContext: null,
+                datacontext: datacontext,
+                modelFieldName: modelFieldName);
         }
 
 
         public void setModelValue(string modelFieldName, object val)
         {
-            INotifyPropertyChanged dataContext = this.Model;
+            var datacontext = getBindingSource();
             
-            if (this.Model.HasKey(model.SpecialModelKeys.DataContext))
-            {
-                dataContext = this.Model[SpecialModelKeys.DataContext] as INotifyPropertyChanged;
-            }
-            
-            setDataContextValue(dataContext, modelFieldName, val);
+            setDataContextValue(datacontext, modelFieldName, val);
         }
 
 
