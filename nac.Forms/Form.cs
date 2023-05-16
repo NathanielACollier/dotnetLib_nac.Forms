@@ -159,26 +159,34 @@ namespace nac.Forms
                 datacontext: bindingSource,
                 modelFieldName: modelFieldName);
 
-            if (valueResult.ParentContext != null)
-            {
-                /*
-                 We need to mnitor for changes on every part of the parent tree
-                 */
-                var parentContext = valueResult.ParentContext;
-                do
-                {
-                    notifyOnModelChange(context: parentContext,
-                        codeToRunOnChange: (context, value) =>
-                        {
-                            log.Info($"Parent of root path [{modelFieldName}] with current path [{context.FieldName}] and current field [{context.CurrentFieldName}] has value change to: [{value}]");
-                        });
-
-                    parentContext = parentContext.ParentContext;
-                } while (parentContext != null);
-            }
+            WatchPathForModelChanges(modelFieldName, valueResult);
             
             notifyOnModelChange(context: valueResult,
                 codeToRunOnChange: codeToRunOnModelChange);
+        }
+
+        private void WatchPathForModelChanges(string modelFieldName, DataContextValueResult valueResult)
+        {
+            if (valueResult.ParentContext == null)
+            {
+                return; // no path if parent is null
+            }
+            
+            /*
+             We need to mnitor for changes on every part of the parent tree
+             */
+            var parentContext = valueResult.ParentContext;
+            do
+            {
+                notifyOnModelChange(context: parentContext,
+                    codeToRunOnChange: (context, value) =>
+                    {
+                        log.Info(
+                            $"Parent of root path [{modelFieldName}] with current path [{context.FieldName}] and current field [{context.CurrentFieldName}] has value change to: [{value}]");
+                    });
+
+                parentContext = parentContext.ParentContext;
+            } while (parentContext != null);
         }
 
         private delegate void CodeToRunOnModelChange(model.DataContextValueResult bindingSource, object value);
