@@ -72,7 +72,7 @@ public partial class Form
             codeToRunOnChange: (context, value) =>
             {
                 log.Info(
-                    $"WatchPath - Parent of root path [{modelFieldName}] with target path [{context.TargetBindingPath}] and current field [{context.CurrentFieldName}] has value change to: [{value}]");
+                    $"WatchPath - Parent of root path [{modelFieldName}] with target path [{context.RelativeBindingPath}] and current field [{context.CurrentFieldName}] has value change to: [{value}]");
 
                 var childContext = getDataContextValue(parentContext: null,
                     datacontext: value as INotifyPropertyChanged,
@@ -85,7 +85,7 @@ public partial class Form
 
     private void notifyOnModelChange(model.DataContextValueResult context, CodeToRunOnModelChange codeToRunOnChange)
     {
-        log.Info($"AddBinding-Initial value [property: {context.TargetBindingPath}; value: {context.Value}]");
+        log.Info($"AddBinding-Initial value [property: {context.RelativeBindingPath}; value: {context.Value}]");
         codeToRunOnChange(context, context.Value);
 
         context.DataContext.PropertyChanged += (_s, args) =>
@@ -106,10 +106,9 @@ public partial class Form
             }
             
             // save the path that we are trying to get to, this is for properties that change in a path we want to be able to keep monitoring for sub properties
-            changedValue.TargetBindingPath = context.TargetBindingPath;
             changedValue.RelativeBindingPath = context.RelativeBindingPath;
 
-            log.Debug($"AddBinding-Model Value Change [Field: {context.TargetBindingPath}; New Value: {changedValue.Value}]");
+            log.Debug($"AddBinding-Model Value Change [Field: {context.RelativeBindingPath}; FieldName: {context.CurrentFieldName}; New Value: {changedValue.Value}]");
             codeToRunOnChange(changedValue, changedValue.Value);
         };
     }
@@ -121,8 +120,10 @@ public partial class Form
         DataContextValueResult result = new();
         result.ParentContext = parentContext;
         result.DataContext = datacontext;
-        result.TargetBindingPath = modelFieldName;
-        result.CurrentFieldName = modelFieldName;
+
+        var fieldPath = new model.ModelFieldNamePathInfo(modelFieldName);
+        result.CurrentFieldName = fieldPath.Current;
+        result.RelativeBindingPath = fieldPath.ChildPath;
 
         if (datacontext == null)
         {
@@ -131,10 +132,6 @@ public partial class Form
                 $"Error accessing [field: {modelFieldName}]. DataContext is null, or is not INotifyPropertyChanged");
             return result;
         }
-
-        var fieldPath = new model.ModelFieldNamePathInfo(modelFieldName);
-        result.CurrentFieldName = fieldPath.Current;
-        result.RelativeBindingPath = fieldPath.ChildPath;
 
         if (datacontext is lib.BindableDynamicDictionary dynDict)
         {

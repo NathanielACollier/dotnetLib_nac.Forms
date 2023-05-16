@@ -6,7 +6,6 @@ public class DataContextValueResult
 {
     public INotifyPropertyChanged DataContext;
     public object Value;
-    public string TargetBindingPath;
     public bool invalid;
     public DataContextValueResult ParentContext { get; set; }
     public string CurrentFieldName { get; set; }
