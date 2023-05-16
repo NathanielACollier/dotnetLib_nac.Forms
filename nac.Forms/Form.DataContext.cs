@@ -77,7 +77,7 @@ public partial class Form
                 var childContext = getDataContextValue(parentContext: null,
                     datacontext: value as INotifyPropertyChanged,
                     modelFieldName: context.RelativeBindingPath);
-                WatchPathForModelChanges(childContext.TargetBindingPath, childContext, codeToRunOnModelChange);
+                WatchPathForModelChanges(context.RelativeBindingPath, childContext, codeToRunOnModelChange);
             });
     }
 
@@ -104,6 +104,10 @@ public partial class Form
                 log.Warn($"PropertyChanged: Field: [{args.PropertyName}] is not valid for datacontext");
                 return;
             }
+            
+            // save the path that we are trying to get to, this is for properties that change in a path we want to be able to keep monitoring for sub properties
+            changedValue.TargetBindingPath = context.TargetBindingPath;
+            changedValue.RelativeBindingPath = context.RelativeBindingPath;
 
             log.Debug($"AddBinding-Model Value Change [Field: {context.TargetBindingPath}; New Value: {changedValue.Value}]");
             codeToRunOnChange(changedValue, changedValue.Value);
