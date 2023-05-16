@@ -140,6 +140,7 @@ namespace nac.Forms
         public Form Autocomplete<T>(
             string selectedItemModelName,
             string itemSourceModelName = null,
+            string selectedTextModelName = null,
             Action<T> onSelectionChanged = null,
             Action<Form> populateItemRow = null,
             model.Style style = null,
@@ -225,6 +226,14 @@ namespace nac.Forms
 
                     return rowForm.Host;
                 });
+            }
+
+            if (!string.IsNullOrWhiteSpace(selectedTextModelName))
+            {
+                AddBinding<string>(modelFieldName: selectedTextModelName,
+                    control: tb,
+                    property: Avalonia.Controls.AutoCompleteBox.TextProperty,
+                    isTwoWayDataBinding:true);
             }
 
             tb.SelectionChanged += (_s, _args) =>
