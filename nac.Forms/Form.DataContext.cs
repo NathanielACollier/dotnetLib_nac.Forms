@@ -46,41 +46,46 @@ public partial class Form
             datacontext: bindingSource,
             modelFieldName: modelFieldName);
 
-        WatchPathForModelChanges(modelFieldName, valueResult);
-
-        notifyOnModelChange(context: valueResult,
-            codeToRunOnChange: codeToRunOnModelChange);
+        WatchPathForModelChanges(modelFieldName, valueResult, codeToRunOnModelChange);
     }
 
-    private void WatchPathForModelChanges(string modelFieldName, DataContextValueResult valueResult)
+    private void WatchPathForModelChanges(string modelFieldName, 
+                                    DataContextValueResult valueResult,
+                                    CodeToRunOnModelChange codeToRunOnModelChange)
     {
         if (valueResult.ParentContext == null)
         {
-            return; // no path if parent is null
+            log.Info($"WatchPath - {valueResult.CurrentFieldName} - new value: {valueResult.Value}");
+            notifyOnModelChange(context: valueResult,
+                codeToRunOnChange: codeToRunOnModelChange);
+            return; // get out
         }
 
+        // there was a parent context so it has to be watched for model changes
+        
         /*
          We need to mnitor for changes on every part of the parent tree
          */
         var parentContext = valueResult.ParentContext;
-        do
-        {
-            notifyOnModelChange(context: parentContext,
-                codeToRunOnChange: (context, value) =>
-                {
-                    log.Info(
-                        $"Parent of root path [{modelFieldName}] with current path [{context.FieldName}] and current field [{context.CurrentFieldName}] has value change to: [{value}]");
-                });
+        
+        notifyOnModelChange(context: parentContext,
+            codeToRunOnChange: (context, value) =>
+            {
+                log.Info(
+                    $"WatchPath - Parent of root path [{modelFieldName}] with target path [{context.TargetBindingPath}] and current field [{context.CurrentFieldName}] has value change to: [{value}]");
 
-            parentContext = parentContext.ParentContext;
-        } while (parentContext != null);
+                var childContext = getDataContextValue(parentContext: null,
+                    datacontext: value as INotifyPropertyChanged,
+                    modelFieldName: context.RelativeBindingPath);
+                WatchPathForModelChanges(childContext.TargetBindingPath, childContext, codeToRunOnModelChange);
+            });
     }
 
     private delegate void CodeToRunOnModelChange(model.DataContextValueResult bindingSource, object value);
 
     private void notifyOnModelChange(model.DataContextValueResult context, CodeToRunOnModelChange codeToRunOnChange)
     {
-        log.Info($"AddBinding-Initial value [property: {context.FieldName}; value: {context.Value}]");
+        log.Info($"AddBinding-Initial value [property: {context.TargetBindingPath}; value: {context.Value}]");
         codeToRunOnChange(context, context.Value);
 
         context.DataContext.PropertyChanged += (_s, args) =>
@@ -100,7 +105,7 @@ public partial class Form
                 return;
             }
 
-            log.Debug($"AddBinding-Model Value Change [Field: {context.FieldName}; New Value: {changedValue.Value}]");
+            log.Debug($"AddBinding-Model Value Change [Field: {context.TargetBindingPath}; New Value: {changedValue.Value}]");
             codeToRunOnChange(changedValue, changedValue.Value);
         };
     }
@@ -112,7 +117,7 @@ public partial class Form
         DataContextValueResult result = new();
         result.ParentContext = parentContext;
         result.DataContext = datacontext;
-        result.FieldName = modelFieldName;
+        result.TargetBindingPath = modelFieldName;
         result.CurrentFieldName = modelFieldName;
 
         if (datacontext == null)
@@ -125,6 +130,7 @@ public partial class Form
 
         var fieldPath = new model.ModelFieldNamePathInfo(modelFieldName);
         result.CurrentFieldName = fieldPath.Current;
+        result.RelativeBindingPath = fieldPath.ChildPath;
 
         if (datacontext is lib.BindableDynamicDictionary dynDict)
         {
