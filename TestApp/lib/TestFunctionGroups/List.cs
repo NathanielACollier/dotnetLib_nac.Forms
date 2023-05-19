@@ -83,7 +83,7 @@ public class List
                     .Button("Add Item", async () =>
                     {
                         newItem = new nac.Forms.lib.BindableDynamicDictionary();
-                        newItem["Prop1"] = (child.Model["NewItem"] as nac.Forms.lib.BindableDynamicDictionary)["Prop1"] as string;
+                        newItem["Prop1"] = child.Model.GetAsDict("NewItem")["Prop1"] as string;
                         items.Add(newItem);
                     });
             });

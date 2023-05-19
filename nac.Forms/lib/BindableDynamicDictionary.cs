@@ -149,5 +149,11 @@ namespace nac.Forms.lib
 
             return this.GetDynamicMemberNames().Contains(key);
         }
+
+
+        public BindableDynamicDictionary GetAsDict(string key)
+        {
+            return this[key] as BindableDynamicDictionary;
+        }
     }
 }
