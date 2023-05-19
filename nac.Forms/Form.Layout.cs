@@ -218,7 +218,7 @@ namespace nac.Forms
              */
             var panelControl = new Avalonia.Controls.ContentControl();
 
-            if (!(getModelValue(modelFieldName) is T))
+            if (!(getModelValue(modelFieldName)?.Value is T))
             {
                 throw new Exception(
                     $"Model {nameof(modelFieldName)} source property specified by name [{modelFieldName}] is not of type T: {typeof(T).Name}");

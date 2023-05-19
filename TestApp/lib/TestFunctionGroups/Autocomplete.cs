@@ -61,22 +61,31 @@ public class Autocomplete
             new model.Alphabet {A = "Clark Kent", B = "Metropollis"}
         };
 
+        f.Model["i"] = new model.Alphabet();
+
         f.Autocomplete<model.Alphabet>(selectedItemModelName: "i",
-            populateItemsOnTextChange: async (text) =>
-            {
-                return dataList.Where(row => row.A.Contains(text, StringComparison.OrdinalIgnoreCase) ||
-                                             row.B.Contains(text, StringComparison.OrdinalIgnoreCase)
-                );
-            },
-            populateItemRow: r =>
-            {
-                r.HorizontalGroup(hg => hg.Text("Name: ", style: new Style{foregroundColor = Colors.Blue}).TextFor("A")
-                    .Text("  City: ", style: new Style{foregroundColor = Colors.Blue}).TextFor("B"));
-            })
+                selectedTextModelName: "i.B",
+                populateItemsOnTextChange: async (text) =>
+                {
+                    return dataList.Where(row => row.A.Contains(text, StringComparison.OrdinalIgnoreCase) ||
+                                                 row.B.Contains(text, StringComparison.OrdinalIgnoreCase)
+                    );
+                },
+                populateItemRow: r =>
+                {
+                    r.HorizontalGroup(hg => hg.Text("Name: ", style: new Style { foregroundColor = Colors.Blue })
+                        .TextFor("A")
+                        .Text("  City: ", style: new Style { foregroundColor = Colors.Blue }).TextFor("B"));
+                })
             .HorizontalGroup(h =>
             {
                 h.Text("Selected: ")
                     .TextFor("i.A");
+            })
+            .HorizontalGroup(h =>
+            {
+                h.Text("i.B: ")
+                    .TextBoxFor("i.B");
             });
     }
     

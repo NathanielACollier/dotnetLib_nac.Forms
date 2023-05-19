@@ -42,7 +42,7 @@ namespace nac.Forms
                 });
             }
             
-            if( !(getModelValue(itemSourcePropertyName) is IEnumerable<T>))
+            if( !(getModelValue(itemSourcePropertyName)?.Value is IEnumerable<T>))
             {
                 throw new Exception($"Model items source property specified by name [{itemSourcePropertyName}] must be a IEnumerable<T>");
             }
@@ -79,7 +79,7 @@ namespace nac.Forms
             lib.styleUtil.style(this,dp,style);
             
             // Just as a safety check, make them init the model first
-            if( !(getModelValue(itemSourceModelName) is IEnumerable<T>))
+            if( !(getModelValue(itemSourceModelName)?.Value is IEnumerable<T>))
             {
                 throw new Exception($"Model {nameof(itemSourceModelName)} source property specified by name [{itemSourceModelName}] must be a IEnumerable<T>");
             }
@@ -140,6 +140,7 @@ namespace nac.Forms
         public Form Autocomplete<T>(
             string selectedItemModelName,
             string itemSourceModelName = null,
+            string selectedTextModelName = null,
             Action<T> onSelectionChanged = null,
             Action<Form> populateItemRow = null,
             model.Style style = null,
@@ -186,7 +187,7 @@ namespace nac.Forms
             else if (!string.IsNullOrWhiteSpace(itemSourceModelName))
             {
                 // Just as a safety check, make them init the model first
-                if (!(getModelValue(itemSourceModelName) is IEnumerable<T>))
+                if (!(getModelValue(itemSourceModelName)?.Value is IEnumerable<T>))
                 {
                     throw new Exception($"Model {nameof(itemSourceModelName)} source property specified by name [{itemSourceModelName}] must be a IEnumerable<T>");
                 }
@@ -225,6 +226,14 @@ namespace nac.Forms
 
                     return rowForm.Host;
                 });
+            }
+
+            if (!string.IsNullOrWhiteSpace(selectedTextModelName))
+            {
+                AddBinding<string>(modelFieldName: selectedTextModelName,
+                    control: tb,
+                    property: Avalonia.Controls.AutoCompleteBox.TextProperty,
+                    isTwoWayDataBinding:true);
             }
 
             tb.SelectionChanged += (_s, _args) =>

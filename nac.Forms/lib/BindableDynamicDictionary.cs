@@ -34,6 +34,22 @@ namespace nac.Forms.lib
             _dictionary = new Dictionary<string, object>(source);
         }
 
+        public static BindableDynamicDictionary From<T>(T obj)
+        {
+            var dict = (from property in typeof(T).GetProperties()
+                        let value = property.GetValue(obj, null)
+                        select new
+                        {
+                            Name = property.Name,
+                            Value = value
+                        }).ToDictionary(entry => entry.Name, entry => entry.Value);
+
+            var bindDict = new BindableDynamicDictionary(dict);
+            return bindDict;
+        }
+
+
+
         public T GetOrDefault<T>(string key, T defaultValue)
         {
             if(HasKey(key) && this[key] != null)
@@ -132,6 +148,12 @@ namespace nac.Forms.lib
             }
 
             return this.GetDynamicMemberNames().Contains(key);
+        }
+
+
+        public BindableDynamicDictionary GetAsDict(string key)
+        {
+            return this[key] as BindableDynamicDictionary;
         }
     }
 }
