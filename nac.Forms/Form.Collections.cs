@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using nac.Forms.model;
@@ -40,7 +42,7 @@ namespace nac.Forms
                 });
             }
             
-            if( !(getModelValue(itemSourcePropertyName) is IEnumerable<T>))
+            if( !(getModelValue(itemSourcePropertyName)?.Value is IEnumerable<T>))
             {
                 throw new Exception($"Model items source property specified by name [{itemSourcePropertyName}] must be a IEnumerable<T>");
             }
@@ -77,7 +79,7 @@ namespace nac.Forms
             lib.styleUtil.style(this,dp,style);
             
             // Just as a safety check, make them init the model first
-            if( !(getModelValue(itemSourceModelName) is IEnumerable<T>))
+            if( !(getModelValue(itemSourceModelName)?.Value is IEnumerable<T>))
             {
                 throw new Exception($"Model {nameof(itemSourceModelName)} source property specified by name [{itemSourceModelName}] must be a IEnumerable<T>");
             }
@@ -131,6 +133,121 @@ namespace nac.Forms
             
             AddRowToHost(dp);
             return this;
+        }
+
+
+
+        public Form Autocomplete<T>(
+            string selectedItemModelName,
+            string itemSourceModelName = null,
+            string selectedTextModelName = null,
+            Action<T> onSelectionChanged = null,
+            Action<Form> populateItemRow = null,
+            model.Style style = null,
+            Func<string, Task<IEnumerable<T>>> populateItemsOnTextChange = null)
+        {
+            var tb = new Avalonia.Controls.AutoCompleteBox();
+            lib.styleUtil.style(this, tb, style);
+                        
+            // check to make sure they aren't trying to item source bind, and use a populator function
+            if (populateItemsOnTextChange != null &&
+                !string.IsNullOrWhiteSpace(itemSourceModelName))
+            {
+                throw new Exception("You cannot use an Item Source, and a populatoItems function");
+            }
+
+            if (populateItemsOnTextChange == null &&
+                string.IsNullOrWhiteSpace(itemSourceModelName))
+            {
+                throw new Exception(
+                    "You must either use an Item Source or use a populateItems function.  Neither where set");
+            }
+
+            if (populateItemsOnTextChange != null)
+            {
+                tb.FilterMode = AutoCompleteFilterMode.None; // this is important! it will make it show all options
+                // setup the populate items
+                tb.AsyncPopulator = new Func<string, CancellationToken, Task<IEnumerable<object>>>(
+                    async (textboxValue, cancelToken) =>
+                    {
+                        IEnumerable<object> results = null;
+                        try
+                        {
+                            var items = await populateItemsOnTextChange(textboxValue);
+                            results = items.Select(i => (object) i);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error($"[Autocomplete] Failure in populating async items.  Exception: {ex}");
+                        }
+
+                        return results;
+                    });
+            }
+            else if (!string.IsNullOrWhiteSpace(itemSourceModelName))
+            {
+                // Just as a safety check, make them init the model first
+                if (!(getModelValue(itemSourceModelName)?.Value is IEnumerable<T>))
+                {
+                    throw new Exception($"Model {nameof(itemSourceModelName)} source property specified by name [{itemSourceModelName}] must be a IEnumerable<T>");
+                }
+
+                // item source binding
+                AddBinding<IEnumerable>(modelFieldName: itemSourceModelName,
+                    control: tb,
+                    property: Avalonia.Controls.AutoCompleteBox.ItemsProperty,
+                    isTwoWayDataBinding:false);
+            }
+
+            // selected item binding
+            AddBinding<object>(modelFieldName: selectedItemModelName,
+                control: tb,
+                property: Avalonia.Controls.AutoCompleteBox.SelectedItemProperty,
+                isTwoWayDataBinding:true);
+            
+            if (populateItemRow != null)
+            {
+                tb.ItemTemplate = new FuncDataTemplate<object>((itemModel, nameScope) =>
+                {
+                    if (itemModel == null)
+                    {
+                        // how could itemModel be null?  Sometimes it is though, so strange
+                        var tb = new Avalonia.Controls.TextBlock();
+                        tb.Text = "(null)";
+                        return tb;
+                    }
+                    
+                    var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
+                    // this has to have a unique model
+                    rowForm.DataContext = itemModel;
+                    populateItemRow(rowForm);
+
+                    rowForm.Host.DataContext = itemModel;
+
+                    return rowForm.Host;
+                });
+            }
+
+            if (!string.IsNullOrWhiteSpace(selectedTextModelName))
+            {
+                AddBinding<string>(modelFieldName: selectedTextModelName,
+                    control: tb,
+                    property: Avalonia.Controls.AutoCompleteBox.TextProperty,
+                    isTwoWayDataBinding:true);
+            }
+
+            tb.SelectionChanged += (_s, _args) =>
+            {
+                if (_args.AddedItems.OfType<T>().Any())
+                {
+                    var first = _args.AddedItems.Cast<T>().First();
+                    onSelectionChanged?.Invoke(first);
+                }
+            };
+            
+            AddRowToHost(tb);
+            return this;
+            
         }
 
 

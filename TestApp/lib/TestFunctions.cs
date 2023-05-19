@@ -25,6 +25,7 @@ public static class TestFunctions
         var functionClasses = new Type[]
         {
             typeof(TestFunctionGroups.AGroup),
+            typeof(TestFunctionGroups.Autocomplete),
             typeof(TestFunctionGroups.Button),
             typeof(TestFunctionGroups.TreeView),
             typeof(TestFunctionGroups.Image),

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -72,14 +73,17 @@ public class List
             .HorizontalGroup((hgChild) =>
             {
                 // default some stuff
-                child.Model["NewItem.Prop1"] = "Frog Prince";
+                child.Model["NewItem"] = nac.Forms.lib.BindableDynamicDictionary.From(new
+                {
+                    Prop1 = "Frog Prince"
+                });
 
                 hgChild.Text("Prop1: ")
                     .TextBoxFor("NewItem.Prop1")
                     .Button("Add Item", async () =>
                     {
                         newItem = new nac.Forms.lib.BindableDynamicDictionary();
-                        newItem["Prop1"] = child.Model["NewItem.Prop1"] as string;
+                        newItem["Prop1"] = child.Model.GetAsDict("NewItem")["Prop1"] as string;
                         items.Add(newItem);
                     });
             });
