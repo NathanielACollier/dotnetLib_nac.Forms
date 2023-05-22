@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -204,7 +205,20 @@ namespace nac.Forms
                 control: tb,
                 property: Avalonia.Controls.AutoCompleteBox.SelectedItemProperty,
                 isTwoWayDataBinding:true);
-            
+
+            if (!string.IsNullOrWhiteSpace(selectedTextModelName))
+            {
+                /*
+                 See the pull request where this was implemented: https://github.com/AvaloniaUI/Avalonia/pull/4685
+                 */
+                tb.ItemSelector = (text, item) =>
+                {
+                    var currentValue = getDataContextValue(null, item as INotifyPropertyChanged, selectedTextModelName);
+
+                    return currentValue.Value as string;
+                };
+            }
+
             if (populateItemRow != null)
             {
                 tb.ItemTemplate = new FuncDataTemplate<object>((itemModel, nameScope) =>
@@ -228,13 +242,7 @@ namespace nac.Forms
                 });
             }
 
-            if (!string.IsNullOrWhiteSpace(selectedTextModelName))
-            {
-                AddBinding<string>(modelFieldName: selectedTextModelName,
-                    control: tb,
-                    property: Avalonia.Controls.AutoCompleteBox.TextProperty,
-                    isTwoWayDataBinding:true);
-            }
+
 
             tb.SelectionChanged += (_s, _args) =>
             {

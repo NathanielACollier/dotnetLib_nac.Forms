@@ -64,7 +64,7 @@ public class Autocomplete
         f.Model["i"] = new model.Alphabet();
 
         f.Autocomplete<model.Alphabet>(selectedItemModelName: "i",
-                selectedTextModelName: "i.B",
+                selectedTextModelName: "B",
                 populateItemsOnTextChange: async (text) =>
                 {
                     return dataList.Where(row => row.A.Contains(text, StringComparison.OrdinalIgnoreCase) ||
