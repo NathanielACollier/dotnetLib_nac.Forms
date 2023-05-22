@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -163,6 +164,25 @@ namespace nac.Forms
                     "You must either use an Item Source or use a populateItems function.  Neither where set");
             }
 
+
+            /*
+             Make sure the ItemSelector function gets set near the very begining, and at least before setting the SelectedItem binding
+              + This is so that the initial value of the selecteditem can be translated to text
+             */
+            if (!string.IsNullOrWhiteSpace(selectedTextModelName))
+            {
+                /*
+                 See the pull request where this was implemented: https://github.com/AvaloniaUI/Avalonia/pull/4685
+                 */
+                tb.ItemSelector = (text, item) =>
+                {
+                    var currentValue = getDataContextValue(null, item as INotifyPropertyChanged, selectedTextModelName);
+
+                    return currentValue.Value as string;
+                };
+
+            }
+
             if (populateItemsOnTextChange != null)
             {
                 tb.FilterMode = AutoCompleteFilterMode.None; // this is important! it will make it show all options
@@ -204,7 +224,7 @@ namespace nac.Forms
                 control: tb,
                 property: Avalonia.Controls.AutoCompleteBox.SelectedItemProperty,
                 isTwoWayDataBinding:true);
-            
+
             if (populateItemRow != null)
             {
                 tb.ItemTemplate = new FuncDataTemplate<object>((itemModel, nameScope) =>
@@ -228,13 +248,7 @@ namespace nac.Forms
                 });
             }
 
-            if (!string.IsNullOrWhiteSpace(selectedTextModelName))
-            {
-                AddBinding<string>(modelFieldName: selectedTextModelName,
-                    control: tb,
-                    property: Avalonia.Controls.AutoCompleteBox.TextProperty,
-                    isTwoWayDataBinding:true);
-            }
+
 
             tb.SelectionChanged += (_s, _args) =>
             {
