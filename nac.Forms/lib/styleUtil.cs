@@ -130,7 +130,10 @@ namespace nac.Forms.lib
         
         public static Style fromCSS(string cssText)
         {
-        
+            var style = new Style();
+            // process the css, and convert it into Style properties somewhere
+
+            return style;
         }
         
     }

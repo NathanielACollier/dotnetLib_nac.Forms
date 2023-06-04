@@ -32,7 +32,10 @@ namespace nac.Forms
                 // wrapPanel will cause content to be displayed side by side
                 itemsCtrl.ItemsPanel = new ItemsPanelTemplate
                 {
-                    Content = new WrapPanel()
+                    Content = new WrapPanel
+                    {
+                        MaxWidth = 100
+                    }
                 };    
             }
             

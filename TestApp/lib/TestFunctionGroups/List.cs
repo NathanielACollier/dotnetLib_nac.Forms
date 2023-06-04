@@ -181,7 +181,7 @@ public class List
         {
             row.Button(btn => btn.TextFor("Text"), onClick: async () =>
             {
-                
+                f.Model["current"] = (row.DataContext as BindableDynamicDictionary)["Text"];
             });
         });
     }
