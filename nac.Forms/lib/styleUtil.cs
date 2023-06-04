@@ -128,5 +128,10 @@ namespace nac.Forms.lib
         }
         
         
+        public static Style fromCSS(string cssText)
+        {
+        
+        }
+        
     }
 }

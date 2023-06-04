@@ -26,11 +26,6 @@ public class Style
 
     public static implicit operator Style(string cssText)
     {
-        return fromCSS(cssText);
-    }
-
-    public static Style fromCSS(string cssText)
-    {
-        
+        return lib.styleUtil.fromCSS(cssText);
     }
 }
