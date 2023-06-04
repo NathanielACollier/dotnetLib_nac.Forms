@@ -23,4 +23,14 @@ public class Style
     public Action<Form> Tooltip { get; set; }
     public model.Optional<string> TooltipText { get; set; } = new Optional<string>();
 
+
+    public static implicit operator Style(string cssText)
+    {
+        return fromCSS(cssText);
+    }
+
+    public static Style fromCSS(string cssText)
+    {
+        
+    }
 }
