@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using Avalonia.Markup.Xaml.Templates;
 using nac.Forms.model;
 
 namespace nac.Forms
@@ -17,15 +18,24 @@ namespace nac.Forms
         public Form List<T>(string itemSourcePropertyName, 
                         Action<Form> populateItemRow=null,
                         Style style=null,
-                        Action<IEnumerable<T>> onSelectionChanged = null)
+                        Action<IEnumerable<T>> onSelectionChanged = null,
+                        bool wrapContent = false)
         {
             var itemsCtrl = new ListBox();
             lib.styleUtil.style(this, itemsCtrl, style);
             
             // allow multiple selections
             itemsCtrl.SelectionMode = SelectionMode.Multiple;
-            
 
+            if (wrapContent)
+            {
+                // wrapPanel will cause content to be displayed side by side
+                itemsCtrl.ItemsPanel = new ItemsPanelTemplate
+                {
+                    Content = new WrapPanel()
+                };    
+            }
+            
             // if T is string, or they just want to use ToString of T as the entry in the list, then they don't need an item template
             if (populateItemRow != null)
             {
