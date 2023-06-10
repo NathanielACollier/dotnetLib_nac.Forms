@@ -28,7 +28,9 @@ namespace nac.Forms
                 // There does not appear to be any other way to create a ListBox and set it's ItemsPanel to WrapPanel.  Can't figure out anyway to do it in code
                 itemsCtrl = Avalonia.Markup.Xaml.AvaloniaRuntimeXamlLoader.Parse<ListBox>(@"
                     <ListBox xmlns=""https://github.com/avaloniaui""
-                            xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"">
+                            xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
+                            ScrollViewer.HorizontalScrollBarVisibility=""Disabled""
+                            >
 	                    <ListBox.ItemsPanel>
 		                    <ItemsPanelTemplate>
 			                    <WrapPanel />
