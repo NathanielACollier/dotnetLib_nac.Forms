@@ -22,22 +22,29 @@ namespace nac.Forms
                         bool wrapContent = false)
         {
             var itemsCtrl = new ListBox();
+
+            if (wrapContent)
+            {
+                // There does not appear to be any other way to create a ListBox and set it's ItemsPanel to WrapPanel.  Can't figure out anyway to do it in code
+                itemsCtrl = Avalonia.Markup.Xaml.AvaloniaRuntimeXamlLoader.Parse<ListBox>(@"
+                    <ListBox xmlns=""https://github.com/avaloniaui""
+                            xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"">
+	                    <ListBox.ItemsPanel>
+		                    <ItemsPanelTemplate>
+			                    <WrapPanel />
+		                    </ItemsPanelTemplate>
+	                    </ListBox.ItemsPanel>
+                    </ListBox>
+                ", localAssembly: System.Reflection.Assembly.GetAssembly(typeof(Form)));
+            }
+
+
             lib.styleUtil.style(this, itemsCtrl, style);
             
             // allow multiple selections
             itemsCtrl.SelectionMode = SelectionMode.Multiple;
 
-            if (wrapContent)
-            {
-                // wrapPanel will cause content to be displayed side by side
-                itemsCtrl.ItemsPanel = new ItemsPanelTemplate
-                {
-                    Content = new WrapPanel
-                    {
-                        Orientation = Avalonia.Layout.Orientation.Horizontal
-                    }
-                };
-            }
+
             
             // if T is string, or they just want to use ToString of T as the entry in the list, then they don't need an item template
             if (populateItemRow != null)
