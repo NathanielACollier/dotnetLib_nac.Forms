@@ -133,6 +133,14 @@ namespace nac.Forms.lib
             var style = new Style();
             // process the css, and convert it into Style properties somewhere
 
+            var cssStyle = nac.CSSParsing.StyleParsingHelper.ParseSingleCSSRule(cssText);
+
+            // go through all the rules css supports
+            if(cssStyle.fontColor.IsSet)
+            {
+                style.foregroundColor = Avalonia.Media.Color.Parse(cssStyle.fontColor.Value);
+            }
+
             return style;
         }
         
