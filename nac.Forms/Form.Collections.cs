@@ -34,9 +34,9 @@ namespace nac.Forms
                 {
                     Content = new WrapPanel
                     {
-                        MaxWidth = 100
+                        Orientation = Avalonia.Layout.Orientation.Horizontal
                     }
-                };    
+                };
             }
             
             // if T is string, or they just want to use ToString of T as the entry in the list, then they don't need an item template

@@ -183,7 +183,7 @@ public class List
             {
                 f.Model["current"] = (row.DataContext as BindableDynamicDictionary)["Text"];
             });
-        });
+        }, wrapContent: true);
     }
     
     
