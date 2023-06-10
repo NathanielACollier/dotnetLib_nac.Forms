@@ -22,5 +22,13 @@ namespace nac.Forms.lib
 
             return false;
         }
+
+        internal static string writeXAMLNS()
+        {
+            return @"
+                xmlns=""https://github.com/avaloniaui""
+                xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
+            ";
+        }
     }
 }

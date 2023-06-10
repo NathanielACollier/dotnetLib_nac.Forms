@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using nac.Forms;
+using nac.Forms.lib;
 using nac.Forms.model;
 using TestApp.model;
 
@@ -146,8 +147,44 @@ public class List
                 });
             });
     }
-    
-    
+
+
+
+    private static void WrapPanel(Form f)
+    {
+        var items = new ObservableCollection<BindableDynamicDictionary>
+        {
+            BindableDynamicDictionary.From(new
+            {
+                Text = "Alpha"
+            }),
+            BindableDynamicDictionary.From(new
+            {
+                Text = "Bravo"
+            }),
+            BindableDynamicDictionary.From(new
+            {
+                Text = "Charlie"
+            }),
+            BindableDynamicDictionary.From(new
+            {
+                Text = "Delta"
+            })
+        };
+        f.Model["items"] = items;
+
+        f.HorizontalGroup(hg =>
+        {
+            hg.Text("You choose: ", style: "color:red;")
+                .TextBoxFor("current");
+        }).List<BindableDynamicDictionary>("items", row =>
+        {
+            row.Button(btn => btn.TextFor("Text"), onClick: async () =>
+            {
+                f.Model["current"] = (row.DataContext as BindableDynamicDictionary)["Text"];
+            });
+        }, wrapContent: true);
+    }
     
     
 }

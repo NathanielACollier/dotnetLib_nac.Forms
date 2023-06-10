@@ -7,6 +7,8 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.VisualTree;
 
+using nac.utilities;
+
 
 /*
  Followed user control guide documentation here:
@@ -96,9 +98,9 @@ namespace nac.Forms.controls
             }
         }
 
-        private model.Optional<string> getInitialDirectory()
+        private Optional<string> getInitialDirectory()
         {
-            var workingDirectory = new model.Optional<string>();
+            var workingDirectory = new Optional<string>();
 
             if (!string.IsNullOrWhiteSpace(FilePath))
             {
