@@ -6,9 +6,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using Avalonia.Markup.Xaml.Templates;
 using nac.Forms.model;
 
 namespace nac.Forms
@@ -25,18 +25,15 @@ namespace nac.Forms
 
             if (wrapContent)
             {
-                // There does not appear to be any other way to create a ListBox and set it's ItemsPanel to WrapPanel.  Can't figure out anyway to do it in code
-                itemsCtrl = Avalonia.Markup.Xaml.AvaloniaRuntimeXamlLoader.Parse<ListBox>($@"
-                    <ListBox {lib.Util.writeXAMLNS()}
-                            ScrollViewer.HorizontalScrollBarVisibility=""Disabled""
-                            >
-	                    <ListBox.ItemsPanel>
-		                    <ItemsPanelTemplate>
-			                    <WrapPanel />
-		                    </ItemsPanelTemplate>
-	                    </ListBox.ItemsPanel>
-                    </ListBox>
-                ", localAssembly: System.Reflection.Assembly.GetAssembly(typeof(Form)));
+                itemsCtrl.ItemsPanel = new FuncTemplate<IPanel>(() => new WrapPanel());
+                itemsCtrl.GetObservable(ListBox.ScrollProperty)
+                    .Subscribe(sv =>
+                    {
+                        if( sv is ScrollViewer viewer)
+                        {
+                            viewer.HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled;
+                        }
+                    });
             }
 
 
