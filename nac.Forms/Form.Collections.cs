@@ -8,7 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
+using Avalonia.Reactive;
 using nac.Forms.model;
 
 namespace nac.Forms
@@ -25,15 +27,15 @@ namespace nac.Forms
 
             if (wrapContent)
             {
-                itemsCtrl.ItemsPanel = new FuncTemplate<IPanel>(() => new WrapPanel());
+                itemsCtrl.ItemsPanel = new FuncTemplate<Panel>(() => new WrapPanel());
                 itemsCtrl.GetObservable(ListBox.ScrollProperty)
-                    .Subscribe(sv =>
+                    .Subscribe(new AnonymousObserver<IScrollable>( sv =>
                     {
                         if( sv is ScrollViewer viewer)
                         {
                             viewer.HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled;
                         }
-                    });
+                    }));
             }
 
 
