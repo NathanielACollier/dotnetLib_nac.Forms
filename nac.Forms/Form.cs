@@ -84,6 +84,22 @@ namespace nac.Forms
             this.parentForm = _parentForm;
         }
 
+
+        public delegate void ConfigureAppBuilder(Avalonia.AppBuilder appBuilder);
+
+        public static Form NewForm(ConfigureAppBuilder beforeAppBuilderInit = null)
+        {
+            var appBuilder = Avalonia.AppBuilder.Configure<nac.Forms.App>();
+            beforeAppBuilderInit?.Invoke(appBuilder);
+            var builder = appBuilder
+                //.LogToDebug(Avalonia.Logging.LogEventLevel.Verbose)
+                .UsePlatformDetect()
+                .SetupWithoutStarting();
+
+            var f = new Form(builder.Instance);
+            return f;
+        }
+
         private void FireOnNextWithValue<T>(Subject<T> bindingSource, object value)
         {
             // field value has changed
