@@ -1,7 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using Avalonia;
 using Avalonia.Reactive;
 using nac.Forms.model;

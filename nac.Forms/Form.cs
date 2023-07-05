@@ -60,7 +60,7 @@ namespace nac.Forms
 
             this.Host = g;
             
-            this.controlsIndex = new Dictionary<string, IControl>();
+            this.controlsIndex = new Dictionary<string, Control>();
         }
 
         public Form DebugAvalonia()
