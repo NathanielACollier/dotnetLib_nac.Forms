@@ -14,7 +14,7 @@ namespace Tests
         [TestMethod]
         public void TestDisplay()
         {
-            Avalonia.AppBuilder.Configure<App>()
+            nac.Forms.Form
                 .NewForm()
                 .Display();
         }
@@ -22,7 +22,7 @@ namespace Tests
         [TestMethod]
         public void FormWithButtonClickCount()
         {
-            var f = Avalonia.AppBuilder.Configure<App>()
+            var f = nac.Forms.Form
                 .NewForm();
 
             f.TextFor("txt1", "When you click button I'll change to count!")
@@ -39,7 +39,7 @@ namespace Tests
         [TestMethod]
         public void FormThatDisplaysTypedText()
         {
-            var f = Avalonia.AppBuilder.Configure<App>()
+            var f = nac.Forms.Form
                 .NewForm();
 
             f.TextFor("txt2", "Type here")
@@ -51,7 +51,7 @@ namespace Tests
 
         [TestMethod]
         public void LayoutVerticalSplitTest(){
-            var f = Avalonia.AppBuilder.Configure<App>()
+            var f = nac.Forms.Form
                 .NewForm();
 
             f.VerticalGroup(grp=>{
