@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -18,7 +16,7 @@ namespace nac.Forms
         private static lib.Log log = new lib.Log();
 
         private Grid Host { get; set; }
-        private Dictionary<string, IControl> controlsIndex;
+        private Dictionary<string, Control> controlsIndex;
         public lib.BindableDynamicDictionary Model { get; set; }
         private Application app;
         private Window win;

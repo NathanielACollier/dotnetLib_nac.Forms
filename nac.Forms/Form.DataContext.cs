@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Avalonia;
+using Avalonia.Reactive;
 using nac.Forms.model;
 
 namespace nac.Forms;
@@ -304,7 +305,7 @@ public partial class Form
             // monitor for Property changes on control
             var controlValueChangesObservable = control.GetObservable(property);
 
-            controlValueChangesObservable.Subscribe(newVal =>
+            controlValueChangesObservable.Subscribe(new AnonymousObserver<T>( newVal =>
             {
                 object objVal = newVal;
                 if (convertFromUIToModel != null)
@@ -322,7 +323,7 @@ public partial class Form
                 log.Debug(
                     $"AddBinding-TwoWay-Control Value Change [Control Property: {property.Name}; Field: {modelFieldName}; New Value: {objVal}]");
                 setModelValue(modelFieldName, objVal);
-            });
+            }));
         }
 
 
