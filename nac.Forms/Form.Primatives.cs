@@ -61,10 +61,10 @@ namespace nac.Forms
 
             // for text changed you do observable because Avalonia hasn't implemented TextChanged for TextBox yet
             //  see: https://github.com/AvaloniaUI/Avalonia/issues/418
-            tb.GetObservable(TextBox.TextProperty).Subscribe(newTextValue =>
+            tb.GetObservable(TextBox.TextProperty).Subscribe(new Avalonia.Reactive.AnonymousObserver<string>( newTextValue =>
             {
                 onTextChanged?.Invoke(newTextValue);
-            });
+            }));
 
             tb.IsReadOnly = isReadOnly;
 
