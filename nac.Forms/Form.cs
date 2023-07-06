@@ -98,7 +98,7 @@ namespace nac.Forms
             return f;
         }
 
-        private void FireOnNextWithValue<T>(Subject<T> bindingSource, object value)
+        private void FireOnNextWithValue<T>(nac.Forms.Reactive.Subject<T> bindingSource, object value)
         {
             // field value has changed
             if (value is T newVal)

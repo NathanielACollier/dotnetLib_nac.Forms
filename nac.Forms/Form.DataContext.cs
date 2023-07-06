@@ -282,8 +282,8 @@ public partial class Form
         Func<T, object> convertFromUIToModel = null)
     {
         // (ideas from here)[http://avaloniaui.net/docs/binding/binding-from-code]
-        var bindingSource = new Subject<T>();
-        control.Bind<T>(property, bindingSource.AsObservable());
+        var bindingSource = new nac.Forms.Reactive.Subject<T>();
+        control.Bind<T>(property, bindingSource);
 
         notifyOnRootModelChange(modelFieldName, (context, val) =>
         {
