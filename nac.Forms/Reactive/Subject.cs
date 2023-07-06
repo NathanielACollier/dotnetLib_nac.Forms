@@ -7,19 +7,19 @@ namespace nac.Forms.Reactive;
 
 internal class Subject<T> : IObservable<T>, IObserver<T>
 {
-    private Dictionary<IObserver<T>, int> m_observers;
+    private List<IObserver<T>> observers;
 
     public Subject()
     {
-        m_observers = new Dictionary<IObserver<T>, int>();
+        this.observers = new List<IObserver<T>>();
     }
 
     public void OnCompleted()
     {
         IObserver<T>[] arr = null;
-        lock (m_observers)
+        lock (this.observers)
         {
-            arr = m_observers.Keys.ToArray(m_observers.Count);
+            arr = this.observers.ToArray();
         }
         foreach (var obs in arr)
         {
@@ -30,9 +30,9 @@ internal class Subject<T> : IObservable<T>, IObserver<T>
     public void OnNext(T value)
     {
         IObserver<T>[] arr = null;
-        lock (m_observers)
+        lock (this.observers)
         {
-            arr = m_observers.Keys.ToArray(m_observers.Count);
+            arr = this.observers.ToArray();
         }
         foreach (var obs in arr)
         {
@@ -43,9 +43,9 @@ internal class Subject<T> : IObservable<T>, IObserver<T>
     public void OnError(Exception e)
     {
         IObserver<T>[] arr = null;
-        lock (m_observers)
+        lock (this.observers)
         {
-            arr = m_observers.Keys.ToArray(m_observers.Count);
+            arr = this.observers.ToArray();
         }
         foreach (var obs in arr)
         {
@@ -55,18 +55,14 @@ internal class Subject<T> : IObservable<T>, IObserver<T>
 
     public IDisposable Subscribe(IObserver<T> obs)
     {
-        lock (m_observers)
+        lock (this.observers)
         {
-            if (m_observers.TryGetValue(obs, out var cnt))
+            if (!this.observers.Contains(obs))
             {
-                m_observers[obs] = cnt + 1;
-            }
-            else
-            {
-                m_observers[obs] = 1;
+                this.observers.Add(obs);
             }
 
-            return new SubjectDisposable<T>(m_observers, obs);
+            return new SubjectDisposable<T>(this.observers, obs);
         }
     }
 

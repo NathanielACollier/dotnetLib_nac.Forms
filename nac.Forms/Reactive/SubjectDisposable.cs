@@ -6,10 +6,10 @@ namespace nac.Forms.Reactive;
 
 internal class SubjectDisposable<T> : IDisposable
 {
-    private Dictionary<IObserver<T>, int> m_store;
+    private List<IObserver<T>> m_store;
     private IObserver<T> m_self;
 
-    public SubjectDisposable(Dictionary<IObserver<T>, int> store, IObserver<T> self)
+    public SubjectDisposable(List<IObserver<T>> store, IObserver<T> self)
     {
         m_store = store;
         m_self = self;
@@ -21,11 +21,9 @@ internal class SubjectDisposable<T> : IDisposable
 
         lock (m_store)
         {
-            if (m_store.TryGetValue(m_self, out var cnt))
+            if (m_store.Contains(m_self))
             {
-                cnt--;
-                if (cnt > 0) m_store[m_self] = cnt;
-                else m_store.Remove(m_self);
+                m_store.Remove(m_self);
             }
             m_store = null;
             m_self = null;
