@@ -21,6 +21,8 @@
 
   <ItemGroup>
     <EmbeddedResource Include="**\*.xaml" Subtype="Designer" Exclude="obj\**" />
+    <EmbeddedResource Remove="App.xaml" />
+    <AvaloniaResource Include="App.xaml" />
     <Compile Update="**\*.xaml.cs" SubType="Code" DependentUpon="%(Filename)" />
   </ItemGroup>
 
