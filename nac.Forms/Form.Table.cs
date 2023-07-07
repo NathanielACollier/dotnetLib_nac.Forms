@@ -116,7 +116,7 @@ public partial class Form
         private void addDataGridStyleToApp(Application app)
         {
             // there is a bug in avalonia.  see: https://github.com/AvaloniaUI/Avalonia/issues/3788
-            var datagridStyleUri = new Uri("avares://Avalonia.Controls.DataGrid/Themes/Default.xaml");
+            var datagridStyleUri = new Uri("avares://Avalonia.Controls.DataGrid/Themes/Simple.xaml");
             var _style = new StyleInclude(datagridStyleUri) {
                 Source = datagridStyleUri
             };
