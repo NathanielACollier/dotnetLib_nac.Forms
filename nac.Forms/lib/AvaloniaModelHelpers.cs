@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using nac.Forms.lib.Extensions;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace nac.Forms.lib;
@@ -33,7 +34,7 @@ public static class AvaloniaModelHelpers
                 );
             }
 
-            avaloniaItem.Items = subMenuItems;
+            avaloniaItem.Items.Set( subMenuItems);
         }
 
         return avaloniaItem;

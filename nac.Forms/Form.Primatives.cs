@@ -6,6 +6,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Platform;
+using nac.Forms.lib.Extensions;
 using nac.Forms.model;
 
 namespace nac.Forms
@@ -174,7 +175,7 @@ namespace nac.Forms
                 }
             };
 
-            dropdown.Items = items;
+            dropdown.Items.Set( items);
 
             AddRowToHost(dropdown);
             return this;
@@ -184,7 +185,9 @@ namespace nac.Forms
         public Form Menu(model.MenuItem[] items)
         {
             var menu = new global::Avalonia.Controls.Menu();
-            menu.Items = items.Select(i => lib.AvaloniaModelHelpers.convertModelToAvaloniaMenuItem(i));
+            menu.Items.Set(
+                items.Select(i => lib.AvaloniaModelHelpers.convertModelToAvaloniaMenuItem(i))
+                );
             
             AddRowToHost(menu);
             return this;
