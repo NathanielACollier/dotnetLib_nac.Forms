@@ -9,8 +9,7 @@ Provides a quick way to create a GUI application for Linux, macOS, and Windows. 
 + Textbox
 	+ Code
 	```c#
-	var f = Avalonia.AppBuilder.Configure<App>()
-                                .NewForm();
+	var f = nac.Forms.Form.NewForm();
 	f.TextFor("txt2", "Type here")
      .TextBoxFor("txt2")
 	 .Display();
@@ -20,8 +19,7 @@ Provides a quick way to create a GUI application for Linux, macOS, and Windows. 
 + Button with click count
 	+ Code
 	```c#
-	var f = Avalonia.AppBuilder.Configure<App>()
-                                .NewForm();
+	var f = nac.Forms.Form.NewForm();
 	f.TextFor("txt1", "When you click button I'll change to count!")
 	.Button("Click Me!", arg =>
 	{
@@ -36,8 +34,7 @@ Provides a quick way to create a GUI application for Linux, macOS, and Windows. 
 + Horizontal Group
 	+ Code
 	```c#
-	var f = Avalonia.AppBuilder.Configure<App>()
-                                .NewForm();
+	var f = nac.Forms.Form.NewForm();
 	f.HorizontalGroup(hori =>
 	{
 		hori.Text("Click Count: ")
@@ -56,8 +53,7 @@ Provides a quick way to create a GUI application for Linux, macOS, and Windows. 
 + Tabs
 	+ Code
 	```c#
-	var f = Avalonia.AppBuilder.Configure<App>()
-							.NewForm();
+	var f = nac.Forms.Form.NewForm();
 	
 	f.Tabs(t=> {
 		t.Header = "Tab 1";
