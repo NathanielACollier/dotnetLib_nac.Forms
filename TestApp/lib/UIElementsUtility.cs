@@ -29,6 +29,11 @@ namespace TestApp.lib
                 {
                     var model = h.Model[nac.Forms.model.SpecialModelKeys.DataContext] as model.LogEntry;
 
+                    if (model == null)
+                    {
+                        return; // somehow null model is getting sent in here sometimes
+                    }
+
                     var levelStyle = new nac.Forms.model.Style();
                     if (string.Equals(model.level, "warn", StringComparison.InvariantCulture))
                     {

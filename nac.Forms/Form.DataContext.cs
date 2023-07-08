@@ -1,8 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using Avalonia;
+using Avalonia.Reactive;
 using nac.Forms.model;
 
 namespace nac.Forms;
@@ -283,8 +282,8 @@ public partial class Form
         Func<T, object> convertFromUIToModel = null)
     {
         // (ideas from here)[http://avaloniaui.net/docs/binding/binding-from-code]
-        var bindingSource = new Subject<T>();
-        control.Bind<T>(property, bindingSource.AsObservable());
+        var bindingSource = new nac.Forms.Reactive.Subject<T>();
+        control.Bind<T>(property, bindingSource);
 
         notifyOnRootModelChange(modelFieldName, (context, val) =>
         {
@@ -304,7 +303,7 @@ public partial class Form
             // monitor for Property changes on control
             var controlValueChangesObservable = control.GetObservable(property);
 
-            controlValueChangesObservable.Subscribe(newVal =>
+            controlValueChangesObservable.Subscribe(new AnonymousObserver<T>( newVal =>
             {
                 object objVal = newVal;
                 if (convertFromUIToModel != null)
@@ -322,7 +321,7 @@ public partial class Form
                 log.Debug(
                     $"AddBinding-TwoWay-Control Value Change [Control Property: {property.Name}; Field: {modelFieldName}; New Value: {objVal}]");
                 setModelValue(modelFieldName, objVal);
-            });
+            }));
         }
 
 

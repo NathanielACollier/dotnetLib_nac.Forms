@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -18,7 +16,7 @@ namespace nac.Forms
         private static lib.Log log = new lib.Log();
 
         private Grid Host { get; set; }
-        private Dictionary<string, IControl> controlsIndex;
+        private Dictionary<string, Control> controlsIndex;
         public lib.BindableDynamicDictionary Model { get; set; }
         private Application app;
         private Window win;
@@ -62,7 +60,7 @@ namespace nac.Forms
 
             this.Host = g;
             
-            this.controlsIndex = new Dictionary<string, IControl>();
+            this.controlsIndex = new Dictionary<string, Control>();
         }
 
         public Form DebugAvalonia()
@@ -84,7 +82,23 @@ namespace nac.Forms
             this.parentForm = _parentForm;
         }
 
-        private void FireOnNextWithValue<T>(Subject<T> bindingSource, object value)
+
+        public delegate void ConfigureAppBuilder(Avalonia.AppBuilder appBuilder);
+
+        public static Form NewForm(ConfigureAppBuilder beforeAppBuilderInit = null)
+        {
+            var appBuilder = Avalonia.AppBuilder.Configure<nac.Forms.App>();
+            beforeAppBuilderInit?.Invoke(appBuilder);
+            var builder = appBuilder
+                //.LogToDebug(Avalonia.Logging.LogEventLevel.Verbose)
+                .UsePlatformDetect()
+                .SetupWithoutStarting();
+
+            var f = new Form(builder.Instance);
+            return f;
+        }
+
+        private void FireOnNextWithValue<T>(nac.Forms.Reactive.Subject<T> bindingSource, object value)
         {
             // field value has changed
             if (value is T newVal)

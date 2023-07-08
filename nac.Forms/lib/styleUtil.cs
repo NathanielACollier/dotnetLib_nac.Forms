@@ -4,6 +4,7 @@ using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Media;
+using nac.Forms.lib.Extensions;
 using nac.Forms.model;
 
 namespace nac.Forms.lib
@@ -118,7 +119,9 @@ namespace nac.Forms.lib
             // create a popup and populate it
             var contextMenu = new Avalonia.Controls.ContextMenu();
 
-            contextMenu.Items = menuItems.Select(i => lib.AvaloniaModelHelpers.convertModelToAvaloniaMenuItem(i));;
+            contextMenu.Items.Set(
+                menuItems.Select(i => lib.AvaloniaModelHelpers.convertModelToAvaloniaMenuItem(i))
+                );
             
             contextMenu.PlacementMode = PlacementMode.Bottom;
             contextMenu.PlacementTarget = control;

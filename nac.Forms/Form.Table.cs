@@ -82,7 +82,7 @@ public partial class Form
              NOTE: two way data binding for ItemsSource should allways be false
                 - If it's set to true then it requires a setter for the property and can crash.  Often for an ItemsSource on the model it will just have a getter and use the auto creation functionality of ViewModelBase
              */
-            AddBinding<IEnumerable>(itemsModelFieldName, dg, Avalonia.Controls.DataGrid.ItemsProperty, 
+            AddBinding<IEnumerable>(itemsModelFieldName, dg, Avalonia.Controls.DataGrid.ItemsSourceProperty, 
                 isTwoWayDataBinding: false);
             AddRowToHost(dg, rowAutoHeight: false);
 
@@ -116,7 +116,7 @@ public partial class Form
         private void addDataGridStyleToApp(Application app)
         {
             // there is a bug in avalonia.  see: https://github.com/AvaloniaUI/Avalonia/issues/3788
-            var datagridStyleUri = new Uri("avares://Avalonia.Controls.DataGrid/Themes/Default.xaml");
+            var datagridStyleUri = new Uri("avares://Avalonia.Controls.DataGrid/Themes/Simple.xaml");
             var _style = new StyleInclude(datagridStyleUri) {
                 Source = datagridStyleUri
             };

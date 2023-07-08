@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using nac.Forms.lib.Extensions;
 
 namespace nac.Forms
 {
@@ -46,7 +47,7 @@ namespace nac.Forms
             tab.Content = itemForm.Host;
             
             items.Add(tab);
-            tc.Items = items;
+            tc.Items.Set( items);
         }
 
         public delegate void InitializeTabDelegate(model.TabCreationInfo newTabInfo);

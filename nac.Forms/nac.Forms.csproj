@@ -20,13 +20,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="**\*.xaml" Subtype="Designer" Exclude="obj\**" />
+    <AvaloniaResource Include="**\*.xaml" Subtype="Designer" Exclude="obj\**" />
     <Compile Update="**\*.xaml.cs" SubType="Code" DependentUpon="%(Filename)" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia.Desktop" Version="0.10.18" />
-    <PackageReference Include="Avalonia.Diagnostics" Version="0.10.18" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.0.0" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.0.0" />
+    <PackageReference Include="Avalonia.Themes.Simple" Version="11.0.0" />
     <PackageReference Include="nac.utilities" Version="1.0.1" />
     <PackageReference Include="nac.CSSParsing" Version="1.0.1" />
   </ItemGroup>

@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Xml.Linq;
 using Avalonia.Controls;
 using Avalonia.Media;
+using nac.Forms.lib.Extensions;
 
 namespace nac.Forms.lib.ObjectPropertiesView;
 
@@ -35,7 +36,7 @@ public static class TreeViewObjectPropertiesBuilder
 
     private static void clearTree(TreeView tree)
     {
-        tree.Items = new List<TreeViewItem>();
+        tree.Items.Set( new List<TreeViewItem>());
     }
 
     private static void addItemToTree(TreeView tree, TreeViewItem newItem)
@@ -47,7 +48,7 @@ public static class TreeViewObjectPropertiesBuilder
         }
         items.Add(newItem);
 
-        tree.Items = items;
+        tree.Items.Set( items);
     }
 
     private static void addItemToTreeItem(TreeViewItem parent, TreeViewItem newItem)
@@ -58,7 +59,7 @@ public static class TreeViewObjectPropertiesBuilder
             items.Add(existingItem);
         }
         items.Add(newItem);
-        parent.Items = items;
+        parent.Items.Set(items);
     }
 
 

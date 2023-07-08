@@ -6,6 +6,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Platform;
+using nac.Forms.lib.Extensions;
 using nac.Forms.model;
 
 namespace nac.Forms
@@ -61,10 +62,10 @@ namespace nac.Forms
 
             // for text changed you do observable because Avalonia hasn't implemented TextChanged for TextBox yet
             //  see: https://github.com/AvaloniaUI/Avalonia/issues/418
-            tb.GetObservable(TextBox.TextProperty).Subscribe(newTextValue =>
+            tb.GetObservable(TextBox.TextProperty).Subscribe(new Avalonia.Reactive.AnonymousObserver<string>( newTextValue =>
             {
                 onTextChanged?.Invoke(newTextValue);
-            });
+            }));
 
             tb.IsReadOnly = isReadOnly;
 
@@ -174,7 +175,7 @@ namespace nac.Forms
                 }
             };
 
-            dropdown.Items = items;
+            dropdown.Items.Set( items);
 
             AddRowToHost(dropdown);
             return this;
@@ -184,7 +185,9 @@ namespace nac.Forms
         public Form Menu(model.MenuItem[] items)
         {
             var menu = new global::Avalonia.Controls.Menu();
-            menu.Items = items.Select(i => lib.AvaloniaModelHelpers.convertModelToAvaloniaMenuItem(i));
+            menu.Items.Set(
+                items.Select(i => lib.AvaloniaModelHelpers.convertModelToAvaloniaMenuItem(i))
+                );
             
             AddRowToHost(menu);
             return this;

@@ -19,7 +19,7 @@ namespace TestApp
         static void Main(string[] args)
         {
             setupNacFormsLogging();
-            var f = Avalonia.AppBuilder.Configure<nac.Forms.App>()
+            var f = nac.Forms.Form
                 .NewForm(beforeAppBuilderInit: (appBuilder) =>
                 {
                     appBuilder.LogToTrace(LogEventLevel.Debug);
