@@ -47,13 +47,14 @@ public class TestDataContextWindowModel : nac.Forms.model.ViewModelBase
             // generate names that we can filter
             var firstNames = new[]
             {
-                "Sandy", "Paula", "Barbara", "Nathan", "Nathaniel", "Brian", "Jordan", "Cynthia", "George", "Peter",
-                "James", "John", "Blake", "Paul"
+                "George", "John", "Thomas", "James", "Andrew", "Martin", "William", "Zachary", "Millard", "Franklin",
+                "Abraham", "Ulysses", "Rutherford", "Chester", "Arthur"
             };
             var lastNames = new[]
             {
-                "Kapales", "Johnson", "Harris", "Hill", "Collier", "Sampson", "Skywalker", "McCarthy", "Joseph",
-                "Miracle", "DeVos", "Rubar", "Pie", "Sky", "Bubblegum"
+                "Washington", "Adams", "Jefferson", "Madison", "Monroe", "Adams", "Jackson", "Van Buren", "Harrison",
+                "Tyler", "Polk", "Taylor", "Fillmore", "Pierce", "Buchanan", "Lincoln", "Johnson", "Grant", "Hayes",
+                "Garfield", "Arthur", "Cleveland", "Cleveland", "McKenley", "Roosevelt", "Taft", "Wilson"
             };
                 
             // form 100 random names
