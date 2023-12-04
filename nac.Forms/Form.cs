@@ -269,58 +269,5 @@ namespace nac.Forms
         }
 
 
-
-        /*
-         Use this in special situations where you need to run the form async
-         !!REMEMBER!!
-            + On some operating systems like MACOS you cannot run the UI on a seperate thread than the main thread
-            + Allways try and use Display() directly first, and if you run into some situation you can use StartUI
-            + You cannot call this from an existing avalonia app.
-         */
-        public static Task StartUI(Func<Form, Task> buildFormAction,
-                                ConfigureAppBuilder beforeAppBuilderInit = null,
-                                int height=600,
-                                int width = 800,
-                                Func<Form, Task<bool?>> onClosing = null,
-                                Func<Form, Task> onDisplay = null)
-        {
-            var promise = new System.Threading.Tasks.TaskCompletionSource<bool>();
-
-            var t = new Thread(async () =>
-            {
-                var form = nac.Forms.Form.NewForm(beforeAppBuilderInit: beforeAppBuilderInit);
-
-                await buildFormAction(form);
-
-                form.Display(height: height,
-                    width: width,
-                    onClosing: async (_f) =>
-                    {
-                        bool preventClosing = false;
-
-                        if( onClosing != null)
-                        {
-                            preventClosing = await onClosing(_f) ?? false;
-                        }
-
-                        // make sure these lines below are the last lines in onClosing
-                        if( preventClosing == false)
-                        {
-                            promise.SetResult(true);
-                        }
-                        return false;
-                    },
-                    onDisplay: onDisplay);
-            });
-            // configure the thread
-            t.SetApartmentState(ApartmentState.STA);
-            t.Start();
-
-            return promise.Task;
-        }
-
-
-
-
     }
 }

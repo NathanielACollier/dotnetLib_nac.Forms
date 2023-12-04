@@ -66,9 +66,14 @@ namespace Tests
         [TestMethod]
         public async Task StartUI_SetupSpecialUIThread()
         {
-            await nac.Forms.Form.StartUI(async f =>
+            await nac.Forms.lib.AvaloniaAppManager.DisplayForm(async f =>
             {
                 f.Text("Special UI Thread.  Never use this unless you know why you used it.  Will not work on macos where UI must be on the main thread");
+            });
+
+            await nac.Forms.lib.AvaloniaAppManager.DisplayForm(async f =>
+            {
+                f.Text("A second form on the avalonia App");
             });
 
             System.Diagnostics.Debug.WriteLine("Test finished");
