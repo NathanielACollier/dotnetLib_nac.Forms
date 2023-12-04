@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -36,9 +37,9 @@ namespace nac.Forms
             set { this.win.Title = value; }
         }
 
-        public Form(Application __app, lib.BindableDynamicDictionary _model=null)
+        public Form(Application __app, lib.BindableDynamicDictionary _model = null)
         {
-            if( _model == null)
+            if (_model == null)
             {
                 // parent form
                 this.Model = new lib.BindableDynamicDictionary();
@@ -59,7 +60,7 @@ namespace nac.Forms
             g.ColumnDefinitions.Add(gridCol);
 
             this.Host = g;
-            
+
             this.controlsIndex = new Dictionary<string, Control>();
         }
 
@@ -115,13 +116,13 @@ namespace nac.Forms
         }
 
 
-        internal void AddVisibilityTrigger(Visual control, 
-                                    string isVisibleModelName, 
+        internal void AddVisibilityTrigger(Visual control,
+                                    string isVisibleModelName,
                                     bool trueResultMeansVisible)
         {
             notifyOnRootModelChange(isVisibleModelName, (context, val) =>
             {
-                if( val is bool isVisible)
+                if (val is bool isVisible)
                 {
                     if (trueResultMeansVisible)
                     {
@@ -131,7 +132,7 @@ namespace nac.Forms
                     {
                         control.IsVisible = !isVisible;
                     }
-                    
+
                 }
             });
         }
@@ -162,7 +163,7 @@ namespace nac.Forms
         {
             return subWindow.ShowDialog(win);
         }
-        
+
         private async Task<bool> Display_Internal(int height, int width,
             Func<Form, Task<bool?>> onClosing = null,
             Func<Form, Task> onDisplay = null,
@@ -189,7 +190,7 @@ namespace nac.Forms
                 {
                     promise.SetResult(true); // window is closed
                 }
-                
+
             };
 
             if (onDisplay != null)
@@ -222,18 +223,18 @@ namespace nac.Forms
             Func<Form, Task<bool?>> onClosing = null,
             Func<Form, Task> onDisplay = null)
         {
-            if( this.isDisplayed)
+            if (this.isDisplayed)
             {
                 throw new Exception("Cannot call Display twice on Form.  Display has already been called on this form.");
             }
 
-            if(!this.isMainForm)
+            if (!this.isMainForm)
             {
                 throw new Exception("Cannot call Display on child form.  If you already have a main form, you must call DisplayChildForm.  Main form manages the avalonia app.");
             }
 
-            this.Display_Internal(height: height, 
-                            width: width, 
+            this.Display_Internal(height: height,
+                            width: width,
                             onClosing: onClosing,
                             onDisplay: onDisplay
                             );
@@ -266,5 +267,60 @@ namespace nac.Forms
 
             return rowForm.Host;
         }
+
+
+
+        /*
+         Use this in special situations where you need to run the form async
+         !!REMEMBER!!
+            + On some operating systems like MACOS you cannot run the UI on a seperate thread than the main thread
+            + Allways try and use Display() directly first, and if you run into some situation you can use StartUI
+            + You cannot call this from an existing avalonia app.
+         */
+        public static Task StartUI(Func<Form, Task> buildFormAction,
+                                ConfigureAppBuilder beforeAppBuilderInit = null,
+                                int height=600,
+                                int width = 800,
+                                Func<Form, Task<bool?>> onClosing = null,
+                                Func<Form, Task> onDisplay = null)
+        {
+            var promise = new System.Threading.Tasks.TaskCompletionSource<bool>();
+
+            var t = new Thread(async () =>
+            {
+                var form = nac.Forms.Form.NewForm(beforeAppBuilderInit: beforeAppBuilderInit);
+
+                await buildFormAction(form);
+
+                form.Display(height: height,
+                    width: width,
+                    onClosing: async (_f) =>
+                    {
+                        bool preventClosing = false;
+
+                        if( onClosing != null)
+                        {
+                            preventClosing = await onClosing(_f) ?? false;
+                        }
+
+                        // make sure these lines below are the last lines in onClosing
+                        if( preventClosing == false)
+                        {
+                            promise.SetResult(true);
+                        }
+                        return false;
+                    },
+                    onDisplay: onDisplay);
+            });
+            // configure the thread
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
+
+            return promise.Task;
+        }
+
+
+
+
     }
 }
