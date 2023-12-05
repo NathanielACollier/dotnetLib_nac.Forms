@@ -19,7 +19,9 @@ namespace TestApp
         static void Main(string[] args)
         {
             setupNacFormsLogging();
-            var f = nac.Forms.Form
+            try
+            {
+                var f = nac.Forms.Form
                 .NewForm(beforeAppBuilderInit: (appBuilder) =>
                 {
                     appBuilder.LogToTrace(LogEventLevel.Debug);
@@ -27,7 +29,13 @@ namespace TestApp
                 })
                 .DebugAvalonia();
 
-            mainUI(f);
+                mainUI(f);
+                nac.Forms.lib.AvaloniaAppManager.Shutdown(); // this isn't needed, and is a test to make sure it's safe to call it
+            }catch(Exception ex)
+            {
+                model.LogEntry.error($"App Exception occured: {ex}");
+            }
+
         }
 
         private static void setupNacFormsLogging()

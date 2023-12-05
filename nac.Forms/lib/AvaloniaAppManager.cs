@@ -1,4 +1,6 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,8 +22,9 @@ public static class AvaloniaAppManager
 {
     private static lib.Log log = new();
     public static nac.Forms.Form.ConfigureAppBuilder GlobalAppBuilderConfigurFunction;
-    public static Avalonia.Application app;
-    public static CancellationTokenSource appCancelSource = new();
+    private static Avalonia.Application app;
+    private static CancellationTokenSource appCancelSource = new();
+    private static bool appIsShutdown = false; 
     
     private static Task<bool> StartAvaloniaApplication()
     {
@@ -84,6 +87,11 @@ public static class AvaloniaAppManager
         Func<Form, Task> onDisplay = null)
     {
         log.Info("Starting display of form");
+        if (appIsShutdown)
+        {
+            throw new Exception("Avalonia App Manager is shutdown.  You cannot start it back in this process");
+        }
+
         if (Avalonia.Application.Current == null)
         {
             log.Info("Creating new Avalonia Application");
@@ -99,5 +107,28 @@ public static class AvaloniaAppManager
             onDisplay: onDisplay);
     }
 
+
+    /*
+     Shutdown is a permanent action.  You cannot start the Avalonia thread back up again
+     */
+    public static void Shutdown()
+    {
+        if(app == null)
+        {
+            return; // if app is null then we didn't setup Avalonia so we won't be doing anything with it
+        }
+
+        log.Info("Starting Avalonia App shutdown");
+
+        appCancelSource.Cancel();
+
+        log.Info("Cleaning up variables");
+        app = null;
+        appCancelSource.Dispose();
+        appIsShutdown = true;
+
+        log.Info("Shutdown is finished");
+        
+    }
 
 }

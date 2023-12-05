@@ -179,6 +179,14 @@ public class AGroup
     
     
     
+
+    public static async void AppManager_CreateWindowWithExistingAvaloniaApp(Form f)
+    {
+        await nac.Forms.lib.AvaloniaAppManager.DisplayForm(outsideF =>
+        {
+            outsideF.Text("I'm reusing the existing Avalonia App to create a new window");
+        });
+    }
     
     
     

@@ -89,6 +89,21 @@ namespace Tests
                 f.Text("A second form on the avalonia App");
             });
 
+            // shut it down then test creating a form after shutdown
+            nac.Forms.lib.AvaloniaAppManager.Shutdown();
+
+            try
+            {
+                await nac.Forms.lib.AvaloniaAppManager.DisplayForm(async f =>
+                {
+                    Assert.Fail("You cannot create a form after the window has shutdown");
+                    f.Text("Window After shutdown.  This is not possible");
+                });
+
+            }
+            catch (Exception ex) { }
+
+
             System.Diagnostics.Debug.WriteLine("Test finished");
         }
         
