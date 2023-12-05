@@ -16,6 +16,11 @@ namespace nac.Forms.lib
             {
                 this.EventDate = DateTime.Now;
             }
+
+            public override string ToString()
+            {
+                return $"[{EventDate:yyyy-MM-dd hh:mm:ss tt}] - {Level} - {CallingMemberName} - {Message}"; 
+            }
         }
         
         public static event EventHandler<LogMessage> OnNewMessage;

@@ -17,6 +17,7 @@ namespace nac.Forms.lib;
 
 public static class AvaloniaAppManager
 {
+    private static lib.Log log = new();
     public static nac.Forms.Form.ConfigureAppBuilder GlobalAppBuilderConfigurFunction;
     
     private static Task<bool> DisplayFormWithNewAvaloniaApp(Action<nac.Forms.Form> buildFormFunction,
@@ -43,6 +44,7 @@ public static class AvaloniaAppManager
                         return stopClose;
                     }
 
+                    promise.SetResult(true);
                     return false;
                 }, onDisplay: onDisplay);
         });
@@ -91,8 +93,10 @@ public static class AvaloniaAppManager
         Func<Form, Task<bool?>> onClosing = null,
         Func<Form, Task> onDisplay = null)
     {
+        log.Info("Starting display of form");
         if (Avalonia.Application.Current == null)
         {
+            log.Info("Creating new Avalonia Application");
             return await DisplayFormWithNewAvaloniaApp(buildFormFunction,
                 height: height,
                 width: width,
@@ -100,6 +104,7 @@ public static class AvaloniaAppManager
                 onDisplay: onDisplay);
         }
 
+        log.Info("Avalonia Application Already Exists");
         return await DisplayFormWithExistingApp(app: Avalonia.Application.Current,
             buildFormFunction: buildFormFunction,
             height: height,
