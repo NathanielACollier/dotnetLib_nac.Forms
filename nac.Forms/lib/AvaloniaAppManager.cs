@@ -18,29 +18,33 @@ namespace nac.Forms.lib;
 public static class AvaloniaAppManager
 {
     public static nac.Forms.Form.ConfigureAppBuilder GlobalAppBuilderConfigurFunction;
-    private static nac.Forms.Form mainForm;
-    private static System.Threading.Thread mainThread;
-
-    private static Task EnsureMainForm()
+    
+    private static Task<bool> DisplayFormWithNewAvaloniaApp(Action<nac.Forms.Form> buildFormFunction,
+                                                        int height=600,
+                                                        int width = 800,
+                                                        Func<Form, Task<bool?>> onClosing = null,
+                                                        Func<Form, Task> onDisplay = null)
     {
         var promise = new System.Threading.Tasks.TaskCompletionSource<bool>();
-
-        if (mainForm != null)
+        
+        var mainThread = new Thread(async () =>
         {
-            return Task.FromResult(true);
-        }
+            var mainForm = nac.Forms.Form.NewForm(beforeAppBuilderInit: GlobalAppBuilderConfigurFunction);
 
-        // mainForm isn't setup yet
-        mainThread = new Thread(async () =>
-        {
-            mainForm = nac.Forms.Form.NewForm(beforeAppBuilderInit: GlobalAppBuilderConfigurFunction);
-
-            mainForm.Display(height: 0,
-                width: 0,
-                onDisplay: async (_f) =>
+            buildFormFunction(mainForm);
+            
+            mainForm.Display(height: height,
+                width: width,
+                onClosing: async (_f) =>
                 {
-                    promise.SetResult(true);
-                });
+                    if (onClosing != null)
+                    {
+                        bool stopClose = await onClosing(_f) ?? false;
+                        return stopClose;
+                    }
+
+                    return false;
+                }, onDisplay: onDisplay);
         });
         // configure the thread
         mainThread.SetApartmentState(ApartmentState.STA);
@@ -49,28 +53,59 @@ public static class AvaloniaAppManager
         return promise.Task;
     }
 
-
-
-    public static async Task<bool> DisplayForm(Action<nac.Forms.Form> buildFormFunction,
-                                    int height=600,
-                                    int width = 800,
-                                    Func<Form, Task<bool?>> onClosing = null,
-                                    Func<Form, Task> onDisplay = null)
+    private static async Task<bool> DisplayFormWithExistingApp(Avalonia.Application app,
+        Action<nac.Forms.Form> buildFormFunction,
+        int height = 600,
+        int width = 800,
+        Func<Form, Task<bool?>> onClosing = null,
+        Func<Form, Task> onDisplay = null)
     {
-        await EnsureMainForm();
-        await mainForm.InvokeAsync(async () =>
+        
+        await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            await mainForm.DisplayChildForm(setupChildForm: buildFormFunction,
-            height: height,
-            width: width,
-            onClosing: onClosing,
-            onDisplay: onDisplay,
-            useIsolatedModelForThisChildForm: true,
-            isDialog: true);
+            var form = new nac.Forms.Form(__app: app,
+                _model: new nac.Forms.lib.BindableDynamicDictionary());
 
+            buildFormFunction(form);
+            
+            await form.Display_Internal(height: height,
+                width: width,
+                onClosing: async (_f) =>
+                {
+                    if (onClosing != null)
+                    {
+                        bool stopClose = await onClosing(_f) ?? false;
+                        return stopClose;
+                    }
+
+                    return false;
+                }, onDisplay: onDisplay);
         });
 
         return true;
+    }
+
+    public static async Task<bool> DisplayForm(Action<nac.Forms.Form> buildFormFunction,
+        int height = 600,
+        int width = 800,
+        Func<Form, Task<bool?>> onClosing = null,
+        Func<Form, Task> onDisplay = null)
+    {
+        if (Avalonia.Application.Current == null)
+        {
+            return await DisplayFormWithNewAvaloniaApp(buildFormFunction,
+                height: height,
+                width: width,
+                onClosing: onClosing,
+                onDisplay: onDisplay);
+        }
+
+        return await DisplayFormWithExistingApp(app: Avalonia.Application.Current,
+            buildFormFunction: buildFormFunction,
+            height: height,
+            width: width,
+            onClosing: onClosing,
+            onDisplay: onDisplay);
     }
 
 
