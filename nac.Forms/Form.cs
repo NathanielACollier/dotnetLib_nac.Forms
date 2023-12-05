@@ -266,7 +266,7 @@ namespace nac.Forms
 
         internal Grid getBoundControlFromPopulateForm(Action<Form> buildFormAction)
         {
-            var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
+            var rowForm = new Form(__app: this.app, _model: new nac.utilities.BindableDynamicDictionary());
             // this has to have a unique model
             rowForm.DataContext = getBindingSource();
             buildFormAction(rowForm);

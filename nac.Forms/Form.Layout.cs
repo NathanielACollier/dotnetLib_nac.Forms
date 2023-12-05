@@ -243,7 +243,7 @@ namespace nac.Forms
                     return tb;
                 }
 
-                var contentForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
+                var contentForm = new Form(__app: this.app, _model: new nac.utilities.BindableDynamicDictionary());
                 contentForm.DataContext = itemModel;
                 populatePanel(contentForm);
 

@@ -52,7 +52,7 @@ namespace nac.Forms
                 // this is documented here: https://avaloniaui.net/docs/templates/datatemplates-in-code
                 itemsCtrl.ItemTemplate = new FuncDataTemplate<object>((itemModel, nameScope) =>
                 {
-                    var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
+                    var rowForm = new Form(__app: this.app, _model: new nac.utilities.BindableDynamicDictionary());
                     // this has to have a unique model
                     rowForm.DataContext = itemModel;
                     populateItemRow(rowForm);
@@ -130,7 +130,7 @@ namespace nac.Forms
                         return tb;
                     }
                     
-                    var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
+                    var rowForm = new Form(__app: this.app, _model: new nac.utilities.BindableDynamicDictionary());
                     // this has to have a unique model
                     rowForm.DataContext = itemModel;
                     populateItemRow(rowForm);
@@ -257,7 +257,7 @@ namespace nac.Forms
                         return tb;
                     }
                     
-                    var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
+                    var rowForm = new Form(__app: this.app, _model: new nac.utilities.BindableDynamicDictionary());
                     // this has to have a unique model
                     rowForm.DataContext = itemModel;
                     populateItemRow(rowForm);

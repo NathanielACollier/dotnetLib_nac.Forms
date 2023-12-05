@@ -132,7 +132,7 @@ public partial class Form
             return result;
         }
 
-        if (datacontext is lib.BindableDynamicDictionary dynDict)
+        if (datacontext is nac.utilities.BindableDynamicDictionary dynDict)
         {
             if (!dynDict.HasKey(fieldPath.Current))
             {
@@ -188,7 +188,7 @@ public partial class Form
 
         if (fieldPath.ChildPath.Length > 0)
         {
-            if (dataContext is lib.BindableDynamicDictionary dyncDict)
+            if (dataContext is nac.utilities.BindableDynamicDictionary dyncDict)
             {
                 // dynDict must contain this part of the path, because it's a path
                 if (!dyncDict.HasKey(fieldPath.Current))
@@ -216,7 +216,7 @@ public partial class Form
         else
         {
             // no child path so do the normal
-            if (dataContext is lib.BindableDynamicDictionary dynDict)
+            if (dataContext is nac.utilities.BindableDynamicDictionary dynDict)
             {
                 dynDict[fieldPath.Current] = val;
             }
