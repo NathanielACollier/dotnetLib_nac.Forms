@@ -65,11 +65,15 @@ public static class AvaloniaAppManager
         
         await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(async () =>
         {
+            log.Info("Inside UIThread InvokeAsync");
+            // Sending a null model means it will be a parent form
             var form = new nac.Forms.Form(__app: app,
-                _model: new nac.Forms.lib.BindableDynamicDictionary());
+                _model: null);
 
+            log.Info("Building Form");
             buildFormFunction(form);
-            
+
+            log.Info("DIsplay Internal Form");
             await form.Display_Internal(height: height,
                 width: width,
                 onClosing: async (_f) =>
