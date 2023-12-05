@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data;
 using nac.Forms.lib;
 using nac.Forms.model;
@@ -90,10 +91,19 @@ namespace nac.Forms
         {
             var appBuilder = Avalonia.AppBuilder.Configure<nac.Forms.App>();
             beforeAppBuilderInit?.Invoke(appBuilder);
+
             var builder = appBuilder
                 //.LogToDebug(Avalonia.Logging.LogEventLevel.Verbose)
                 .UsePlatformDetect()
                 .SetupWithoutStarting();
+
+            var lifeTime = new ClassicDesktopStyleApplicationLifetime()
+            {
+                ShutdownMode = ShutdownMode.OnExplicitShutdown
+            };
+
+            appBuilder.Instance.ApplicationLifetime = lifeTime;
+            appBuilder.Instance.OnFrameworkInitializationCompleted();
 
             return builder.Instance;
         }

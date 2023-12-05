@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Avalonia.Controls;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -19,34 +20,19 @@ public static class AvaloniaAppManager
 {
     private static lib.Log log = new();
     public static nac.Forms.Form.ConfigureAppBuilder GlobalAppBuilderConfigurFunction;
+    public static Avalonia.Application app;
+    public static CancellationTokenSource appCancelSource = new();
     
-    private static Task<bool> DisplayFormWithNewAvaloniaApp(Action<nac.Forms.Form> buildFormFunction,
-                                                        int height=600,
-                                                        int width = 800,
-                                                        Func<Form, Task<bool?>> onClosing = null,
-                                                        Func<Form, Task> onDisplay = null)
+    private static Task<bool> StartAvaloniaApplication()
     {
         var promise = new System.Threading.Tasks.TaskCompletionSource<bool>();
-        
+
         var mainThread = new Thread(async () =>
         {
-            var mainForm = nac.Forms.Form.NewForm(beforeAppBuilderInit: GlobalAppBuilderConfigurFunction);
+            app = nac.Forms.Form.SetupAvaloniaApp(beforeAppBuilderInit: GlobalAppBuilderConfigurFunction);
 
-            buildFormFunction(mainForm);
-            
-            mainForm.Display(height: height,
-                width: width,
-                onClosing: async (_f) =>
-                {
-                    if (onClosing != null)
-                    {
-                        bool stopClose = await onClosing(_f) ?? false;
-                        return stopClose;
-                    }
-
-                    promise.SetResult(true);
-                    return false;
-                }, onDisplay: onDisplay);
+            promise.SetResult(true);
+            app.Run(token: appCancelSource.Token);
         });
         // configure the thread
         mainThread.SetApartmentState(ApartmentState.STA);
@@ -101,14 +87,10 @@ public static class AvaloniaAppManager
         if (Avalonia.Application.Current == null)
         {
             log.Info("Creating new Avalonia Application");
-            return await DisplayFormWithNewAvaloniaApp(buildFormFunction,
-                height: height,
-                width: width,
-                onClosing: onClosing,
-                onDisplay: onDisplay);
+            await StartAvaloniaApplication();
         }
 
-        log.Info("Avalonia Application Already Exists");
+        log.Info("Avalonia Application Should Exist now");
         return await DisplayFormWithExistingApp(app: Avalonia.Application.Current,
             buildFormFunction: buildFormFunction,
             height: height,
