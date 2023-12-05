@@ -97,14 +97,6 @@ namespace nac.Forms
                 .UsePlatformDetect()
                 .SetupWithoutStarting();
 
-            var lifeTime = new ClassicDesktopStyleApplicationLifetime()
-            {
-                ShutdownMode = ShutdownMode.OnExplicitShutdown
-            };
-
-            appBuilder.Instance.ApplicationLifetime = lifeTime;
-            appBuilder.Instance.OnFrameworkInitializationCompleted();
-
             return builder.Instance;
         }
 
