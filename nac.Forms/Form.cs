@@ -85,7 +85,8 @@ namespace nac.Forms
 
         public delegate void ConfigureAppBuilder(Avalonia.AppBuilder appBuilder);
 
-        public static Form NewForm(ConfigureAppBuilder beforeAppBuilderInit = null)
+
+        internal static Avalonia.Application SetupAvaloniaApp(ConfigureAppBuilder beforeAppBuilderInit = null)
         {
             var appBuilder = Avalonia.AppBuilder.Configure<nac.Forms.App>();
             beforeAppBuilderInit?.Invoke(appBuilder);
@@ -94,7 +95,13 @@ namespace nac.Forms
                 .UsePlatformDetect()
                 .SetupWithoutStarting();
 
-            var f = new Form(builder.Instance);
+            return builder.Instance;
+        }
+
+        public static Form NewForm(ConfigureAppBuilder beforeAppBuilderInit = null)
+        {
+            var app = SetupAvaloniaApp(beforeAppBuilderInit: beforeAppBuilderInit);
+            var f = new Form(app);
             return f;
         }
 
