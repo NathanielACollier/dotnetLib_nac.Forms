@@ -163,7 +163,7 @@ namespace nac.Forms
             return subWindow.ShowDialog(win);
         }
         
-        private async Task<bool> Display_Internal(int height, int width,
+        internal async Task<bool> Display_Internal(int height, int width,
             Func<Form, Task<bool?>> onClosing = null,
             Func<Form, Task> onDisplay = null,
             bool isDialog = false)
