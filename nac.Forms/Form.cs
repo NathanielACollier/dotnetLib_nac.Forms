@@ -18,7 +18,7 @@ namespace nac.Forms
 
         private Grid Host { get; set; }
         private Dictionary<string, Control> controlsIndex;
-        public lib.BindableDynamicDictionary Model { get; set; }
+        public nac.utilities.BindableDynamicDictionary Model { get; set; }
         private Application app;
         private Window win;
         private Form parentForm;
@@ -37,12 +37,12 @@ namespace nac.Forms
             set { this.win.Title = value; }
         }
 
-        public Form(Application __app, lib.BindableDynamicDictionary _model=null)
+        public Form(Application __app, nac.utilities.BindableDynamicDictionary _model =null)
         {
             if( _model == null)
             {
                 // parent form
-                this.Model = new lib.BindableDynamicDictionary();
+                this.Model = new nac.utilities.BindableDynamicDictionary();
                 this.isMainForm = true;
             }
             else
@@ -77,7 +77,7 @@ namespace nac.Forms
             this.parentForm = _parentForm;
         }
 
-        public Form(Form _parentForm, lib.BindableDynamicDictionary _model) : this(__app: _parentForm.app,
+        public Form(Form _parentForm, nac.utilities.BindableDynamicDictionary _model) : this(__app: _parentForm.app,
             _model: _model)
         {
             this.parentForm = _parentForm;
@@ -155,7 +155,7 @@ namespace nac.Forms
             var childFormModel = this.Model;
             if (useIsolatedModelForThisChildForm == true)
             {
-                childFormModel = new BindableDynamicDictionary();
+                childFormModel = new nac.utilities.BindableDynamicDictionary();
             }
             var childForm = new Form(_parentForm: this, _model: childFormModel);
 
