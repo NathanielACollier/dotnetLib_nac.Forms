@@ -3,6 +3,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using System.Linq;
 using nac.Forms;
+using Avalonia.Logging;
+using System;
 
 // bring in the extensions
 
@@ -59,6 +61,30 @@ namespace Tests
                        .Text("Text Below");
              }, isSplit: true)
                 .Display();
+        }
+
+
+
+        [TestMethod]
+        public async Task StartUI_SetupSpecialUIThread()
+        {
+            nac.Forms.lib.AvaloniaAppManager.GlobalAppBuilderConfigurFunction = (appBuilder) =>
+            {
+                appBuilder.LogToTrace(LogEventLevel.Debug);
+                System.Diagnostics.Debug.WriteLine("[nac.Forms.Testing] - Avalonia LogToTrace Setup");
+            };
+
+            await nac.Forms.lib.AvaloniaAppManager.DisplayForm(async f =>
+            {
+                f.Text("Special UI Thread.  Never use this unless you know why you used it.  Will not work on macos where UI must be on the main thread");
+            });
+
+            await nac.Forms.lib.AvaloniaAppManager.DisplayForm(async f =>
+            {
+                f.Text("A second form on the avalonia App");
+            });
+
+            System.Diagnostics.Debug.WriteLine("Test finished");
         }
         
         
