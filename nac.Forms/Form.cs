@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data;
 using nac.Forms.lib;
 using nac.Forms.model;
@@ -85,16 +86,24 @@ namespace nac.Forms
 
         public delegate void ConfigureAppBuilder(Avalonia.AppBuilder appBuilder);
 
-        public static Form NewForm(ConfigureAppBuilder beforeAppBuilderInit = null)
+
+        internal static Avalonia.Application SetupAvaloniaApp(ConfigureAppBuilder beforeAppBuilderInit = null)
         {
             var appBuilder = Avalonia.AppBuilder.Configure<nac.Forms.App>();
             beforeAppBuilderInit?.Invoke(appBuilder);
+
             var builder = appBuilder
                 //.LogToDebug(Avalonia.Logging.LogEventLevel.Verbose)
                 .UsePlatformDetect()
                 .SetupWithoutStarting();
 
-            var f = new Form(builder.Instance);
+            return builder.Instance;
+        }
+
+        public static Form NewForm(ConfigureAppBuilder beforeAppBuilderInit = null)
+        {
+            var app = SetupAvaloniaApp(beforeAppBuilderInit: beforeAppBuilderInit);
+            var f = new Form(app);
             return f;
         }
 
@@ -163,7 +172,7 @@ namespace nac.Forms
             return subWindow.ShowDialog(win);
         }
         
-        private async Task<bool> Display_Internal(int height, int width,
+        internal async Task<bool> Display_Internal(int height, int width,
             Func<Form, Task<bool?>> onClosing = null,
             Func<Form, Task> onDisplay = null,
             bool isDialog = false)
