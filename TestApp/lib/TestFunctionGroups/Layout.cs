@@ -2,12 +2,12 @@ using System;
 using nac.Forms;
 using nac.Forms.model;
 
-using log = TestApp.model.LogEntry;
-
 namespace TestApp.lib.TestFunctionGroups;
 
 public class Layout
 {
+    private static nac.Logging.Logger log = new();
+
     public static void HorizontalSplit(Form child)
     {
         child.HorizontalGroup(grp=> {
@@ -54,7 +54,7 @@ public class Layout
                     vg1.Text("Here is a column of controls in a vertical group")
                         .Button("Click Me!", async ()=>
                         {
-                            log.info("vg1 button click");
+                            log.Info("vg1 button click");
                         });
                 })
                 .VerticalGroup((vg2) =>
@@ -62,7 +62,7 @@ public class Layout
                     vg2.Text("Here is a second column of controls")
                         .Button("Click me 2!!", async () =>
                         {
-                            log.info("vg2 button click");
+                            log.Info("vg2 button click");
                         });
                 });
         });
@@ -79,7 +79,7 @@ public class Layout
                     vg1.Text("Here is a column of controls in a vertical group")
                         .Button("Click Me!", async ()=>
                         {
-                            log.info("vg1 button click");
+                            log.Info("vg1 button click");
                         });
                 })
                 .VerticalDock((vg2) =>
@@ -87,7 +87,7 @@ public class Layout
                     vg2.Text("Here is a second column of controls")
                         .Button("Click me 2!!", async () =>
                         {
-                            log.info("vg2 button click");
+                            log.Info("vg2 button click");
                         });
                 });
         });

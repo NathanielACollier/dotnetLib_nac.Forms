@@ -12,8 +12,6 @@ using nac.Forms;
 using nac.Forms.model;
 using TestApp.model;
 
-using log = TestApp.model.LogEntry;
-
 namespace TestApp.lib;
 
 public static class TestFunctions

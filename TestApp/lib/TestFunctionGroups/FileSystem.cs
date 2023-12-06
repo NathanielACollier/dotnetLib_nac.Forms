@@ -5,10 +5,12 @@ namespace TestApp.lib.TestFunctionGroups;
 
 public class FileSystem
 {
+    private static nac.Logging.Logger log = new();
+
     public static void FilePickerBasic(Form f)
     {
         f.FilePathFor("myPath",
-                onFilePathChanged: async (newFileName) => { model.LogEntry.debug($"New Filename is: {newFileName}"); })
+                onFilePathChanged: async (newFileName) => { log.Debug($"New Filename is: {newFileName}"); })
             .HorizontalGroup(hg =>
             {
                 hg.Text("You picked file: ")
@@ -24,7 +26,7 @@ public class FileSystem
                 h.FilePathFor("myPath1",
                         onFilePathChanged: async (newFileName1) =>
                         {
-                            model.LogEntry.debug($"------New Filename for path1 is: {newFileName1}");
+                            log.Debug($"------New Filename for path1 is: {newFileName1}");
                         })
                     .HorizontalGroup(hg =>
                     {
@@ -37,7 +39,7 @@ public class FileSystem
                 h.FilePathFor("myPath2",
                         onFilePathChanged: async (newFileName2) =>
                         {
-                            model.LogEntry.debug($"++++++New Filename for path2 is: {newFileName2}");
+                            log.Debug($"++++++New Filename for path2 is: {newFileName2}");
                         })
                     .HorizontalGroup(hg =>
                     {
@@ -50,7 +52,7 @@ public class FileSystem
                 h.DirectoryPathFor("myDirPath1",
                         onDirectoryPathChanged: async (newDirPath1) =>
                         {
-                            model.LogEntry.debug($"++++++New DirectoryPath for path1 is: {newDirPath1}");
+                            log.Debug($"++++++New DirectoryPath for path1 is: {newDirPath1}");
                         })
                     .HorizontalGroup(hg =>
                     {
@@ -63,7 +65,7 @@ public class FileSystem
                 h.DirectoryPathFor("myDirPath2",
                         onDirectoryPathChanged: async (newDirPath2) =>
                         {
-                            model.LogEntry.debug($"------New DirectoryPath for path2 is: {newDirPath2}");
+                            log.Debug($"------New DirectoryPath for path2 is: {newDirPath2}");
                         })
                     .HorizontalGroup(hg =>
                     {
@@ -80,7 +82,7 @@ public class FileSystem
         f.FilePathFor("myPath", fileMustExist: false,
                 onFilePathChanged: async (newFileName) =>
                 {
-                    model.LogEntry.debug($"New filename is: {newFileName}");
+                    log.Debug($"New filename is: {newFileName}");
                 })
             .HorizontalGroup(hg =>
             {
@@ -98,7 +100,7 @@ public class FileSystem
         f.DirectoryPathFor("myPath",
                 onDirectoryPathChanged: async (newFilePath) =>
                 {
-                    model.LogEntry.debug($"New Directory path is: {newFilePath}");
+                    log.Debug($"New Directory path is: {newFilePath}");
                 })
             .HorizontalGroup(hg =>
             {
@@ -118,8 +120,8 @@ public class FileSystem
         f.DirectoryPathFor(nameof(model.DirectoryPathFormWindowModel.myPath),
                 onDirectoryPathChanged: async (newFilePath) =>
                 {
-                    model.LogEntry.info($"New Directory path is: {newFilePath}");
-                    model.LogEntry.info($"      Model myPath: {myModel.myPath}");
+                    log.Info($"New Directory path is: {newFilePath}");
+                    log.Info($"      Model myPath: {myModel.myPath}");
                 })
             .HorizontalGroup(hg =>
             {
@@ -130,8 +132,8 @@ public class FileSystem
             .DirectoryPathFor(nameof(model.DirectoryPathFormWindowModel.pathWithoutBeingInit),
                 onDirectoryPathChanged: async (newPath) =>
                 {
-                    model.LogEntry.info($"Old path: {myModel.pathWithoutBeingInit}");
-                    model.LogEntry.info($"New path: {newPath}");
+                    log.Info($"Old path: {myModel.pathWithoutBeingInit}");
+                    log.Info($"New path: {newPath}");
                 });
     }
     

@@ -3,13 +3,11 @@ using Avalonia.Media;
 using nac.Forms;
 using nac.Forms.model;
 
-using log = TestApp.model.LogEntry;
-
 namespace TestApp.lib.TestFunctionGroups;
 
 public class Text
 {
-    
+    private static nac.Logging.Logger log = new();
     
     public static void DisplayWhatIsTyped(Form child)
     {
@@ -54,7 +52,7 @@ public class Text
             {
                 hg.Button("Red", async () =>
                 {
-                    log.info("Red button click");
+                    log.Info("Red button click");
                 }, style: new nac.Forms.model.Style
                 {
                     backgroundColor = Avalonia.Media.Colors.Red,

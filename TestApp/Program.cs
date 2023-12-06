@@ -15,7 +15,8 @@ namespace TestApp
 {
     class Program
     {
-        
+        private static nac.Logging.Logger log = new();
+
         static void Main(string[] args)
         {
             setupNacFormsLogging();
@@ -33,17 +34,15 @@ namespace TestApp
                 nac.Forms.lib.AvaloniaAppManager.Shutdown(); // this isn't needed, and is a test to make sure it's safe to call it
             }catch(Exception ex)
             {
-                model.LogEntry.error($"App Exception occured: {ex}");
+                log.Fatal($"App Exception occured: {ex}");
             }
 
         }
 
         private static void setupNacFormsLogging()
         {
-            nac.Forms.lib.Log.OnNewMessage += (_s, _logEntry) =>
+            nac.Logging.Logger.OnNewMessage += (_s, _logEntry) =>
             {
-                string line = $"[{_logEntry.EventDate:hh_mm_tt}] - {_logEntry.Level} - {_logEntry.CallingMemberName} - {_logEntry.Message}";
-
                 if( string.Equals(_logEntry.Level, "Info", StringComparison.OrdinalIgnoreCase)){
                     System.Console.ForegroundColor = ConsoleColor.White;
                 }else if( string.Equals(_logEntry.Level, "Debug", StringComparison.OrdinalIgnoreCase)){
@@ -53,7 +52,7 @@ namespace TestApp
                 }else if( string.Equals(_logEntry.Level, "Error", StringComparison.OrdinalIgnoreCase)){
                     System.Console.ForegroundColor = ConsoleColor.Red;
                 }
-                System.Console.WriteLine(line);
+                System.Console.WriteLine(_logEntry);
 
                 System.Console.ResetColor();
             };
@@ -99,7 +98,7 @@ namespace TestApp
 
         private static void invokeTest(nac.Forms.Form parentForm, model.TestEntry test)
         {
-            model.LogEntry.info($"Test: [name={test.Name}] starting");
+            log.Info($"Test: [name={test.Name}] starting");
             try
             {
                 if (test.SetupChildForm)
@@ -115,7 +114,7 @@ namespace TestApp
                             logException(test, t.Exception);
                             return; // skip whatever else is going on
                         }
-                        model.LogEntry.info($"Test: [name={test.Name}] is complete");
+                        log.Info($"Test: [name={test.Name}] is complete");
                     });
                 }
                 else
@@ -136,7 +135,7 @@ namespace TestApp
         private static void logException(model.TestEntry test, Exception ex)
         {
             string errorMessage = $"Error, trying [{test.Name}].  Exception: {ex}";
-            model.LogEntry.error(errorMessage);
+            log.Error(errorMessage);
             writeLineError(errorMessage);
         }
 

@@ -132,11 +132,11 @@ public class Table
 
     public static void ObservableCollectionBindableDictionary(Form f)
     {
-        var list = new ObservableCollection<nac.Forms.lib.BindableDynamicDictionary>();
+        var list = new ObservableCollection<nac.utilities.BindableDynamicDictionary>();
 
         f.Model["list"] = list;
 
-        var firstItem = new nac.Forms.lib.BindableDynamicDictionary();
+        var firstItem = new nac.utilities.BindableDynamicDictionary();
         firstItem["firstName"] = "Apple";
         list.Add(firstItem);
 
@@ -147,11 +147,11 @@ public class Table
             })
             .Button("Add", async () =>
             {
-                dynamic newItem = new nac.Forms.lib.BindableDynamicDictionary();
+                dynamic newItem = new nac.utilities.BindableDynamicDictionary();
                 newItem.firstName = f.Model["firstName"] as string;
                 list.Add(newItem);
             })
-            .Table<nac.Forms.lib.BindableDynamicDictionary>("list",
+            .Table<nac.utilities.BindableDynamicDictionary>("list",
                 columns: new[]
                 {
                     new nac.Forms.model.Column

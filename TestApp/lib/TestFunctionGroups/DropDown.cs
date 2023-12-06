@@ -2,12 +2,13 @@ using System.Collections.ObjectModel;
 using nac.Forms;
 using nac.Forms.model;
 
-using log = TestApp.model.LogEntry;
 
 namespace TestApp.lib.TestFunctionGroups;
 
 public class DropDown
 {
+    private static nac.Logging.Logger log = new();
+
     public static void SimpleTextSelection(Form f)
     {
         var items = new ObservableCollection<string>();
@@ -79,7 +80,7 @@ public class DropDown
                     .SelectedContact),
                 onSelectionChanged: (_c) =>
                 {
-                    log.info($"You selected {_c?.DisplayName}");
+                    log.Info($"You selected {_c?.DisplayName}");
                 }, populateItemRow: r =>
                 {
                     r.HorizontalGroup(h => h.Text("DisplayName: ").TextFor("DisplayName"));
