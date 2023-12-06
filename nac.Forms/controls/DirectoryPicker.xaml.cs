@@ -10,7 +10,7 @@ namespace nac.Forms.controls;
 
 public class DirectoryPicker: UserControl
 {
-    private static lib.Log log = new lib.Log();
+    private static nac.Logging.Logger log = new();
     /*
      -----
      Events

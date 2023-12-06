@@ -14,7 +14,7 @@ namespace nac.Forms
 {
     public partial class Form
     {
-        private static lib.Log log = new lib.Log();
+        private static nac.Logging.Logger log = new();
 
         private Grid Host { get; set; }
         private Dictionary<string, Control> controlsIndex;

@@ -20,7 +20,7 @@ namespace nac.Forms.lib;
 
 public static class AvaloniaAppManager
 {
-    private static lib.Log log = new();
+    private static nac.Logging.Logger log = new();
     public static nac.Forms.Form.ConfigureAppBuilder GlobalAppBuilderConfigurFunction;
     private static Avalonia.Application app;
     private static CancellationTokenSource appCancelSource = new();
