@@ -68,7 +68,7 @@ namespace Tests
         [TestMethod]
         public async Task StartUI_SetupSpecialUIThread()
         {
-            nac.Forms.lib.Log.OnNewMessage += (_s, _args) =>
+            nac.Logging.Logger.OnNewMessage += (_s, _args) =>
             {
                 System.Diagnostics.Debug.WriteLine(_args);
             };
