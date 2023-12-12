@@ -204,7 +204,7 @@ namespace nac.Forms
             if (onDisplay != null)
             {
                 // showing the form, so notify people if they wanted notification
-                onDisplay.Invoke(this);
+                await onDisplay.Invoke(this);
             }
 
             if (isDialog)
