@@ -106,8 +106,38 @@ namespace Tests
 
             System.Diagnostics.Debug.WriteLine("Test finished");
         }
-        
-        
+
+
+
+        [TestMethod]
+        public async Task InterruptFormThatisRunningViaAppShutdown()
+        {
+            await nac.Forms.lib.AvaloniaAppManager.DisplayForm(async f =>
+            {
+                f.HorizontalGroup(hg =>
+                {
+                    hg.Text("Current Time is: ")
+                    .TextFor("CurrentTime");
+                })
+                .Button("stop", async () =>
+                {
+                    nac.Forms.lib.AvaloniaAppManager.Shutdown();
+                });
+            }, onDisplay: async f=>
+            {
+                await Task.Run(async () =>
+                {
+                    while (1 == 1)
+                    {
+                        await f.InvokeAsync(async () =>
+                        {
+                            f.Model["CurrentTime"] = DateTime.Now.ToString();
+                        });
+                        await Task.Delay(200);
+                    }
+                });
+            });
+        }
         
     }
 }
