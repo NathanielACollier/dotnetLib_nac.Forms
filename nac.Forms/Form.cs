@@ -145,7 +145,7 @@ namespace nac.Forms
             });
         }
 
-        public async Task<bool> DisplayChildForm(Action<Form> setupChildForm, int height = 600, int width = 800,
+        public Task DisplayChildForm(Action<Form> setupChildForm, int height = 600, int width = 800,
             Func<Form, Task<bool?>> onClosing = null,
             Func<Form, Task> onDisplay = null,
             bool useIsolatedModelForThisChildForm = false,
@@ -161,7 +161,7 @@ namespace nac.Forms
 
             setupChildForm(childForm);
 
-            return await childForm.Display_Internal(height: height, width: width, onClosing: onClosing,
+            return childForm.Display_Internal(height: height, width: width, onClosing: onClosing,
                 onDisplay: onDisplay,
                 isDialog: isDialog
                 );
@@ -172,12 +172,14 @@ namespace nac.Forms
             return subWindow.ShowDialog(win);
         }
         
-        internal async Task<bool> Display_Internal(int height, int width,
+        internal Task Display_Internal(int height, int width,
             Func<Form, Task<bool?>> onClosing = null,
             Func<Form, Task> onDisplay = null,
             bool isDialog = false)
         {
             var promise = new System.Threading.Tasks.TaskCompletionSource<bool>();
+            var tasksToWaitOn = new List<Task> { promise.Task };
+
             win.Height = height;
             win.Width = width;
             win.Content = this.Host;
@@ -204,14 +206,18 @@ namespace nac.Forms
             if (onDisplay != null)
             {
                 // showing the form, so notify people if they wanted notification
-                await onDisplay.Invoke(this);
+                tasksToWaitOn.Add(
+                    onDisplay.Invoke(this)
+                    );
             }
 
             if (isDialog)
             {
                 if (parentForm != null)
                 {
-                    await parentForm._Internal_ShowDialog(win);
+                    tasksToWaitOn.Add(
+                        parentForm._Internal_ShowDialog(win)
+                        );
                 }
                 else
                 {
@@ -224,7 +230,7 @@ namespace nac.Forms
                 win.Show();
             }
 
-            return await promise.Task;
+            return Task.WhenAll(tasks: tasksToWaitOn.ToArray());
         }
 
         public void Display(int height = 600, int width = 800,
