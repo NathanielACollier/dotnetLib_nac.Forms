@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace TestApp.model;
 
-public class TestDataContextWindowModel : nac.Forms.model.ViewModelBase
+public class TestDataContextWindowModel : nac.ViewModelBase.ViewModelBase
     {
 
         public ObservableCollection<model.Alphabet> Letters

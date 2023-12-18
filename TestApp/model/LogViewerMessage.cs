@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TestApp.model;
 
-internal class LogViewerMessage : nac.Forms.model.ViewModelBase
+internal class LogViewerMessage : nac.ViewModelBase.ViewModelBase
 {
     public DateTime Date
     {

@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 
 namespace TestApp.model
 {
-    public class ContactWindowMainModel : nac.Forms.model.ViewModelBase
+    public class ContactWindowMainModel : nac.ViewModelBase.ViewModelBase
     {
 
         public model.Contact Contact
