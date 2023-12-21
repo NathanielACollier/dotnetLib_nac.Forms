@@ -38,7 +38,12 @@ public static class AvaloniaAppManager
             app.Run(token: appCancelSource.Token);
         });
         // configure the thread
-        mainThread.SetApartmentState(ApartmentState.STA);
+        
+        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+        {
+            mainThread.SetApartmentState(ApartmentState.STA);
+        }
+        
         mainThread.Start();
 
         return promise.Task;
