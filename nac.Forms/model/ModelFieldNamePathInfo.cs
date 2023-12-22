@@ -6,8 +6,8 @@ namespace nac.Forms.model
 {
     public class ModelFieldNamePathInfo
     {
-        private static lib.Log log = new lib.Log();
-        
+        private static nac.Logging.Logger log = new();
+
         public string Current { get; set; }
         public string ChildPath { get; set; }
 

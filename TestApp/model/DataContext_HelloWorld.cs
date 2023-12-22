@@ -1,6 +1,6 @@
 namespace TestApp.model
 {
-    public class DataContext_HelloWorld: nac.Forms.model.ViewModelBase
+    public class DataContext_HelloWorld: nac.ViewModelBase.ViewModelBase
     {
         public string Message
         {

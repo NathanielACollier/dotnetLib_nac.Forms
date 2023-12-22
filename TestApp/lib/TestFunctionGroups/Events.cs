@@ -30,14 +30,18 @@ public class Events
             int secondsOfRuntime = 0;
             await Task.Run(async () =>
             {
-                while (secondsOfRuntime < 60*1)
+                while (secondsOfRuntime < 60 * 1)
                 {
                     f.Model["currentTime"] = DateTime.Now.ToLongTimeString();
                     await Task.Delay(millisecondsDelay: 1000);
                     ++secondsOfRuntime;
                 }
             });
-        }, useIsolatedModelForThisChildForm: true);
+        }, useIsolatedModelForThisChildForm: true)
+         .ContinueWith(t =>
+         {
+             Console.WriteLine("Form is complete");
+         });
     }
     
     

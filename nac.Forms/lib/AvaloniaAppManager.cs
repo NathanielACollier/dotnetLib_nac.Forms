@@ -1,6 +1,9 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,16 +15,18 @@ namespace nac.Forms.lib;
   - It will keep a reference to a "Main" form an spin off child forms for each new thing needed
     !!REMEMBER!!
     + On some operating systems like MACOS you cannot run the UI on a seperate thread than the main thread
-    + Allways try and use Display() directly first, and if you run into some situation you can use StartUI
-    + You cannot call this from an existing avalonia app.
+    + Always try and use Display() directly first, and if you run into some situation you can use StartUI
 */
+
 
 public static class AvaloniaAppManager
 {
-    private static lib.Log log = new();
+    private static nac.Logging.Logger log = new();
     public static nac.Forms.Form.ConfigureAppBuilder GlobalAppBuilderConfigurFunction;
-    public static Avalonia.Application app;
-    public static CancellationTokenSource appCancelSource = new();
+    private static Avalonia.Application app;
+    private static CancellationTokenSource appCancelSource = new();
+    private static bool appIsShutdown = false;
+    private static List<nac.Forms.Form> openFormsTrackerList = new();
     
     private static Task<bool> StartAvaloniaApplication()
     {
@@ -35,7 +40,12 @@ public static class AvaloniaAppManager
             app.Run(token: appCancelSource.Token);
         });
         // configure the thread
-        mainThread.SetApartmentState(ApartmentState.STA);
+        
+        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+        {
+            mainThread.SetApartmentState(ApartmentState.STA);
+        }
+        
         mainThread.Start();
 
         return promise.Task;
@@ -55,6 +65,7 @@ public static class AvaloniaAppManager
             // Sending a null model means it will be a parent form
             var form = new nac.Forms.Form(__app: app,
                 _model: null);
+            openFormsTrackerList.Add(form);
 
             log.Info("Building Form");
             buildFormFunction(form);
@@ -72,6 +83,7 @@ public static class AvaloniaAppManager
 
                     return false;
                 }, onDisplay: onDisplay);
+            openFormsTrackerList.Remove(form);
         });
 
         return true;
@@ -84,6 +96,11 @@ public static class AvaloniaAppManager
         Func<Form, Task> onDisplay = null)
     {
         log.Info("Starting display of form");
+        if (appIsShutdown)
+        {
+            throw new Exception("Avalonia App Manager is shutdown.  You cannot start it back in this process");
+        }
+
         if (Avalonia.Application.Current == null)
         {
             log.Info("Creating new Avalonia Application");
@@ -99,5 +116,37 @@ public static class AvaloniaAppManager
             onDisplay: onDisplay);
     }
 
+
+    /*
+     Shutdown is a permanent action.  You cannot start the Avalonia thread back up again
+     */
+    public static void Shutdown()
+    {
+        if(app == null)
+        {
+            return; // if app is null then we didn't setup Avalonia so we won't be doing anything with it
+        }
+        
+        log.Info("Closing all open forms");
+        foreach (var f in openFormsTrackerList
+                     .ToList() // copy the list so that we don't get the collection was modified in foreach exception
+                 )
+        {
+            f.Close();
+            openFormsTrackerList.Remove(f);
+        }
+
+        log.Info("Starting Avalonia App shutdown");
+
+        appCancelSource.Cancel();
+
+        log.Info("Cleaning up variables");
+        app = null;
+        appCancelSource.Dispose();
+        appIsShutdown = true;
+
+        log.Info("Shutdown is finished");
+        
+    }
 
 }

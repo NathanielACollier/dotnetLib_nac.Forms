@@ -26,7 +26,7 @@ public partial class Form
             dg.AutoGenerateColumns = autoGenerateColumns;
             
             // special case for the columns in our special dictionary
-            if ( autoGenerateColumns == true && getModelValue(itemsModelFieldName)?.Value is IEnumerable<nac.Forms.lib.BindableDynamicDictionary> dictList)
+            if ( autoGenerateColumns == true && getModelValue(itemsModelFieldName)?.Value is IEnumerable<nac.utilities.BindableDynamicDictionary> dictList)
             {
                 dg.AutoGenerateColumns = false; // we are going to generate our own columns
                 var newColumns = new List<model.Column>();
@@ -57,7 +57,7 @@ public partial class Form
                         col.Header = c.Header;
                         col.CellTemplate = new FuncDataTemplate<object>((itemModel, nameScope) =>
                         {
-                            var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
+                            var rowForm = new Form(__app: this.app, _model: new nac.utilities.BindableDynamicDictionary());
                             
                             // this has to have a unique model
                             rowForm.DataContext = itemModel;
@@ -89,7 +89,7 @@ public partial class Form
             return this;
         }
 
-        private IEnumerable<model.Column> generateColumnsForBindableDynamicDictionary(IEnumerable<BindableDynamicDictionary> dictList)
+        private IEnumerable<model.Column> generateColumnsForBindableDynamicDictionary(IEnumerable<nac.utilities.BindableDynamicDictionary> dictList)
         {
             var dictColumns = new List<model.Column>();
 

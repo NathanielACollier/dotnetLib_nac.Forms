@@ -14,11 +14,11 @@ namespace nac.Forms
 {
     public partial class Form
     {
-        private static lib.Log log = new lib.Log();
+        private static nac.Logging.Logger log = new();
 
         private Grid Host { get; set; }
         private Dictionary<string, Control> controlsIndex;
-        public lib.BindableDynamicDictionary Model { get; set; }
+        public nac.utilities.BindableDynamicDictionary Model { get; set; }
         private Application app;
         private Window win;
         private Form parentForm;
@@ -37,12 +37,12 @@ namespace nac.Forms
             set { this.win.Title = value; }
         }
 
-        public Form(Application __app, lib.BindableDynamicDictionary _model=null)
+        public Form(Application __app, nac.utilities.BindableDynamicDictionary _model =null)
         {
             if( _model == null)
             {
                 // parent form
-                this.Model = new lib.BindableDynamicDictionary();
+                this.Model = new nac.utilities.BindableDynamicDictionary();
                 this.isMainForm = true;
             }
             else
@@ -77,7 +77,7 @@ namespace nac.Forms
             this.parentForm = _parentForm;
         }
 
-        public Form(Form _parentForm, lib.BindableDynamicDictionary _model) : this(__app: _parentForm.app,
+        public Form(Form _parentForm, nac.utilities.BindableDynamicDictionary _model) : this(__app: _parentForm.app,
             _model: _model)
         {
             this.parentForm = _parentForm;
@@ -145,7 +145,7 @@ namespace nac.Forms
             });
         }
 
-        public async Task<bool> DisplayChildForm(Action<Form> setupChildForm, int height = 600, int width = 800,
+        public Task DisplayChildForm(Action<Form> setupChildForm, int height = 600, int width = 800,
             Func<Form, Task<bool?>> onClosing = null,
             Func<Form, Task> onDisplay = null,
             bool useIsolatedModelForThisChildForm = false,
@@ -155,13 +155,13 @@ namespace nac.Forms
             var childFormModel = this.Model;
             if (useIsolatedModelForThisChildForm == true)
             {
-                childFormModel = new BindableDynamicDictionary();
+                childFormModel = new nac.utilities.BindableDynamicDictionary();
             }
             var childForm = new Form(_parentForm: this, _model: childFormModel);
 
             setupChildForm(childForm);
 
-            return await childForm.Display_Internal(height: height, width: width, onClosing: onClosing,
+            return childForm.Display_Internal(height: height, width: width, onClosing: onClosing,
                 onDisplay: onDisplay,
                 isDialog: isDialog
                 );
@@ -172,12 +172,14 @@ namespace nac.Forms
             return subWindow.ShowDialog(win);
         }
         
-        internal async Task<bool> Display_Internal(int height, int width,
+        internal Task Display_Internal(int height, int width,
             Func<Form, Task<bool?>> onClosing = null,
             Func<Form, Task> onDisplay = null,
             bool isDialog = false)
         {
             var promise = new System.Threading.Tasks.TaskCompletionSource<bool>();
+            var tasksToWaitOn = new List<Task> { promise.Task };
+
             win.Height = height;
             win.Width = width;
             win.Content = this.Host;
@@ -204,14 +206,18 @@ namespace nac.Forms
             if (onDisplay != null)
             {
                 // showing the form, so notify people if they wanted notification
-                onDisplay.Invoke(this);
+                tasksToWaitOn.Add(
+                    onDisplay.Invoke(this)
+                    );
             }
 
             if (isDialog)
             {
                 if (parentForm != null)
                 {
-                    await parentForm._Internal_ShowDialog(win);
+                    tasksToWaitOn.Add(
+                        parentForm._Internal_ShowDialog(win)
+                        );
                 }
                 else
                 {
@@ -224,7 +230,7 @@ namespace nac.Forms
                 win.Show();
             }
 
-            return await promise.Task;
+            return Task.WhenAll(tasks: tasksToWaitOn.ToArray());
         }
 
         public void Display(int height = 600, int width = 800,
@@ -266,7 +272,7 @@ namespace nac.Forms
 
         internal Grid getBoundControlFromPopulateForm(Action<Form> buildFormAction)
         {
-            var rowForm = new Form(__app: this.app, _model: new lib.BindableDynamicDictionary());
+            var rowForm = new Form(__app: this.app, _model: new nac.utilities.BindableDynamicDictionary());
             // this has to have a unique model
             rowForm.DataContext = getBindingSource();
             buildFormAction(rowForm);

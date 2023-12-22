@@ -9,13 +9,12 @@ using nac.Forms.lib;
 using nac.Forms.model;
 using TestApp.model;
 
-using log = TestApp.model.LogEntry;
 
 namespace TestApp.lib.TestFunctionGroups;
 
 public class List
 {
-    
+    private static nac.Logging.Logger log = new();
     
     public static void ButtonCounter(Form child)
     {   
@@ -48,18 +47,18 @@ public class List
     
     public static void ItemsControlSimple(Form child)
     {
-        var items = new System.Collections.ObjectModel.ObservableCollection<nac.Forms.lib.BindableDynamicDictionary>();
+        var items = new System.Collections.ObjectModel.ObservableCollection<nac.utilities.BindableDynamicDictionary>();
         child.Model["items"]  = items;
-        var newItem = new nac.Forms.lib.BindableDynamicDictionary();
+        var newItem = new nac.utilities.BindableDynamicDictionary();
         newItem["Prop1"] = "fish";
             
         items.Add(newItem);
-        newItem = new nac.Forms.lib.BindableDynamicDictionary();
+        newItem = new nac.utilities.BindableDynamicDictionary();
         newItem["Prop1"] = "Blanket";
         items.Add(newItem);
 
         child.Text("Simple List")
-            .List<nac.Forms.lib.BindableDynamicDictionary>("items", (itemForm) =>
+            .List<nac.utilities.BindableDynamicDictionary>("items", (itemForm) =>
             {
                 itemForm.TextFor("Prop1");
             }, style: new Style()
@@ -69,12 +68,12 @@ public class List
                 backgroundColor = Avalonia.Media.Colors.Aquamarine
             }, onSelectionChanged: (_selectedEntries) =>
             {
-                log.info($"New items selected: {string.Join(",", _selectedEntries.Select(m=>m["Prop1"] as string))}");
+                log.Info($"New items selected: {string.Join(",", _selectedEntries.Select(m=>m["Prop1"] as string))}");
             })
             .HorizontalGroup((hgChild) =>
             {
                 // default some stuff
-                child.Model["NewItem"] = nac.Forms.lib.BindableDynamicDictionary.From(new
+                child.Model["NewItem"] = nac.utilities.BindableDynamicDictionary.From(new
                 {
                     Prop1 = "Frog Prince"
                 });
@@ -83,14 +82,14 @@ public class List
                     .TextBoxFor("NewItem.Prop1")
                     .Button("Add Item", async () =>
                     {
-                        newItem = new nac.Forms.lib.BindableDynamicDictionary();
+                        newItem = new nac.utilities.BindableDynamicDictionary();
                         newItem["Prop1"] = child.Model.GetAsDict("NewItem")["Prop1"] as string;
                         items.Add(newItem);
                     });
             });
 
         lib.UIElementsUtility.logViewer(child);
-        log.info("App Ready to go");
+        log.Info("App Ready to go");
     }
     
     
@@ -106,7 +105,7 @@ public class List
             .List<string>(itemSourcePropertyName: "myList",
                 onSelectionChanged: (selectedItems) =>
                 {
-                    log.info("You selected: " + string.Join(";", selectedItems));
+                    log.Info("You selected: " + string.Join(";", selectedItems));
                 });
 
         lib.UIElementsUtility.logViewer(f);
@@ -152,21 +151,21 @@ public class List
 
     private static void WrapPanel(Form f)
     {
-        var items = new ObservableCollection<BindableDynamicDictionary>
+        var items = new ObservableCollection<nac.utilities.BindableDynamicDictionary>
         {
-            BindableDynamicDictionary.From(new
+            nac.utilities.BindableDynamicDictionary.From(new
             {
                 Text = "Alpha"
             }),
-            BindableDynamicDictionary.From(new
+            nac.utilities.BindableDynamicDictionary.From(new
             {
                 Text = "Bravo"
             }),
-            BindableDynamicDictionary.From(new
+            nac.utilities.BindableDynamicDictionary.From(new
             {
                 Text = "Charlie"
             }),
-            BindableDynamicDictionary.From(new
+            nac.utilities.BindableDynamicDictionary.From(new
             {
                 Text = "Delta"
             })
@@ -177,11 +176,11 @@ public class List
         {
             hg.Text("You choose: ", style: "color:red;")
                 .TextBoxFor("current");
-        }).List<BindableDynamicDictionary>("items", row =>
+        }).List<nac.utilities.BindableDynamicDictionary>("items", row =>
         {
             row.Button(btn => btn.TextFor("Text"), onClick: async () =>
             {
-                f.Model["current"] = (row.DataContext as BindableDynamicDictionary)["Text"];
+                f.Model["current"] = (row.DataContext as nac.utilities.BindableDynamicDictionary)["Text"];
             });
         }, wrapContent: true);
     }

@@ -4,12 +4,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using nac.Forms;
 using nac.Forms.model;
-using log = TestApp.model.LogEntry;
 
 namespace TestApp.lib.TestFunctionGroups;
 
 public class AGroup
 {
+    private static nac.Logging.Logger log = new();
+
     /*
      This is for stuff that doesn't fit anywhere else
      + TODO: Should be reviewed periodically to see if we need new groups
@@ -19,7 +20,7 @@ public class AGroup
     public static void ATest1(Form child)
     {
         child.TextBoxFor("txt")
-            .Button("Click Me!", async () => { log.info("Button clicked"); });
+            .Button("Click Me!", async () => { log.Info("Button clicked"); });
     }
 
 
@@ -165,7 +166,7 @@ public class AGroup
                 child.Text("I'm show");
             }, isDialog: false);
 
-            log.info("After show is displayed");
+            log.Info("After show is displayed");
         }).Button("ShowDialog", async () =>
         {
             await f.DisplayChildForm(child =>
@@ -173,12 +174,20 @@ public class AGroup
                 child.Text("I'm Show Dialog");
             }, isDialog: true);
 
-            log.info("After show dialog is displayed");
+            log.Info("After show dialog is displayed");
         });
     }
     
     
     
+
+    public static async void AppManager_CreateWindowWithExistingAvaloniaApp(Form f)
+    {
+        await nac.Forms.lib.AvaloniaAppManager.DisplayForm(outsideF =>
+        {
+            outsideF.Text("I'm reusing the existing Avalonia App to create a new window");
+        });
+    }
     
     
     

@@ -1,6 +1,6 @@
 namespace TestApp.model
 {
-    public class Contact : nac.Forms.model.ViewModelBase
+    public class Contact : nac.ViewModelBase.ViewModelBase
     {
         public string DisplayName
         {

@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 
 namespace TestApp.model
 {
-    public class DropDown_DataContext_BindSelectedItem_MainWindowModel : nac.Forms.model.ViewModelBase
+    public class DropDown_DataContext_BindSelectedItem_MainWindowModel : nac.ViewModelBase.ViewModelBase
     {
         public ObservableCollection<model.Contact> ContactList
         {

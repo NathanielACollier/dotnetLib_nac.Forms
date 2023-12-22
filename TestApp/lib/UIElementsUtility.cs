@@ -10,24 +10,37 @@ namespace TestApp.lib
     {
         public static nac.Forms.Form logViewer(nac.Forms.Form f)
         {
-            var entries = new ObservableCollection<model.LogEntry>();
-            model.LogEntry.onNewMessage += (_s, _e) =>
+            var entries = new ObservableCollection<model.LogViewerMessage>();
+            nac.Logging.Logger.OnNewMessage += (_s, _e) =>
             {
+                if(_e.CallingClassType.FullName.StartsWith("nac.Forms"))
+                {
+                    return; // don't log anything from nac.Forms incase that causes problems with rendering the log messages
+                }
+
                 // Modifying the entries list has to be thread safe so use Invoke
                 f.InvokeAsync(async () =>
                 {
-                    entries.Insert(0, _e);
+                    /*
+                     REMEMBER!! - You have to use LogViewerMessage because you have to bind to INotifyPropertyChanged
+                    */
+                    entries.Insert(0, new model.LogViewerMessage
+                    {
+                        Date = _e.EventDate,
+                        Level = _e.Level,
+                        Message = _e.Message
+                    });
                 });
 
             };
 
             f.Model["logEntriesList"] = entries;
 
-            f.List<model.LogEntry>("logEntriesList", populateItemRow: (_rF) =>
+            f.List<model.LogViewerMessage>("logEntriesList", populateItemRow: (_rF) =>
             {
                 _rF.HorizontalStack(h =>
                 {
-                    var model = h.Model[nac.Forms.model.SpecialModelKeys.DataContext] as model.LogEntry;
+                    var model = h.Model[nac.Forms.model.SpecialModelKeys.DataContext] as model.LogViewerMessage;
 
                     if (model == null)
                     {
@@ -35,25 +48,25 @@ namespace TestApp.lib
                     }
 
                     var levelStyle = new nac.Forms.model.Style();
-                    if (string.Equals(model.level, "warn", StringComparison.InvariantCulture))
+                    if (string.Equals(model.Level, "warn", StringComparison.InvariantCulture))
                     {
                         levelStyle.foregroundColor = Avalonia.Media.Colors.Yellow;
-                    }else if (string.Equals(model.level, "info", StringComparison.OrdinalIgnoreCase))
+                    }else if (string.Equals(model.Level, "info", StringComparison.OrdinalIgnoreCase))
                     {
                         levelStyle.foregroundColor = Avalonia.Media.Colors.Green;
-                    }else if (string.Equals(model.level, "debug", StringComparison.OrdinalIgnoreCase))
+                    }else if (string.Equals(model.Level, "debug", StringComparison.OrdinalIgnoreCase))
                     {
                         levelStyle.foregroundColor = Avalonia.Media.Colors.Cyan;
-                    }else if (string.Equals(model.level, "error", StringComparison.OrdinalIgnoreCase))
+                    }else if (string.Equals(model.Level, "error", StringComparison.OrdinalIgnoreCase))
                     {
                         levelStyle.foregroundColor = Avalonia.Media.Colors.Red;
                     }
                     
-                    h.TextFor("date")
+                    h.TextFor(nameof(model.Date))
                         .Text(" - [")
-                        .TextFor("level", style: levelStyle)
+                        .TextFor(nameof(model.Level), style: levelStyle)
                         .Text("] - ")
-                        .TextFor("message");
+                        .TextFor(nameof(model.Message));
                 });
             });
 

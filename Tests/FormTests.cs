@@ -68,7 +68,7 @@ namespace Tests
         [TestMethod]
         public async Task StartUI_SetupSpecialUIThread()
         {
-            nac.Forms.lib.Log.OnNewMessage += (_s, _args) =>
+            nac.Logging.Logger.OnNewMessage += (_s, _args) =>
             {
                 System.Diagnostics.Debug.WriteLine(_args);
             };
@@ -89,10 +89,55 @@ namespace Tests
                 f.Text("A second form on the avalonia App");
             });
 
+            // shut it down then test creating a form after shutdown
+            nac.Forms.lib.AvaloniaAppManager.Shutdown();
+
+            try
+            {
+                await nac.Forms.lib.AvaloniaAppManager.DisplayForm(async f =>
+                {
+                    Assert.Fail("You cannot create a form after the window has shutdown");
+                    f.Text("Window After shutdown.  This is not possible");
+                });
+
+            }
+            catch (Exception ex) { }
+
+
             System.Diagnostics.Debug.WriteLine("Test finished");
         }
-        
-        
+
+
+
+        [TestMethod]
+        public async Task InterruptFormThatisRunningViaAppShutdown()
+        {
+            await nac.Forms.lib.AvaloniaAppManager.DisplayForm(async f =>
+            {
+                f.HorizontalGroup(hg =>
+                {
+                    hg.Text("Current Time is: ")
+                    .TextFor("CurrentTime");
+                })
+                .Button("stop", async () =>
+                {
+                    nac.Forms.lib.AvaloniaAppManager.Shutdown();
+                });
+            }, onDisplay: async f=>
+            {
+                await Task.Run(async () =>
+                {
+                    while (1 == 1)
+                    {
+                        await f.InvokeAsync(async () =>
+                        {
+                            f.Model["CurrentTime"] = DateTime.Now.ToString();
+                        });
+                        await Task.Delay(200);
+                    }
+                });
+            });
+        }
         
     }
 }

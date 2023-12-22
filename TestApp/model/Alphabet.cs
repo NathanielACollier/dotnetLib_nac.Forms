@@ -1,6 +1,6 @@
 namespace TestApp.model;
 
-public class Alphabet : nac.Forms.model.ViewModelBase
+public class Alphabet : nac.ViewModelBase.ViewModelBase
 {
     public string A
     {

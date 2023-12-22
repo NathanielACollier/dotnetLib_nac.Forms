@@ -1,8 +1,8 @@
-using nac.Forms.model;
+
 
 namespace TestApp.model
 {
-    public class TestList_ButtonCounterExample_ItemModel : ViewModelBase {
+    public class TestList_ButtonCounterExample_ItemModel : nac.ViewModelBase.ViewModelBase {
         public int Counter {
             get { return base.GetValue(()=> this.Counter);}
             set { base.SetValue(() => this.Counter, value);}

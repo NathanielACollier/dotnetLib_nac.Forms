@@ -35,7 +35,7 @@ public class Button
     }
     
     
-    private class Model_ClickCountInButtonWithTypedDataContext : nac.Forms.model.ViewModelBase
+    private class Model_ClickCountInButtonWithTypedDataContext : nac.ViewModelBase.ViewModelBase
     {
         public int Count
         {

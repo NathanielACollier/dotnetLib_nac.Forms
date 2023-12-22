@@ -15,4 +15,9 @@
     <None Remove="resources\*.*" />
     <EmbeddedResource Include="resources\*.*" />
   </ItemGroup>
+  
+
+  <ItemGroup>
+    <PackageReference Include="nac.ViewModelBase" Version="1.0.1" />
+  </ItemGroup>
 </Project>

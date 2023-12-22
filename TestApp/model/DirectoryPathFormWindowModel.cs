@@ -1,6 +1,6 @@
 ﻿namespace TestApp.model;
 
-public class DirectoryPathFormWindowModel: nac.Forms.model.ViewModelBase
+public class DirectoryPathFormWindowModel: nac.ViewModelBase.ViewModelBase
 {
     public string pathWithoutBeingInit
     {
