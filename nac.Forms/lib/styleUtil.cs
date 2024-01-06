@@ -144,6 +144,16 @@ namespace nac.Forms.lib
                 style.foregroundColor = Avalonia.Media.Color.Parse(cssStyle.fontColor.Value);
             }
 
+            if(cssStyle.height.IsSet)
+            {
+                style.height = cssStyle.height.Value.ValueI;
+            }
+
+            if (cssStyle.width.IsSet)
+            {
+                style.width = cssStyle.width.Value.ValueI;
+            }
+
             return style;
         }
         
