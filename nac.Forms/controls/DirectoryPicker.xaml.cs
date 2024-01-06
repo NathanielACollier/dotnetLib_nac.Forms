@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -53,31 +54,35 @@ public class DirectoryPicker: UserControl
     Methods
     --------
      */
-    private void PickDirectoryButton_OnClick(object sender, RoutedEventArgs e)
+    private async void PickDirectoryButton_OnClick(object sender, RoutedEventArgs e)
     {
-        promptForDirectoryPath();
+        await promptForDirectoryPath();
     }
 
     private async Task promptForDirectoryPath()
     {
-        var dialog = new Avalonia.Controls.OpenFolderDialog();
+        var storage = TopLevel.GetTopLevel(this).StorageProvider;
+
+        var folderOpenOptions = new Avalonia.Platform.Storage.FolderPickerOpenOptions
+        {
+            AllowMultiple = false
+        };
         
         // if there is allready a folder picked, then use it if it exists.  If something isn't right use Desktop
         if (!string.IsNullOrEmpty(this.DirectoryPath) && System.IO.Directory.Exists(this.DirectoryPath))
         {
-            dialog.Directory = this.DirectoryPath;
+            folderOpenOptions.SuggestedStartLocation = await storage.TryGetFolderFromPathAsync(new Uri(this.DirectoryPath));
         }
         else
         {
-            dialog.Directory = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+            folderOpenOptions.SuggestedStartLocation = await storage.TryGetWellKnownFolderAsync(Avalonia.Platform.Storage.WellKnownFolder.Desktop);
         }
 
-        var win = (Window)this.GetVisualRoot();
-        string result = await dialog.ShowAsync(win);
+        var folders = await storage.OpenFolderPickerAsync(folderOpenOptions);
 
-        if (!string.IsNullOrWhiteSpace(result))
+        if (folders.Any())
         {
-            DirectoryPath = result;
+            DirectoryPath = folders.First().Path.LocalPath;
         }
     }
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
