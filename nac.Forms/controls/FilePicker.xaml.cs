@@ -112,7 +112,7 @@ namespace nac.Forms.controls
                     {
                         workingDirectory = dirPath;
                     }
-                }catch(Exception ex){}
+                }catch{}
             }
             
             return workingDirectory;
