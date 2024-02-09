@@ -25,9 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia.Desktop" Version="11.0.7" />
-    <PackageReference Include="Avalonia.Diagnostics" Version="11.0.7" />
-    <PackageReference Include="Avalonia.Themes.Simple" Version="11.0.7" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.0.9" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.0.9" />
+    <PackageReference Include="Avalonia.Themes.Simple" Version="11.0.9" />
     <PackageReference Include="nac.Logging" Version="1.0.3" />
     <PackageReference Include="nac.utilities" Version="1.0.2" />
     <PackageReference Include="nac.CSSParsing" Version="1.0.2" />
