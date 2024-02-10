@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
 
 using nac.utilities;
@@ -84,17 +85,17 @@ namespace nac.Forms.controls
         }
 
 
-        private void openFileDialogButton_OnClick(object sender, RoutedEventArgs e)
+        private async void openFileDialogButton_OnClick(object sender, RoutedEventArgs e)
         {
             if (FileMustExist)
             {
                 // OpenFileDIalog
-                promptForFileThatExists();
+                await promptForFileThatExists();
             }
             else
             {
                 // SaveFileDialog
-                promptForFile();
+                await promptForFile();
             }
         }
 
@@ -118,56 +119,63 @@ namespace nac.Forms.controls
             return workingDirectory;
         }
         
+        private async Task<IStorageFolder> GetInitialFolder(IStorageProvider storage)
+        {
+            Avalonia.Platform.Storage.IStorageFolder folder;
+            
+            var initialDirectory = getInitialDirectory();
+            if (initialDirectory.IsSet)
+            {
+                folder = await storage.TryGetFolderFromPathAsync(new Uri(initialDirectory.Value));
+                return folder;
+            }
+            
+            folder = await storage.TryGetWellKnownFolderAsync(Avalonia.Platform.Storage.WellKnownFolder.Desktop);
+            return folder;
+        }
         
         private async Task promptForFileThatExists()
         {
-            var dialog = new Avalonia.Controls.OpenFileDialog();
-            //dialog.Filters.Add(new FileDialogFilter(){Name = "All", Extensions = {"*"}});
+            var storage = TopLevel.GetTopLevel(this).StorageProvider;
 
-            var initialDirectory = getInitialDirectory();
-            if (initialDirectory.IsSet)
+            var fileOpenOptions = new Avalonia.Platform.Storage.FilePickerOpenOptions
             {
-                dialog.Directory = initialDirectory.Value;
-            }
+                AllowMultiple = false,
+            };
 
-            if (!string.IsNullOrWhiteSpace(FilePath))
+            fileOpenOptions.SuggestedStartLocation = await GetInitialFolder(storage);
+
+            var files = await storage.OpenFilePickerAsync(fileOpenOptions);
+
+            if (files.Any())
             {
-                dialog.InitialFileName = System.IO.Path.GetFileName(FilePath);
-            }
-
-            // how to get the window from a control: https://stackoverflow.com/questions/56566570/openfiledialog-in-avalonia-error-with-showasync
-            var win = (Window) this.GetVisualRoot();
-            string[] result = await dialog.ShowAsync(win);
-
-            if (result != null && result.Any())
-            {
-                FilePath = result.First();
+                FilePath = files.First().Path.LocalPath;
             }
         }
-        
+
+
         
         private async Task promptForFile()
         {
-            var dialog = new Avalonia.Controls.SaveFileDialog();
-            //dialog.Filters.Add(new FileDialogFilter(){Name = "All", Extensions = {"*"}});
+            var storage = TopLevel.GetTopLevel(this).StorageProvider;
 
-            var initialDirectory = getInitialDirectory();
-            if (initialDirectory.IsSet)
+            var fileSaveOptions = new Avalonia.Platform.Storage.FilePickerSaveOptions
             {
-                dialog.Directory = initialDirectory.Value;
-            }
+                
+            };
 
+            fileSaveOptions.SuggestedStartLocation = await GetInitialFolder(storage);
+            
             if (!string.IsNullOrWhiteSpace(FilePath))
             {
-                dialog.InitialFileName = System.IO.Path.GetFileName(FilePath);
+                fileSaveOptions.SuggestedFileName = System.IO.Path.GetFileName(FilePath);
             }
 
-            var win = (Window) this.GetVisualRoot();
-            string result = await dialog.ShowAsync(win);
+            var file = await storage.SaveFilePickerAsync(fileSaveOptions);
 
-            if (!string.IsNullOrWhiteSpace(result))
+            if (file != null)
             {
-                FilePath = result;
+                FilePath = file.Path.LocalPath;
             }
         }
         
