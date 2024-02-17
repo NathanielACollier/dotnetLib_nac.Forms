@@ -16,11 +16,13 @@ public partial class Form
     {
         try
         {
-            await this.InvokeAsync(async () =>
+            await this.InvokeAsync( () =>
             {
                 lib.ObjectPropertiesView.TreeViewObjectPropertiesBuilder.BuildTree(tv, "ObjectView", newItem,
                     expandSettings: new lib.ObjectPropertiesView.NodeExpandSettings(expandAll: true)
                 );
+
+                return Task.CompletedTask;
             });
         }
         catch (Exception ex)

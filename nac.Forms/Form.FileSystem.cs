@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace nac.Forms
@@ -66,13 +67,21 @@ namespace nac.Forms
 
         public async Task<string> ShowOpenFolderDialog()
         {
-            /* examples of using OpenFileDialog is here:
-             https://stackoverflow.com/questions/56604439/filedialog-opens-on-loop-using-openfiledialog-on-avalonia 
+            /* examples of using newer storage API is here: https://docs.avaloniaui.net/docs/basics/user-interface/file-dialogs
              */
-            var diag = new Avalonia.Controls.OpenFolderDialog();
-            var result = await diag.ShowAsync(this.win);
+            var storageProvider = this.win.StorageProvider;
 
-            return result;
+            var folders = await storageProvider.OpenFolderPickerAsync(new Avalonia.Platform.Storage.FolderPickerOpenOptions
+            {
+                AllowMultiple = false
+            });
+
+            if (!folders.Any())
+            {
+                return "";
+            }
+
+            return folders.First().Path.LocalPath;
         }
         
         

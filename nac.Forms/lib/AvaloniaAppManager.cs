@@ -32,7 +32,7 @@ public static class AvaloniaAppManager
     {
         var promise = new System.Threading.Tasks.TaskCompletionSource<bool>();
 
-        var mainThread = new Thread(async () =>
+        var mainThread = new Thread( () =>
         {
             app = nac.Forms.Form.SetupAvaloniaApp(beforeAppBuilderInit: GlobalAppBuilderConfigurFunction);
 

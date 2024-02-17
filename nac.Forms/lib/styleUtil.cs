@@ -106,7 +106,7 @@ namespace nac.Forms.lib
                 return ctrl;
             });
 
-            contextMenu.PlacementMode = PlacementMode.Bottom;
+            contextMenu.Placement = PlacementMode.Bottom;
             contextMenu.PlacementTarget = control;
 
             // add the popup to the form
@@ -123,7 +123,7 @@ namespace nac.Forms.lib
                 menuItems.Select(i => lib.AvaloniaModelHelpers.convertModelToAvaloniaMenuItem(i))
                 );
             
-            contextMenu.PlacementMode = PlacementMode.Bottom;
+            contextMenu.Placement = PlacementMode.Bottom;
             contextMenu.PlacementTarget = control;
 
             // add the popup to the form
@@ -142,6 +142,16 @@ namespace nac.Forms.lib
             if(cssStyle.fontColor.IsSet)
             {
                 style.foregroundColor = Avalonia.Media.Color.Parse(cssStyle.fontColor.Value);
+            }
+
+            if(cssStyle.height.IsSet)
+            {
+                style.height = cssStyle.height.Value.ValueI;
+            }
+
+            if (cssStyle.width.IsSet)
+            {
+                style.width = cssStyle.width.Value.ValueI;
             }
 
             return style;
