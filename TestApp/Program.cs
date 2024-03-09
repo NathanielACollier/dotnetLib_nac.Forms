@@ -19,7 +19,8 @@ namespace TestApp
 
         static void Main(string[] args)
         {
-            setupNacFormsLogging();
+            nac.Logging.Appenders.ColoredConsole.Setup();
+            
             try
             {
                 var f = nac.Forms.Form
@@ -37,25 +38,6 @@ namespace TestApp
                 log.Fatal($"App Exception occured: {ex}");
             }
 
-        }
-
-        private static void setupNacFormsLogging()
-        {
-            nac.Logging.Logger.OnNewMessage += (_s, _logEntry) =>
-            {
-                if( string.Equals(_logEntry.Level, "Info", StringComparison.OrdinalIgnoreCase)){
-                    System.Console.ForegroundColor = ConsoleColor.White;
-                }else if( string.Equals(_logEntry.Level, "Debug", StringComparison.OrdinalIgnoreCase)){
-                    System.Console.ForegroundColor = ConsoleColor.Cyan;
-                }else if( string.Equals(_logEntry.Level, "Warn", StringComparison.OrdinalIgnoreCase)){
-                    System.Console.ForegroundColor = ConsoleColor.DarkYellow;
-                }else if( string.Equals(_logEntry.Level, "Error", StringComparison.OrdinalIgnoreCase)){
-                    System.Console.ForegroundColor = ConsoleColor.Red;
-                }
-                System.Console.WriteLine(_logEntry);
-
-                System.Console.ResetColor();
-            };
         }
 
         static void mainUI(Form f)

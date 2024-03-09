@@ -11,7 +11,7 @@ namespace TestApp.lib
         public static nac.Forms.Form logViewer(nac.Forms.Form f)
         {
             var entries = new ObservableCollection<model.LogViewerMessage>();
-            nac.Logging.Logger.OnNewMessage += (_s, _e) =>
+            nac.Logging.Appenders.Notification.Setup( ( _e) =>
             {
                 if(_e.CallingClassType.FullName.StartsWith("nac.Forms"))
                 {
@@ -27,12 +27,12 @@ namespace TestApp.lib
                     entries.Insert(0, new model.LogViewerMessage
                     {
                         Date = _e.EventDate,
-                        Level = _e.Level,
+                        Level = _e.Level.ToString().ToUpper(),
                         Message = _e.Message
                     });
                 });
 
-            };
+            });
 
             f.Model["logEntriesList"] = entries;
 

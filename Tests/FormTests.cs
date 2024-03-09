@@ -68,10 +68,7 @@ namespace Tests
         [TestMethod]
         public async Task StartUI_SetupSpecialUIThread()
         {
-            nac.Logging.Logger.OnNewMessage += (_s, _args) =>
-            {
-                System.Diagnostics.Debug.WriteLine(_args);
-            };
+            nac.Logging.Appenders.Debug.Setup();
 
             nac.Forms.lib.AvaloniaAppManager.GlobalAppBuilderConfigurFunction = (appBuilder) =>
             {
