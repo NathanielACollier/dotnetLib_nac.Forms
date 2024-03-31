@@ -142,7 +142,7 @@ public class Text
     {
         f.HorizontalGroup(h =>
         {
-            h.TextBoxFor("text", onKeyPress: (_key) =>
+            h.TextBoxFor("text", onKeyPress: async (_key) =>
                 {
                     f.Model["key"] = _key.Key.ToString();
                 })

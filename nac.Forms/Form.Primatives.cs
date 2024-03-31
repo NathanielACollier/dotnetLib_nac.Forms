@@ -50,7 +50,7 @@ namespace nac.Forms
                         bool isReadOnly = false,
                         string watermarkText = null,
                         Func<string,object> convertFromUIToModel = null,
-                        Action<Avalonia.Input.KeyEventArgs> onKeyPress = null
+                        Func<Avalonia.Input.KeyEventArgs, Task> onKeyPress = null
                         )
         {
             var tb = new TextBox();
@@ -96,9 +96,9 @@ namespace nac.Forms
 
             if (onKeyPress != null)
             {
-                tb.KeyUp += (_s, _args) =>
+                tb.KeyUp += async (_s, _args) =>
                 {
-                    onKeyPress(_args);
+                    await onKeyPress(_args);
                 };
             }
 
