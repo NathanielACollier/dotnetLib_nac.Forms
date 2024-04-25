@@ -130,7 +130,7 @@ public class Table
 
 
 
-    public static void ObservableCollectionBindableDictionary(Form f)
+    public static void BindableDict_ObservableCollectionEditable(Form f)
     {
         var list = new ObservableCollection<nac.utilities.BindableDynamicDictionary>();
 
@@ -163,6 +163,36 @@ public class Table
     }
 
 
+
+    public static void BindableDict_StaticList(Form f)
+    {
+        var list = new[]
+        {
+            new
+            {
+                P1 = "Apple",
+                P2 = 1,
+                P3 = DateTime.Now
+            },
+            new
+            {
+                P1 = "Orange",
+                P2 = 2,
+                P3 = DateTime.Now.AddMinutes(-30)
+            },
+            new
+            {
+                P1 = "Pear",
+                P2 = 3,
+                P3 = DateTime.Now.AddMinutes(-60)
+            }
+        };
+
+        var bindList = nac.utilities.List.CreateBindableDictionaryFromEnumerableT(list);
+
+        f.Model["list"] = bindList;
+        f.Table<nac.utilities.BindableDynamicDictionary>(itemsModelFieldName: "list");
+    }
 
     public static void SpecifiedColumnBinding(Form f)
     {

@@ -18,6 +18,7 @@
   
 
   <ItemGroup>
+    <PackageReference Include="nac.utilities" Version="1.0.5" />
     <PackageReference Include="nac.ViewModelBase" Version="1.0.1" />
   </ItemGroup>
 </Project>
