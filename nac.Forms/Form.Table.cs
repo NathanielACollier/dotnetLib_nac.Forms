@@ -33,7 +33,11 @@ public partial class Form
                 newColumns.AddRange(
                     generateColumnsForBindableDynamicDictionary(dictList)
                     );
-                newColumns.AddRange(columns);
+                if (columns != null)
+                {
+                    newColumns.AddRange(columns);
+                }
+                
                 columns = newColumns;
             }
 
