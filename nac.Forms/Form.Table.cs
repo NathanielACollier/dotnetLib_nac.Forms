@@ -107,10 +107,16 @@ public partial class Form
 
             foreach (var key in firstDict.GetDynamicMemberNames())
             {
+                /*
+                 4/30/2024 - Changed this to be a Template column because the DataGridTextColumn code creates a TextBlock but doesn't seem to bind to it in a way that this would work
+                           + This makes things alot simpler by just controlling the binding
+                           + See the DataGridTextColumn code here: https://github.com/AvaloniaUI/Avalonia/blob/334a8f7d0c947eb535f2ad7accc914e36727f334/src/Avalonia.Controls.DataGrid/DataGridTextColumn.cs#L187
+                           + 
+                 */
                 dictColumns.Add(new model.Column
                 {
                     Header = key,
-                    modelBindingPropertyName = key
+                    template = f=> f.TextFor(modelFieldName: key)
                 });
             }
 
