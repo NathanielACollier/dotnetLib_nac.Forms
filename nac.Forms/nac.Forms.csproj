@@ -10,7 +10,7 @@
     <Description>Provides shortcuts to create interative form made up of UI elements from Avalonia.  UI elements like textbox, buttons, lists, etc...</Description>
     <PackageProjectUrl>https://github.com/NathanielACollier/dotnetCoreAvaloniaNCForms</PackageProjectUrl>
     <PackageId>nac.Forms</PackageId>
-    <Version>2.2.5</Version>
+    <Version>2.3.1</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>NugetPackageReadme.md</PackageReadmeFile>
   </PropertyGroup>
