@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using nac.Forms;
 using nac.Forms.model;
 
@@ -130,7 +131,7 @@ public class Table
 
 
 
-    public static void ObservableCollectionBindableDictionary(Form f)
+    public static void BindableDict_ObservableCollectionEditable(Form f)
     {
         var list = new ObservableCollection<nac.utilities.BindableDynamicDictionary>();
 
@@ -163,6 +164,33 @@ public class Table
     }
 
 
+
+    public static void BindableDict_StaticList(Form f)
+    {
+        var bindList = model.DictionaryDataGeneratorUtility.GenerateStaticPropertiesList()
+            .Select(dict => new nac.utilities.BindableDynamicDictionary(dict));
+
+        f.Model["list"] = bindList;
+        f.Table<nac.utilities.BindableDynamicDictionary>(itemsModelFieldName: "list");
+    }
+
+    public static void BindableDict_StaticListOfPeople_CalcFields(Form f)
+    {
+        var bindList = model.DictionaryDataGeneratorUtility.GenerateRandomPeopleDictionaryList()
+            .Select(dict => new nac.utilities.BindableDynamicDictionary(dict));
+
+        f.Model["list"] = bindList;
+
+        f.Table<nac.utilities.BindableDynamicDictionary>(itemsModelFieldName: "list",
+            columns: new[]
+            {
+                new nac.Forms.model.Column
+                {
+                    Header = "First (TB)",
+                    template = row => row.TextBoxFor("firstName")
+                }
+            });
+    }
 
     public static void SpecifiedColumnBinding(Form f)
     {
