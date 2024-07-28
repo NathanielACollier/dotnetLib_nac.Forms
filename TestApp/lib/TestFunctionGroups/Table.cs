@@ -253,6 +253,9 @@ public class Table
                         var counter = string.IsNullOrWhiteSpace(model.C) ? 0 : Convert.ToInt32(model.C);
                         ++counter;
                         model.C = counter.ToString();
+                        
+                        // set time which is A to now
+                        model.A = DateTime.Now.ToString();
                     });
                 }
             },
