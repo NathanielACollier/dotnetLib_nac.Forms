@@ -188,7 +188,28 @@ public class AGroup
             outsideF.Text("I'm reusing the existing Avalonia App to create a new window");
         });
     }
-    
-    
+
+
+
+
+    public static async void ProgressBar_SimpleButtonThatIncriments10(Form f)
+    {
+        f.Model["val"] = 0;
+        
+        f.HorizontalGroup(hg =>
+            {
+                hg.Text("Click to Increment: ")
+                    .Button("Increment x10", async () =>
+                    {
+                        f.Model["val"] = Convert.ToInt32(f.Model["val"]) + 10;
+                    });
+            })
+            .Progress(modelFieldName: "val",
+                min: 0,
+                max: 100,
+                style: "color: purple;");
+        
+        
+    }
     
 }

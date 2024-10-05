@@ -42,6 +42,21 @@ namespace nac.Forms
             return this;
         }
 
+
+        public Form Progress(string modelFieldName,
+            int min,
+            int max,
+            model.Style style = null)
+        {
+            var progressBar = new Avalonia.Controls.ProgressBar();
+            lib.styleUtil.style(this, progressBar, style);
+            
+            AddBinding<double>(modelFieldName, progressBar, ProgressBar.ValueProperty);
+            
+            AddRowToHost(progressBar);
+            return this;
+        }
+
 		public Form TextBoxFor(string modelFieldName,
                         bool multiline = false,
                         model.Style style = null,
