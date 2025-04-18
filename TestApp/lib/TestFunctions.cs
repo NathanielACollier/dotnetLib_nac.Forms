@@ -19,25 +19,10 @@ public static class TestFunctions
     public static List<model.TestEntry> PopulateFunctions()
     {
         var functions = new List<model.TestEntry>();
-        
-        var functionClasses = new Type[]
-        {
-            typeof(TestFunctionGroups.AGroup),
-            typeof(TestFunctionGroups.Autocomplete),
-            typeof(TestFunctionGroups.Button),
-            typeof(TestFunctionGroups.TreeView),
-            typeof(TestFunctionGroups.Image),
-            typeof(TestFunctionGroups.List),
-            typeof(TestFunctionGroups.Table),
-            typeof(TestFunctionGroups.Layout),
-            typeof(TestFunctionGroups.Text),
-            typeof(TestFunctionGroups.Events),
-            typeof(TestFunctionGroups.FileSystem),
-            typeof(TestFunctionGroups.DropDown),
-            typeof(TestFunctionGroups.ContextMenu),
-            typeof(TestFunctionGroups.Tooltip),
-            typeof(TestFunctions)
-        };
+
+        var functionClasses = from t in typeof(TestFunctionGroups.AGroup).Assembly.GetTypes()
+            where t.IsClass && t.Namespace == typeof(TestFunctionGroups.AGroup).Namespace
+            select t;
         
         functions.AddRange(
             functionClasses.SelectMany(c=> QuickGenerationTestEntries(c))
