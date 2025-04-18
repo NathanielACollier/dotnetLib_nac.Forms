@@ -43,6 +43,7 @@ public static class TestFunctions
 
     private static List<model.TestEntry> QuickGenerationTestEntries(Type functionClass)
     {
+        string formClassFullName = typeof(Form).FullName;
         var methodList = functionClass.GetMethods(BindingFlags.Static | 
                                                   BindingFlags.NonPublic |
                                                   BindingFlags.Public
@@ -50,7 +51,7 @@ public static class TestFunctions
         
         var functions = from f in methodList
             let fDelegateType = GetDelegateType(f)
-            where string.Equals("System.Action`1[nac.Forms.Form]", fDelegateType.ToString())
+            where string.Equals($"System.Action`1[{formClassFullName}]", fDelegateType.ToString())
             select f.CreateDelegate<Action<Form>>();
         
         var entries = from f in functions
