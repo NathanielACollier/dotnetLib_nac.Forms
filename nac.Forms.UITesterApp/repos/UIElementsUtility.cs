@@ -10,7 +10,7 @@ public static class UIElementsUtility
 {
     public static nac.Forms.Form logViewer(nac.Forms.Form f, string logEntriesListModelName)
     {
-        var entries = f.getModelValue(logEntriesListModelName).Value as ObservableCollection<model.LogViewerMessage>;
+        var entries = EnsureLogEntriesListIsOnModel(f, logEntriesListModelName);
         
         nac.Logging.Appenders.Notification.Setup( ( _e) =>
         {
@@ -72,4 +72,29 @@ public static class UIElementsUtility
 
         return f;
     }
+
+    private static ObservableCollection<model.LogViewerMessage> EnsureLogEntriesListIsOnModel(Form form, string logEntriesListModelName)
+    {
+        var modelValueInfoResult = form.getModelValue(logEntriesListModelName);
+
+        var emptyEntries = new ObservableCollection<model.LogViewerMessage>();
+        
+        if (modelValueInfoResult.Value == null)
+        {
+            form.setModelValue(logEntriesListModelName, emptyEntries);
+            return emptyEntries;
+        }
+        
+        // is it the right type?
+        var existingEntries = modelValueInfoResult.Value as ObservableCollection<model.LogViewerMessage>;
+        if (existingEntries == null)
+        {
+            throw new Exception($"Existing LogEntriesList model value is of Type={modelValueInfoResult.Value.GetType().FullName}.   It must be Type={emptyEntries.GetType().FullName}");
+        }
+        
+        return existingEntries;
+    }
+    
+    
+    
 }
