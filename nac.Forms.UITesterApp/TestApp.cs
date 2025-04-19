@@ -16,7 +16,7 @@ public static class TestApp
             })
             .DebugAvalonia();
 
-        repos.MainWindowUI.Run(f);
+        repos.MainWindowUI.Run(f, targetClassToUseToDetermineAssemblyAndNamespaceForTestClassList);
         nac.Forms.lib.AvaloniaAppManager.Shutdown(); // this isn't needed, and is a test to make sure it's safe to call it
         
     }

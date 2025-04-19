@@ -3,9 +3,14 @@ using nac.Forms;
 
 namespace nac.Forms.UITesterApp.model;
 
-public class TestEntry
+public class TestEntry : nac.ViewModelBase.ViewModelBase
 {
-   public string Name { get; set; }
+    public string Name
+    {
+        get => GetValue(() => Name);
+        set => SetValue(() => Name, value);
+    }
+    
    public Action<Form> CodeToRun { get; set; }
    public bool SetupChildForm { get; set; }
 

@@ -6,11 +6,12 @@ public static class MainWindowUI
     
     public static void Run(nac.Forms.Form f, Type targetClassToUseToDetermineAssemblyAndNamespaceForTestClassList)
     {
-        model.TestEntry selectedTestEntry = null;
-        // setup test methods
-        var methods = lib.TestFunctions.PopulateFunctions();
+        var context = new model.MainWindowModel();
+        f.DataContext = context;
 
-        f.Title = "Test App (nac.forms Tests)";
+        string testAppName = targetClassToUseToDetermineAssemblyAndNamespaceForTestClassList.Assembly.FullName;
+        
+        f.Title = $"Test App - ({testAppName})";
             
         f.Tabs(new[]
             {
@@ -19,14 +20,18 @@ public static class MainWindowUI
                     Header = "Methods",
                     Populate = (t) =>
                     {
-                        t.SimpleDropDown(methods, (i) =>
+                        t.DropDown<model.TestEntry>(itemSourceModelName: nameof(context.MethodsList),
+                                selectedItemModelName: nameof(context.SelectedMethod),
+                                onSelectionChanged: (i) =>
                             {
-                                selectedTestEntry = i;
-                                invokeTest(f, selectedTestEntry);
-                            })
+                                invokeTest(f, context.SelectedMethod);
+                            }, populateItemRow: row =>
+                                {
+                                    row.TextFor(nameof(model.TestEntry.Name));
+                                })
                             .Button("Run", async () =>
                             {
-                                invokeTest(f,selectedTestEntry);
+                                invokeTest(f,context.SelectedMethod);
                             });
                     }
                 }, new nac.Forms.model.TabCreationInfo
@@ -40,7 +45,12 @@ public static class MainWindowUI
             })
             .Display(onDisplay: async (_f) =>
             {
-                
+                var methods = repos.TestFunctionsRepo.PopulateFunctions(targetClassToUseToDetermineAssemblyAndNamespaceForTestClassList);
+
+                foreach (var m in methods)
+                {
+                    context.MethodsList.Add(m);
+                }
             });
     }
     

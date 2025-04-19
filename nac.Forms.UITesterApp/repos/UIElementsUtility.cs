@@ -13,7 +13,7 @@ public static class UIElementsUtility
         var entries = new ObservableCollection<model.LogViewerMessage>();
         nac.Logging.Appenders.Notification.Setup( ( _e) =>
         {
-            if(_e.CallingClassType.FullName.StartsWith("nac.Forms"))
+            if(_e.CallingClassType.FullName.StartsWith(typeof(nac.Forms.Form).Namespace))
             {
                 return; // don't log anything from nac.Forms incase that causes problems with rendering the log messages
             }
