@@ -10,18 +10,18 @@ using System.Xml.Linq;
 using Avalonia.Media;
 using nac.Forms;
 using nac.Forms.model;
-using TestApp.model;
 
-namespace TestApp.lib;
 
-public static class TestFunctions
+namespace nac.Forms.UITesterApp.repos;
+
+public static class TestFunctionsRepo
 {
-    public static List<model.TestEntry> PopulateFunctions()
+    public static List<model.TestEntry> PopulateFunctions(Type targetClassToUseToDetermineAssemblyAndNamespaceForTestClassList)
     {
         var functions = new List<model.TestEntry>();
 
-        var functionClasses = from t in typeof(TestFunctionGroups.AGroup).Assembly.GetTypes()
-            where t.IsClass && t.Namespace == typeof(TestFunctionGroups.AGroup).Namespace
+        var functionClasses = from t in targetClassToUseToDetermineAssemblyAndNamespaceForTestClassList.Assembly.GetTypes()
+            where t.IsClass && t.Namespace == targetClassToUseToDetermineAssemblyAndNamespaceForTestClassList.Namespace
             select t;
         
         functions.AddRange(

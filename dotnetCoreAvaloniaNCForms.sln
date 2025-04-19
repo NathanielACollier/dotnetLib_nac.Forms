@@ -14,6 +14,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp", "TestApp\TestApp.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{E26401F0-C3AE-4CA1-B3C7-BF2FEAD462BE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nac.Forms.UITesterApp", "nac.Forms.UITesterApp\nac.Forms.UITesterApp.csproj", "{78E5FD6D-09EB-4251-B279-3A75F3724EE0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{E26401F0-C3AE-4CA1-B3C7-BF2FEAD462BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E26401F0-C3AE-4CA1-B3C7-BF2FEAD462BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E26401F0-C3AE-4CA1-B3C7-BF2FEAD462BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78E5FD6D-09EB-4251-B279-3A75F3724EE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78E5FD6D-09EB-4251-B279-3A75F3724EE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78E5FD6D-09EB-4251-B279-3A75F3724EE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78E5FD6D-09EB-4251-B279-3A75F3724EE0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

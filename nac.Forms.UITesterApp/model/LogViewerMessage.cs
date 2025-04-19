@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestApp.model;
+namespace nac.Forms.UITesterApp.model;
 
-internal class LogViewerMessage : nac.ViewModelBase.ViewModelBase
+public class LogViewerMessage : nac.ViewModelBase.ViewModelBase
 {
     public DateTime Date
     {
