@@ -88,7 +88,7 @@ public class List
                     });
             });
 
-        nac.Forms.UITesterApp.repos.UIElementsUtility.logViewer(child);
+        nac.Forms.UITesterApp.repos.UIElementsUtility.logViewer(child, "logEntriesList");
         log.Info("App Ready to go");
     }
     
@@ -108,7 +108,7 @@ public class List
                     log.Info("You selected: " + string.Join(";", selectedItems));
                 });
 
-        nac.Forms.UITesterApp.repos.UIElementsUtility.logViewer(f);
+        nac.Forms.UITesterApp.repos.UIElementsUtility.logViewer(f, "logEntriesList");
     }
     
     
