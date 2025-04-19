@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace nac.Forms.UITesterApp.model;
 
-internal class LogViewerMessage : nac.ViewModelBase.ViewModelBase
+public class LogViewerMessage : nac.ViewModelBase.ViewModelBase
 {
     public DateTime Date
     {

@@ -8,9 +8,10 @@ namespace nac.Forms.UITesterApp.repos;
 
 public static class UIElementsUtility
 {
-    public static nac.Forms.Form logViewer(nac.Forms.Form f)
+    public static nac.Forms.Form logViewer(nac.Forms.Form f, string logEntriesListModelName)
     {
-        var entries = new ObservableCollection<model.LogViewerMessage>();
+        var entries = f.Model[logEntriesListModelName] as ObservableCollection<model.LogViewerMessage>;
+        
         nac.Logging.Appenders.Notification.Setup( ( _e) =>
         {
             if(_e.CallingClassType.FullName.StartsWith(typeof(nac.Forms.Form).Namespace))
@@ -34,9 +35,8 @@ public static class UIElementsUtility
 
         });
 
-        f.Model["logEntriesList"] = entries;
-
-        f.List<model.LogViewerMessage>("logEntriesList", populateItemRow: (_rF) =>
+        f.List<model.LogViewerMessage>(itemSourcePropertyName: logEntriesListModelName,
+            populateItemRow: (_rF) =>
         {
             _rF.HorizontalStack(h =>
             {

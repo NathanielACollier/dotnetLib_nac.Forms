@@ -39,7 +39,7 @@ public static class MainWindowUI
                     Header = "Log",
                     Populate = (t) =>
                     {
-                        repos.UIElementsUtility.logViewer(t);
+                        repos.UIElementsUtility.logViewer(t, nameof(context.LogMessageList));
                     }
                 }
             })

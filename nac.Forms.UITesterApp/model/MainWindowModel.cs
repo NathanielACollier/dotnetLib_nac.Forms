@@ -17,5 +17,11 @@ public class MainWindowModel : nac.ViewModelBase.ViewModelBase
         get => GetValue(() => SelectedMethod);
         set => SetValue(() => SelectedMethod, value);
     }
+
+
+    public ObservableCollection<model.LogViewerMessage> LogMessageList
+    {
+        get => GetValue(() => LogMessageList);
+    }
     
 }
