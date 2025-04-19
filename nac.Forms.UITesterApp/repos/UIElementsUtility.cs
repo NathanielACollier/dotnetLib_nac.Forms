@@ -10,7 +10,7 @@ public static class UIElementsUtility
 {
     public static nac.Forms.Form logViewer(nac.Forms.Form f, string logEntriesListModelName)
     {
-        var entries = f.Model[logEntriesListModelName] as ObservableCollection<model.LogViewerMessage>;
+        var entries = f.getModelValue(logEntriesListModelName).Value as ObservableCollection<model.LogViewerMessage>;
         
         nac.Logging.Appenders.Notification.Setup( ( _e) =>
         {
