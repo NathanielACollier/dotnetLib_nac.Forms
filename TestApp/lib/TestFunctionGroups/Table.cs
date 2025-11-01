@@ -200,6 +200,7 @@ public class Table
 
         f.Model["list"] = bindList;
         f.Model["firstPerson"] = "";
+        f.Model["visibleRowCount"] = 0;
 
         f.HorizontalGroup(hg =>
             {
@@ -207,7 +208,9 @@ public class Table
                     .TextFor("firstPerson")
                     .Text("\t\t")
                     .Text("Last Person: ")
-                    .TextFor("lastPerson");
+                    .TextFor("lastPerson")
+                    .Text("\tCount: ")
+                    .TextFor("visibleRowCount");
             })
             .Table<nac.utilities.BindableDynamicDictionary>(itemsModelFieldName: "list",
             columns: new[]
@@ -222,6 +225,7 @@ public class Table
             {
                 var people = visibleRows.Select(r => r.DataContext as nac.utilities.BindableDynamicDictionary)
                     .ToList();
+                f.Model["visibleRowCount"] = people.Count;
                 
                 var firstPerson = people.First();
                 f.Model["firstPerson"] = firstPerson["firstName"] + " " +  firstPerson["lastName"];
