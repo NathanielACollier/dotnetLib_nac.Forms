@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Reactive;
 using Avalonia.VisualTree;
 
@@ -14,9 +15,7 @@ public class DataGridVisibleRowsObserverRepo
     
     public DataGrid DataGrid { get; set; }
     public Action<List<DataGridRow>> OnVisibleRowsChanged { get; set; }
-    public ScrollViewer ScrollViewer { get; set; }
-    public AnonymousObserver<Vector> ScrollOffsetPropertyObserver { get; set; }
-    public AnonymousObserver<Size> ScrollViewPortChangedObserver { get; set; }
+    public Avalonia.Controls.Presenters.ScrollContentPresenter ScrollViewerPresenter { get; set; }
     
     
     public DataGridVisibleRowsObserverRepo(Avalonia.Controls.DataGrid dataGrid,
@@ -40,7 +39,8 @@ public class DataGridVisibleRowsObserverRepo
             // Need this UIThread.Post because sometimes the scrollviewer still isn't available after AttachedToVisualTree
             Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
-                this.ScrollViewer = this.DataGrid.FindDescendantOfType<Avalonia.Controls.ScrollViewer>();
+                var scrollViewer = this.DataGrid.FindDescendantOfType<Avalonia.Controls.ScrollViewer>();
+                this.ScrollViewerPresenter = scrollViewer.FindDescendantOfType<Avalonia.Controls.Presenters.ScrollContentPresenter>();
                 SetupAfterScrollViewerAvailable();
             }, Avalonia.Threading.DispatcherPriority.Loaded);
             
@@ -54,29 +54,24 @@ public class DataGridVisibleRowsObserverRepo
     {
         // track scrolling and viewport changes
         // scrolling changes
-        this.ScrollOffsetPropertyObserver = new AnonymousObserver<Vector>(offset =>
-        {
-            SetupHandlingOnVisibleRowsChanged_FireOnVisibleRowsChanged();
-        });
-        
-        
-        this.ScrollViewer.GetObservable(ScrollViewer.OffsetProperty)
-            .Subscribe(this.ScrollOffsetPropertyObserver);
+        this.ScrollViewerPresenter.GetObservable(Avalonia.Controls.Presenters.ScrollContentPresenter.OffsetProperty)
+            .Subscribe(new AnonymousObserver<Vector>(offset =>
+            {
+                SetupHandlingOnVisibleRowsChanged_FireOnVisibleRowsChanged();
+            }));
         
         // viewport changes
-        this.ScrollViewPortChangedObserver = new AnonymousObserver<Size>(viewPort =>
-        {
-            SetupHandlingOnVisibleRowsChanged_FireOnVisibleRowsChanged();
-        });
-        
-        this.ScrollViewer.GetObservable(ScrollViewer.ViewportProperty)
-            .Subscribe(this.ScrollViewPortChangedObserver);
+        this.ScrollViewerPresenter.GetObservable(Avalonia.Controls.Presenters.ScrollContentPresenter.ViewportProperty)
+            .Subscribe(new AnonymousObserver<Size>(viewPort =>
+            {
+                SetupHandlingOnVisibleRowsChanged_FireOnVisibleRowsChanged();
+            }));
     }
 
     private void SetupHandlingOnVisibleRowsChanged_FireOnVisibleRowsChanged()
     {
-        var offset = this.ScrollViewer.Offset;
-        var viewport = this.ScrollViewer.Viewport;
+        var offset = this.ScrollViewerPresenter.Offset;
+        var viewport = this.ScrollViewerPresenter.Viewport;
         log.Info($"Scroll offset: {offset.Y}, Viewport height: {viewport.Height}");
             
         var rowPresenter = this.DataGrid.GetVisualDescendants()
