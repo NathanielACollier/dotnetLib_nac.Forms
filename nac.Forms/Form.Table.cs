@@ -15,6 +15,7 @@ namespace nac.Forms;
 
 public partial class Form
 {
+    private static List<repos.DataGridVisibleRowsObserverRepo> dataGridVisibleRowsObserversList = new();
     
     public Form Table<T>(string itemsModelFieldName,
                                 IEnumerable<model.Column> columns = null,
@@ -31,8 +32,9 @@ public partial class Form
 
             if (onVisibleRowsChanged != null)
             {
-                SetupHandlingOnVisibleRowsChanged(dg: dg, 
-                                onVisibleRowsChanged: onVisibleRowsChanged);
+                var observer = new repos.DataGridVisibleRowsObserverRepo(dataGrid: dg, onVisibleRowsChanged: onVisibleRowsChanged);
+                dataGridVisibleRowsObserversList.Add(observer); // this is to keep everything from going out of scope
+                observer.Setup();
             }
             
             // special case for the columns in our special dictionary
@@ -102,69 +104,7 @@ public partial class Form
 
             return this;
         }
-
-    private void SetupHandlingOnVisibleRowsChanged(DataGrid dg, Action<List<DataGridRow>> onVisibleRowsChanged)
-    {
-        // have to wait for DataGrid to be attached to visual tree
-        dg.AttachedToVisualTree += (_s, _args) =>
-        {
-            // Need this UIThread.Post because sometimes the scrollviewer still isn't available after AttachedToVisualTree
-            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-            {
-                SetupHandlingOnVisibleRowsChanged_VisualTreeAttachReady(dg: dg, onVisibleRowsChanged: onVisibleRowsChanged);
-            }, Avalonia.Threading.DispatcherPriority.Loaded);
-            
-        };
-        
-    }
-
-    private void SetupHandlingOnVisibleRowsChanged_VisualTreeAttachReady(DataGrid dg, Action<List<DataGridRow>> onVisibleRowsChanged)
-    {
-        var scrollViewer = dg.FindDescendantOfType<Avalonia.Controls.ScrollViewer>();
-        
-        // track scrolling and viewport changes
-        
-        // scrolling changes
-        scrollViewer.GetObservable(ScrollViewer.OffsetProperty)
-            .Subscribe(new AnonymousObserver<Vector>(offset =>
-            {
-                SetupHandlingOnVisibleRowsChanged_FireOnVisibleRowsChanged(dg: dg, 
-                    onVisibleRowsChanged: onVisibleRowsChanged,
-                    scrollViewer: scrollViewer);
-            }) );
-        
-        // viewport changes
-        scrollViewer.GetObservable(ScrollViewer.ViewportProperty)
-            .Subscribe(new AnonymousObserver<Size>(viewport =>
-            {
-                SetupHandlingOnVisibleRowsChanged_FireOnVisibleRowsChanged(dg: dg,
-                    onVisibleRowsChanged: onVisibleRowsChanged,
-                    scrollViewer: scrollViewer);
-            }));
-        
-    }
-
-    private void SetupHandlingOnVisibleRowsChanged_FireOnVisibleRowsChanged(DataGrid dg, 
-                                                            Action<List<DataGridRow>> onVisibleRowsChanged,
-                                                            Avalonia.Controls.ScrollViewer scrollViewer)
-    {
-        var offset = scrollViewer.Offset;
-        var viewport = scrollViewer.Viewport;
-        log.Info($"Scroll offset: {offset.Y}, Viewport height: {viewport.Height}");
-            
-        var rowPresenter = dg.GetVisualDescendants()
-            .OfType<Avalonia.Controls.Primitives.DataGridRowsPresenter>()
-            .FirstOrDefault();
-
-        var visibleRows = rowPresenter?.Children
-            .OfType<DataGridRow>()
-            .Where(row => row.IsVisible)
-            .ToList();
-            
-        onVisibleRowsChanged.Invoke(visibleRows);
-    }
     
-
 
     private IEnumerable<model.Column> generateColumnsForBindableDynamicDictionary(IEnumerable<nac.utilities.BindableDynamicDictionary> dictList)
         {
