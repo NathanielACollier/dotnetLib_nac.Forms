@@ -220,10 +220,13 @@ public class Table
             },
             onVisibleRowsChanged: visibleRows =>
             {
-                var firstPerson = visibleRows.FirstOrDefault().DataContext as nac.utilities.BindableDynamicDictionary;
-                f.Model["FirstPerson"] = firstPerson["firstName"] + " " +  firstPerson["lastName"];
+                var people = visibleRows.Select(r => r.DataContext as nac.utilities.BindableDynamicDictionary)
+                    .ToList();
                 
-                var lastPerson = visibleRows.LastOrDefault().DataContext as nac.utilities.BindableDynamicDictionary;
+                var firstPerson = people.First();
+                f.Model["firstPerson"] = firstPerson["firstName"] + " " +  firstPerson["lastName"];
+                
+                var lastPerson = people.Last();
                 f.Model["lastPerson"] = lastPerson["firstName"] + " " +  lastPerson["lastName"];
             });
     }
