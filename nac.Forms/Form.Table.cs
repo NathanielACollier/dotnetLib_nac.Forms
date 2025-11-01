@@ -3,9 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Markup.Xaml.Styling;
+using Avalonia.VisualTree;
 using nac.Forms.lib;
 
 namespace nac.Forms;
@@ -15,7 +17,8 @@ public partial class Form
     
     public Form Table<T>(string itemsModelFieldName,
                                 IEnumerable<model.Column> columns = null,
-                                bool autoGenerateColumns = true)
+                                bool autoGenerateColumns = true,
+                                Action<List<Avalonia.Controls.DataGridRow>> onVisibleRowsChanged = null)
         {
             if (!isDataGridStyleInApp(app))
             {
@@ -24,6 +27,12 @@ public partial class Form
             
             var dg = new Avalonia.Controls.DataGrid();
             dg.AutoGenerateColumns = autoGenerateColumns;
+
+            if (onVisibleRowsChanged != null)
+            {
+                SetupHandlingOnVisibleRowsChanged(dg: dg, 
+                                onVisibleRowsChanged: onVisibleRowsChanged);
+            }
             
             // special case for the columns in our special dictionary
             if ( autoGenerateColumns == true && getModelValue(itemsModelFieldName)?.Value is IEnumerable<nac.utilities.BindableDynamicDictionary> dictList)
@@ -93,7 +102,24 @@ public partial class Form
             return this;
         }
 
-        private IEnumerable<model.Column> generateColumnsForBindableDynamicDictionary(IEnumerable<nac.utilities.BindableDynamicDictionary> dictList)
+    private void SetupHandlingOnVisibleRowsChanged(DataGrid dg, Action<List<DataGridRow>> onVisibleRowsChanged)
+    {
+        dg.LayoutUpdated += (_s, _args) =>
+        {
+            var rowPresenter = dg.GetVisualDescendants()
+                .OfType<Avalonia.Controls.Primitives.DataGridRowsPresenter>()
+                .FirstOrDefault();
+
+            var visibleRows = rowPresenter?.Children
+                .OfType<DataGridRow>()
+                .Where(row => row.IsVisible)
+                .ToList();
+            
+            onVisibleRowsChanged.Invoke(visibleRows);
+        };
+    }
+
+    private IEnumerable<model.Column> generateColumnsForBindableDynamicDictionary(IEnumerable<nac.utilities.BindableDynamicDictionary> dictList)
         {
             var dictColumns = new List<model.Column>();
 

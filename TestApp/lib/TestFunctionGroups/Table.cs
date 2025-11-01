@@ -191,6 +191,42 @@ public class Table
                 }
             });
     }
+    
+    
+    public static void BindableDict_StaticListOfPeople_TestRowVisibility(Form f)
+    {
+        var bindList = model.DictionaryDataGeneratorUtility.GenerateRandomPeopleDictionaryList()
+            .Select(dict => new nac.utilities.BindableDynamicDictionary(dict));
+
+        f.Model["list"] = bindList;
+        f.Model["firstPerson"] = "";
+
+        f.HorizontalGroup(hg =>
+            {
+                hg.Text("First Person: ")
+                    .TextFor("firstPerson")
+                    .Text("\t\t")
+                    .Text("Last Person: ")
+                    .TextFor("lastPerson");
+            })
+            .Table<nac.utilities.BindableDynamicDictionary>(itemsModelFieldName: "list",
+            columns: new[]
+            {
+                new nac.Forms.model.Column
+                {
+                    Header = "First (TB)",
+                    template = row => row.TextBoxFor("firstName")
+                }
+            },
+            onVisibleRowsChanged: visibleRows =>
+            {
+                var firstPerson = visibleRows.FirstOrDefault().DataContext as nac.utilities.BindableDynamicDictionary;
+                f.Model["FirstPerson"] = firstPerson["firstName"] + " " +  firstPerson["lastName"];
+                
+                var lastPerson = visibleRows.LastOrDefault().DataContext as nac.utilities.BindableDynamicDictionary;
+                f.Model["lastPerson"] = lastPerson["firstName"] + " " +  lastPerson["lastName"];
+            });
+    }
 
     public static void SpecifiedColumnBinding(Form f)
     {
