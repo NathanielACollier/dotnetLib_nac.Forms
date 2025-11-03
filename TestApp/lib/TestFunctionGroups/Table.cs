@@ -224,7 +224,9 @@ public class Table
             onVisibleRowsChanged: visibleRows =>
             {
                 var people = visibleRows.Select(r => r.DataContext as nac.utilities.BindableDynamicDictionary)
+                    .OrderBy(r=> (int)r["seq"] )
                     .ToList();
+                
                 f.Model["visibleRowCount"] = people.Count;
                 
                 var firstPerson = people.First();
