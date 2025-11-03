@@ -15,8 +15,6 @@ namespace nac.Forms;
 
 public partial class Form
 {
-    private static List<repos.DataGridVisibleRowsObserverRepo> dataGridVisibleRowsObserversList = new();
-    
     public Form Table<T>(string itemsModelFieldName,
                                 IEnumerable<model.Column> columns = null,
                                 bool autoGenerateColumns = true,
@@ -33,7 +31,6 @@ public partial class Form
             if (onVisibleRowsChanged != null)
             {
                 var observer = new repos.DataGridVisibleRowsObserverRepo(dataGrid: dg, onVisibleRowsChanged: onVisibleRowsChanged);
-                dataGridVisibleRowsObserversList.Add(observer); // this is to keep everything from going out of scope
                 observer.Setup();
             }
             
