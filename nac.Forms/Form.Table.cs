@@ -3,19 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Markup.Xaml.Styling;
+using Avalonia.Reactive;
+using Avalonia.VisualTree;
 using nac.Forms.lib;
 
 namespace nac.Forms;
 
 public partial class Form
 {
-    
     public Form Table<T>(string itemsModelFieldName,
                                 IEnumerable<model.Column> columns = null,
-                                bool autoGenerateColumns = true)
+                                bool autoGenerateColumns = true,
+                                Action<List<Avalonia.Controls.DataGridRow>> onVisibleRowsChanged = null)
         {
             if (!isDataGridStyleInApp(app))
             {
@@ -24,6 +27,12 @@ public partial class Form
             
             var dg = new Avalonia.Controls.DataGrid();
             dg.AutoGenerateColumns = autoGenerateColumns;
+
+            if (onVisibleRowsChanged != null)
+            {
+                var observer = new repos.DataGridVisibleRowsObserverRepo(dataGrid: dg, onVisibleRowsChanged: onVisibleRowsChanged);
+                observer.Setup();
+            }
             
             // special case for the columns in our special dictionary
             if ( autoGenerateColumns == true && getModelValue(itemsModelFieldName)?.Value is IEnumerable<nac.utilities.BindableDynamicDictionary> dictList)
@@ -92,8 +101,9 @@ public partial class Form
 
             return this;
         }
+    
 
-        private IEnumerable<model.Column> generateColumnsForBindableDynamicDictionary(IEnumerable<nac.utilities.BindableDynamicDictionary> dictList)
+    private IEnumerable<model.Column> generateColumnsForBindableDynamicDictionary(IEnumerable<nac.utilities.BindableDynamicDictionary> dictList)
         {
             var dictColumns = new List<model.Column>();
 

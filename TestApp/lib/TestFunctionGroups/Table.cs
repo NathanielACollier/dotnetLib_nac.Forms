@@ -191,6 +191,51 @@ public class Table
                 }
             });
     }
+    
+    
+    public static void BindableDict_StaticListOfPeople_TestRowVisibility(Form f)
+    {
+        var bindList = model.DictionaryDataGeneratorUtility.GenerateRandomPeopleDictionaryList()
+            .Select(dict => new nac.utilities.BindableDynamicDictionary(dict));
+
+        f.Model["list"] = bindList;
+        f.Model["firstPerson"] = "";
+        f.Model["visibleRowCount"] = 0;
+
+        f.HorizontalGroup(hg =>
+            {
+                hg.Text("First Person: ")
+                    .TextFor("firstPerson")
+                    .Text("\t\t")
+                    .Text("Last Person: ")
+                    .TextFor("lastPerson")
+                    .Text("\tCount: ")
+                    .TextFor("visibleRowCount");
+            })
+            .Table<nac.utilities.BindableDynamicDictionary>(itemsModelFieldName: "list",
+            columns: new[]
+            {
+                new nac.Forms.model.Column
+                {
+                    Header = "First (TB)",
+                    template = row => row.TextBoxFor("firstName")
+                }
+            },
+            onVisibleRowsChanged: visibleRows =>
+            {
+                var people = visibleRows.Select(r => r.DataContext as nac.utilities.BindableDynamicDictionary)
+                    .OrderBy(r=> (int)r["seq"] )
+                    .ToList();
+                
+                f.Model["visibleRowCount"] = people.Count;
+                
+                var firstPerson = people.First();
+                f.Model["firstPerson"] = firstPerson["firstName"] + " " +  firstPerson["lastName"];
+                
+                var lastPerson = people.Last();
+                f.Model["lastPerson"] = lastPerson["firstName"] + " " +  lastPerson["lastName"];
+            });
+    }
 
     public static void SpecifiedColumnBinding(Form f)
     {
