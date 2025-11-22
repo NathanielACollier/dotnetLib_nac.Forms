@@ -193,7 +193,7 @@ public class Table
     }
     
     
-    public static void BindableDict_StaticListOfPeople_TestRowVisibility(Form f)
+    public static void VisibleRowsChangeEvent_StaticPeopleList(Form f)
     {
         var bindList = model.DictionaryDataGeneratorUtility.GenerateRandomPeopleDictionaryList()
             .Select(dict => new nac.utilities.BindableDynamicDictionary(dict));
