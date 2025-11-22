@@ -238,6 +238,38 @@ public class Table
     }
     
     
+    
+    public static void VisibleRowsChangeEvent_SimpleStaticList(Form f)
+    {
+        var people = new ObservableCollection<model.Person>
+        {
+            new model.Person
+            {
+                First = "George",
+                Last = "Washington"
+            },
+            new model.Person
+            {
+                First = "John",
+                Last = "Adams"
+            }
+        };
+        f.Model["persons"] = people;
+        f.Model["show"] = true;
+        f.Model["VisRowCount"] = 0;
+
+        f.Table<model.Person>("persons", onVisibleRowsChanged: visibleRows =>
+        {
+            var people = visibleRows.Select(r => r.DataContext as model.Person)
+                .ToList();
+            f.Model["VisRowCount"] = people.Count;
+        });
+
+    }
+    
+    
+    
+    
     public static void VisibleRowsChangeEvent_HideTable(Form f)
     {
         var people = new ObservableCollection<model.Person>
