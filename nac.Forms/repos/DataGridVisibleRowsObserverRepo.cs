@@ -63,9 +63,12 @@ public class DataGridVisibleRowsObserverRepo
 
     private void SetupHandlingOnVisibleRowsChanged_FireOnVisibleRowsChanged()
     {
-        var offset = this.ScrollViewer.Offset;
-        var viewport = this.ScrollViewer.Viewport;
-        log.Info($"Scroll offset: {offset.Y}, Viewport height: {viewport.Height}");
+        if (this.ScrollViewer != null)
+        {
+            var offset = this.ScrollViewer.Offset;
+            var viewport = this.ScrollViewer.Viewport;
+            log.Info($"Scroll offset: {offset.Y}, Viewport height: {viewport.Height}");
+        }
             
         var rowPresenter = this.DataGrid.GetVisualDescendants()
             .OfType<Avalonia.Controls.Primitives.DataGridRowsPresenter>()

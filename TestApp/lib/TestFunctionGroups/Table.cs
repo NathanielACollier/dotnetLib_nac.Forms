@@ -193,7 +193,7 @@ public class Table
     }
     
     
-    public static void VisibleRowsChangeEvent_StaticPeopleList(Form f)
+    public static void VisibleRowsChangeEvent_PeopleListWithOverflow(Form f)
     {
         var bindList = model.DictionaryDataGeneratorUtility.GenerateRandomPeopleDictionaryList()
             .Select(dict => new nac.utilities.BindableDynamicDictionary(dict));
@@ -239,7 +239,7 @@ public class Table
     
     
     
-    public static void VisibleRowsChangeEvent_SimpleStaticList(Form f)
+    public static void VisibleRowsChangeEvent_SimpleStaticList_NoScroll(Form f)
     {
         var people = new ObservableCollection<model.Person>
         {
@@ -258,7 +258,12 @@ public class Table
         f.Model["show"] = true;
         f.Model["VisRowCount"] = 0;
 
-        f.Table<model.Person>("persons", onVisibleRowsChanged: visibleRows =>
+        f.HorizontalGroup(h =>
+            {
+                h.Text("Visible Row Count: ")
+                    .TextFor("VisRowCount");
+            })
+            .Table<model.Person>("persons", onVisibleRowsChanged: visibleRows =>
         {
             var people = visibleRows.Select(r => r.DataContext as model.Person)
                 .ToList();
@@ -270,7 +275,7 @@ public class Table
     
     
     
-    public static void VisibleRowsChangeEvent_HideTable(Form f)
+    public static void VisibleRowsChangeEvent_NoScroll_ShowHideButton(Form f)
     {
         var people = new ObservableCollection<model.Person>
         {
