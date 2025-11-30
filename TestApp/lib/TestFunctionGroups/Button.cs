@@ -48,6 +48,13 @@ public class Button
             get { return GetValue(() => Count2); }
             set { SetValue(() => Count2, value);}
         }
+
+
+        public int IncrementStepLevel
+        {
+            get { return GetValue(() => IncrementStepLevel); }
+            set { SetValue(() => IncrementStepLevel, value);}
+        }
     }
     
     public static void ClickCountInButtonWithTypedDataContext(Form f)
@@ -55,32 +62,40 @@ public class Button
         var model = new Model_ClickCountInButtonWithTypedDataContext();
         f.DataContext = model;
 
+        model.IncrementStepLevel = 1;
+
         f.HorizontalGroup(buttonRow =>
-            buttonRow.Button(_b => _b
-                        .HorizontalGroup(hg =>
+                buttonRow.Button(_b => _b
+                            .HorizontalGroup(hg =>
+                            {
+                                hg.Text("Click (")
+                                    .TextFor(nameof(model.Count),
+                                        style: new nac.Forms.model.Style
+                                            { foregroundColor = Avalonia.Media.Colors.Red })
+                                    .Text(")");
+                            }),
+                        async () =>
                         {
-                            hg.Text("Click (")
-                                .TextFor(nameof(model.Count),
-                                    style: new nac.Forms.model.Style
-                                        { foregroundColor = Avalonia.Media.Colors.Red })
-                                .Text(")");
-                        }),
-                    async () =>
+                            model.Count += model.IncrementStepLevel;
+                        }
+                    )
+                    .Button(_b => _b.HorizontalGroup(hg =>
                     {
-                        ++model.Count;
-                    }
-                )
-                .Button(_b => _b.HorizontalGroup(hg =>
-                {
-                    hg.Text(" Click-2 (")
-                        .TextFor(nameof(model.Count2),
-                            style: new Style { foregroundColor = Avalonia.Media.Colors.Green })
-                        .Text(")");
-                }), async () =>
-                {
-                    ++model.Count2;
-                })
-        ); // end of horizontal group button row
+                        hg.Text(" Click-2 (")
+                            .TextFor(nameof(model.Count2),
+                                style: new Style { foregroundColor = Avalonia.Media.Colors.Green })
+                            .Text(")");
+                    }), async () =>
+                    {
+                        model.Count2 += model.IncrementStepLevel;
+                    })
+            ) // end of horizontal group button row
+            .HorizontalGroup(h =>
+            {
+                h.Text("Increment Step? ")
+                    .TextBoxFor(nameof(model.IncrementStepLevel),
+                        convertFromUIToModel: (text) => int.TryParse(text, out int result) ? result : 0);
+            });
     }
     
     
