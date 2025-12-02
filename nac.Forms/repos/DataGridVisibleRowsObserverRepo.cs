@@ -15,9 +15,6 @@ public class DataGridVisibleRowsObserverRepo
     
     public DataGrid DataGrid { get; set; }
     public Action<List<DataGridRow>> OnVisibleRowsChanged { get; set; }
-    public Avalonia.Controls.ScrollViewer ScrollViewer { get; set; }
-    public Avalonia.Controls.Presenters.ScrollContentPresenter ScrollViewPresenter { get; set; }
-    
     
     public DataGridVisibleRowsObserverRepo(Avalonia.Controls.DataGrid dataGrid,
         Action<List<Avalonia.Controls.DataGridRow>> onVisibleRowsChanged)
@@ -40,8 +37,7 @@ public class DataGridVisibleRowsObserverRepo
             // Need this UIThread.Post because sometimes the scrollviewer still isn't available after AttachedToVisualTree
             Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
-                this.ScrollViewer = this.DataGrid.FindDescendantOfType<Avalonia.Controls.ScrollViewer>();
-                this.ScrollViewPresenter = this.ScrollViewer.FindDescendantOfType<Avalonia.Controls.Presenters.ScrollContentPresenter>();
+
                 SetupAfterScrollViewerAvailable();
             }, Avalonia.Threading.DispatcherPriority.Loaded);
             
@@ -63,10 +59,6 @@ public class DataGridVisibleRowsObserverRepo
 
     private void SetupHandlingOnVisibleRowsChanged_FireOnVisibleRowsChanged()
     {
-        var offset = this.ScrollViewer.Offset;
-        var viewport = this.ScrollViewer.Viewport;
-        log.Info($"Scroll offset: {offset.Y}, Viewport height: {viewport.Height}");
-            
         var rowPresenter = this.DataGrid.GetVisualDescendants()
             .OfType<Avalonia.Controls.Primitives.DataGridRowsPresenter>()
             .FirstOrDefault();

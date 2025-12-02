@@ -193,7 +193,7 @@ public class Table
     }
     
     
-    public static void BindableDict_StaticListOfPeople_TestRowVisibility(Form f)
+    public static void VisibleRowsChangeEvent_PeopleListWithOverflow(Form f)
     {
         var bindList = model.DictionaryDataGeneratorUtility.GenerateRandomPeopleDictionaryList()
             .Select(dict => new nac.utilities.BindableDynamicDictionary(dict));
@@ -236,6 +236,91 @@ public class Table
                 f.Model["lastPerson"] = lastPerson["firstName"] + " " +  lastPerson["lastName"];
             });
     }
+    
+    
+    
+    public static void VisibleRowsChangeEvent_SimpleStaticList_NoScroll(Form f)
+    {
+        var people = new ObservableCollection<model.Person>
+        {
+            new model.Person
+            {
+                First = "George",
+                Last = "Washington"
+            },
+            new model.Person
+            {
+                First = "John",
+                Last = "Adams"
+            }
+        };
+        f.Model["persons"] = people;
+        f.Model["show"] = true;
+        f.Model["VisRowCount"] = 0;
+
+        f.HorizontalGroup(h =>
+            {
+                h.Text("Visible Row Count: ")
+                    .TextFor("VisRowCount");
+            })
+            .Table<model.Person>("persons", onVisibleRowsChanged: visibleRows =>
+        {
+            var people = visibleRows.Select(r => r.DataContext as model.Person)
+                .ToList();
+            f.Model["VisRowCount"] = people.Count;
+        });
+
+    }
+    
+    
+    
+    
+    public static void VisibleRowsChangeEvent_NoScroll_ShowHideButton(Form f)
+    {
+        var people = new ObservableCollection<model.Person>
+        {
+            new model.Person
+            {
+                First = "George",
+                Last = "Washington"
+            },
+            new model.Person
+            {
+                First = "John",
+                Last = "Adams"
+            }
+        };
+        f.Model["persons"] = people;
+        f.Model["show"] = true;
+        f.Model["VisRowCount"] = 0;
+
+        f.HorizontalStack(h =>
+            {
+                h.Button("Toggle Show", async () =>
+                    {
+                        f.Model["show"] = !(bool)f.Model["show"];
+                    })
+                    .Text(" Vis Count: ")
+                    .TextFor("VisRowCount");
+            })
+            .VerticalStack(v =>
+            {
+                v.Table<model.Person>("persons", onVisibleRowsChanged: visibleRows =>
+                {
+                    var people = visibleRows.Select(r => r.DataContext as model.Person)
+                        .ToList();
+                    f.Model["VisRowCount"] = people.Count;
+                });
+            }, style: new Style { isVisibleModelName = "show" })
+            .VerticalStack(v =>
+            {
+                v.Text("Loading...");
+            }, style: new Style { isHiddenModelName = "show" });
+
+    }
+    
+    
+    
 
     public static void SpecifiedColumnBinding(Form f)
     {
