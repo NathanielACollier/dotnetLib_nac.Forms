@@ -67,6 +67,11 @@ public class DataGridVisibleRowsObserverRepo
             .OfType<DataGridRow>()
             .Where(row => row.IsVisible)
             .ToList();
+
+        if (visibleRows == null)
+        {
+            return; // skip if rowpresenter was null and resulted in no visible children
+        }
             
         this.OnVisibleRowsChanged.Invoke(visibleRows);
     }
