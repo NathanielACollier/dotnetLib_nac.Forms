@@ -202,6 +202,10 @@ public class AGroup
                     .Button("Increment x10", async () =>
                     {
                         f.Model["val"] = Convert.ToInt32(f.Model["val"]) + 10;
+                    })
+                    .Button("Clear", async () =>
+                    {
+                        f.Model["val"] = 0;
                     });
             })
             .Progress(modelFieldName: "val",
