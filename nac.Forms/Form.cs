@@ -68,7 +68,14 @@ namespace nac.Forms
         {
             // documentation on how the dev tools work:
             //    + https://docs.avaloniaui.net/docs/getting-started/developer-tools
-            this.win.AttachDevTools();
+            // Diagnostics got removed in Avalonia 12, so no more F12
+            //this.win.AttachDevTools();
+            // Then this requires Avalonia Pro license so it's commented out
+            /*
+            this.app.AttachDeveloperTools(options => {
+                options.Gesture = Avalonia.Input.KeyGesture.Parse("F12"); // New DevTools
+            });
+            */
             return this;
         }
 
@@ -99,7 +106,6 @@ namespace nac.Forms
 
             return builder.Instance;
         }
-
         public static Form NewForm(ConfigureAppBuilder beforeAppBuilderInit = null)
         {
             var app = SetupAvaloniaApp(beforeAppBuilderInit: beforeAppBuilderInit);

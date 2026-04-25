@@ -1,7 +1,8 @@
 ﻿<Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:simple="using:Avalonia.Themes.Simple"
              x:Class="nac.Forms.App">
-	<Application.Styles>
-		<SimpleTheme />
-	</Application.Styles>
+    <Application.Styles>
+        <simple:SimpleTheme />
+    </Application.Styles>
 </Application>
