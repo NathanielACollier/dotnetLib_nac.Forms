@@ -217,6 +217,24 @@ namespace nac.Forms
 
             return this;
         }
+        
+
+        public Form SpinningElipse(model.Style style = null)
+        {
+            int squareSize = style switch
+            {
+                var x when x?.height?.IsSet == true => x.height.Value,
+                var x when x?.width?.IsSet == true => x.width.Value,
+                _ => 20
+            };
+
+            var spinner = new controls.ElipseSpinnerControl(squareSize: squareSize);
+            
+            lib.styleUtil.style(this, spinner, style);
+            AddRowToHost(spinner);
+            return this;
+        }
+        
 
 
         public Form Image(string modelFieldName,
