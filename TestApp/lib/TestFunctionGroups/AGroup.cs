@@ -92,6 +92,29 @@ public class AGroup
                 .Button("Toggle Loading", async () => { model.Loading = !(bool)model.Loading; });
         });
     }
+
+
+
+    public static void SpinningElipse_DataContextTest(Form f)
+    {
+        var model = new model.DataContext_HelloWorld();
+        f.DataContext = model;
+
+        f.VerticalGroup(vg =>
+        {
+            vg.HorizontalGroup(hg => { hg.Text("I'm visible when not loading"); },
+                    style: new nac.Forms.model.Style { isHiddenModelName = nameof(model.Loading) })
+                .HorizontalStack(hg =>
+                {
+                    hg.Text("Loading")
+                        .SpinningElipse(style: new Style()
+                        {
+                            width = 20
+                        });
+                }, style: new Style { isVisibleModelName = nameof(model.Loading), height = 30})
+                .Button("Toggle Loading", async () => { model.Loading = !(bool)model.Loading; });
+        });
+    }
     
 
 
