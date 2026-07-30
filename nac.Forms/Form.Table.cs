@@ -10,6 +10,7 @@ using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Reactive;
 using Avalonia.VisualTree;
 using nac.Forms.lib;
+using nac.Forms.model;
 
 namespace nac.Forms;
 
@@ -18,15 +19,26 @@ public partial class Form
     public Form Table<T>(string itemsModelFieldName,
                                 IEnumerable<model.Column> columns = null,
                                 bool autoGenerateColumns = true,
-                                Action<List<Avalonia.Controls.DataGridRow>> onVisibleRowsChanged = null)
+                                Action<List<Avalonia.Controls.TableViewRow>> onVisibleRowsChanged = null)
         {
-            if (!isDataGridStyleInApp(app))
+            var dg = new Avalonia.Controls.TableView();
+
+            if (autoGenerateColumns == true)
             {
-                addDataGridStyleToApp(app);
+                if (getModelValue(itemsModelFieldName)?.Value is IEnumerable<nac.utilities.BindableDynamicDictionary>
+                    dictList)
+                {
+                    // special case for the columns in our special dictionary
+                    columns = generateColumnsForBindableDynamicDictionary(columns, dictList);
+                }
+                else
+                {
+                    // generate columns for all the T
+                    // The way the DataGrid worked it just tacked them onto the end
+                    columns = populateColumnsListWithPropertyColumns<T>(columns);
+                }
+
             }
-            
-            var dg = new Avalonia.Controls.DataGrid();
-            dg.AutoGenerateColumns = autoGenerateColumns;
 
             if (onVisibleRowsChanged != null)
             {
@@ -34,21 +46,7 @@ public partial class Form
                 observer.Setup();
             }
             
-            // special case for the columns in our special dictionary
-            if ( autoGenerateColumns == true && getModelValue(itemsModelFieldName)?.Value is IEnumerable<nac.utilities.BindableDynamicDictionary> dictList)
-            {
-                dg.AutoGenerateColumns = false; // we are going to generate our own columns
-                var newColumns = new List<model.Column>();
-                newColumns.AddRange(
-                    generateColumnsForBindableDynamicDictionary(dictList)
-                    );
-                if (columns != null)
-                {
-                    newColumns.AddRange(columns);
-                }
-                
-                columns = newColumns;
-            }
+            
 
             if (columns != null)
             {
@@ -56,7 +54,7 @@ public partial class Form
                 {
                     if (c.template == null)
                     {
-                        var dgCol = new Avalonia.Controls.DataGridTextColumn();
+                        var dgCol = new Avalonia.Controls.TableViewColumn();
                         dgCol.Header = c.Header;
                         dgCol.Binding = new Binding
                         {
@@ -66,7 +64,7 @@ public partial class Form
                     }
                     else
                     {
-                        var col = new Avalonia.Controls.DataGridTemplateColumn();
+                        var col = new Avalonia.Controls.TableViewColumn();
                         col.Header = c.Header;
                         col.CellTemplate = new FuncDataTemplate<object>((itemModel, nameScope) =>
                         {
@@ -95,17 +93,48 @@ public partial class Form
              NOTE: two way data binding for ItemsSource should allways be false
                 - If it's set to true then it requires a setter for the property and can crash.  Often for an ItemsSource on the model it will just have a getter and use the auto creation functionality of ViewModelBase
              */
-            AddBinding<IEnumerable>(itemsModelFieldName, dg, Avalonia.Controls.DataGrid.ItemsSourceProperty, 
+            AddBinding<IEnumerable>(itemsModelFieldName, dg, Avalonia.Controls.TableView.ItemsSourceProperty, 
                 isTwoWayDataBinding: false);
             AddRowToHost(dg, rowAutoHeight: false);
 
             return this;
         }
-    
 
-    private IEnumerable<model.Column> generateColumnsForBindableDynamicDictionary(IEnumerable<nac.utilities.BindableDynamicDictionary> dictList)
+    private List<Column> populateColumnsListWithPropertyColumns<T>(IEnumerable<Column> columns)
+    {
+        var resultList = new List<Column>();
+        if (columns != null)
+        {
+            resultList.AddRange(columns);
+        }
+        
+        var targetProperties = typeof(T).GetProperties()
+            .Where(prop => prop.CanRead &&
+                           prop.GetIndexParameters().Length == 0
+            )
+            .ToList();
+
+        foreach (var prop in targetProperties)
+        {
+            resultList.Add(new Column
+            {
+                Header = prop.Name,
+                modelBindingPropertyName = prop.Name
+            });
+        }
+
+        return resultList;
+    }
+
+
+    private IEnumerable<model.Column> generateColumnsForBindableDynamicDictionary(IEnumerable<Column> columns, IEnumerable<nac.utilities.BindableDynamicDictionary> dictList)
         {
             var dictColumns = new List<model.Column>();
+
+            if (columns != null)
+            {
+                dictColumns.AddRange(columns);
+            }
 
             var firstDict = dictList.FirstOrDefault();
 
@@ -132,25 +161,5 @@ public partial class Form
 
             return dictColumns;
         }
-
-        private void addDataGridStyleToApp(Application app)
-        {
-            // there is a bug in avalonia.  see: https://github.com/AvaloniaUI/Avalonia/issues/3788
-            var datagridStyleUri = new Uri("avares://Avalonia.Controls.DataGrid/Themes/Simple.xaml");
-            var _style = new StyleInclude(datagridStyleUri) {
-                Source = datagridStyleUri
-            };
-            app.Styles.Add(_style);
-        }
-
-        private bool isDataGridStyleInApp(Application app)
-        {
-            var datagridStyleQuery = app.Styles
-                .OfType<StyleInclude>()
-                .Where(s => (s?.Source?.ToString() ?? "")
-                            .IndexOf("/Avalonia.Controls.DataGrid/", StringComparison.OrdinalIgnoreCase) >=
-                            0);
-
-            return datagridStyleQuery.Any();
-        }
+    
 }

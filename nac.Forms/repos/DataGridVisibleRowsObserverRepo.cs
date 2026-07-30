@@ -13,11 +13,11 @@ public class DataGridVisibleRowsObserverRepo
 {
     private static nac.Logging.Logger log = new();
     
-    public DataGrid DataGrid { get; set; }
-    public Action<List<DataGridRow>> OnVisibleRowsChanged { get; set; }
+    public TableView DataGrid { get; set; }
+    public Action<List<TableViewRow>> OnVisibleRowsChanged { get; set; }
     
-    public DataGridVisibleRowsObserverRepo(Avalonia.Controls.DataGrid dataGrid,
-        Action<List<Avalonia.Controls.DataGridRow>> onVisibleRowsChanged)
+    public DataGridVisibleRowsObserverRepo(Avalonia.Controls.TableView dataGrid,
+        Action<List<Avalonia.Controls.TableViewRow>> onVisibleRowsChanged)
     {
         this.DataGrid = dataGrid;
         this.OnVisibleRowsChanged = onVisibleRowsChanged;
@@ -59,12 +59,8 @@ public class DataGridVisibleRowsObserverRepo
 
     private void SetupHandlingOnVisibleRowsChanged_FireOnVisibleRowsChanged()
     {
-        var rowPresenter = this.DataGrid.GetVisualDescendants()
-            .OfType<Avalonia.Controls.Primitives.DataGridRowsPresenter>()
-            .FirstOrDefault();
-
-        var visibleRows = rowPresenter?.Children
-            .OfType<DataGridRow>()
+        var visibleRows = this.DataGrid.GetVisualDescendants()
+            .OfType<TableViewRow>()
             .Where(row => row.IsVisible)
             .ToList();
 
