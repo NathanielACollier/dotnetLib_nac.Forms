@@ -24,10 +24,7 @@ public partial class Form
                                 Action<List<Avalonia.Controls.TableViewRow>> onVisibleRowsChanged = null,
                                 Style style=null)
         {
-            var dg = new Avalonia.Controls.TableView();
-            lib.styleUtil.style(this, dg, style);
-            
-            MonitorForUIReady_TableView_ThenMakeAlterationsBasedOnStyle(style, dg);
+            var tv = new Avalonia.Controls.TableView();
 
             if (autoGenerateColumns == true)
             {
@@ -48,7 +45,7 @@ public partial class Form
 
             if (onVisibleRowsChanged != null)
             {
-                var observer = new repos.TableViewVisibleRowsObserverRepo(dataGrid: dg, onVisibleRowsChanged: onVisibleRowsChanged);
+                var observer = new repos.TableViewVisibleRowsObserverRepo(dataGrid: tv, onVisibleRowsChanged: onVisibleRowsChanged);
                 observer.Setup();
             }
             
@@ -60,16 +57,16 @@ public partial class Form
                 {
                     if (c.template == null)
                     {
-                        var dgCol = CreateMinimumTableViewColumn(c, style: style);
+                        var dgCol = TableView_CreateMinimalColumn(c, style: style, columnCount: columns.Count());
                         dgCol.Binding = new Binding
                         {
                             Path = c.modelBindingPropertyName
                         };
-                        dg.Columns.Add(dgCol);
+                        tv.Columns.Add(dgCol);
                     }
                     else
                     {
-                        var col = CreateMinimumTableViewColumn(c, style: style);
+                        var col = TableView_CreateMinimalColumn(c, style: style, columnCount: columns.Count());
                         col.CellTemplate = new FuncDataTemplate<object>((itemModel, nameScope) =>
                         {
                             var rowForm = new Form(__app: this.app, _model: new nac.utilities.BindableDynamicDictionary());
@@ -82,7 +79,7 @@ public partial class Form
 
                             return rowForm.Host;
                         });
-                        dg.Columns.Add(col);
+                        tv.Columns.Add(col);
                     }
                 }
             }
@@ -97,47 +94,27 @@ public partial class Form
              NOTE: two way data binding for ItemsSource should allways be false
                 - If it's set to true then it requires a setter for the property and can crash.  Often for an ItemsSource on the model it will just have a getter and use the auto creation functionality of ViewModelBase
              */
-            AddBinding<IEnumerable>(itemsModelFieldName, dg, Avalonia.Controls.TableView.ItemsSourceProperty, 
+            AddBinding<IEnumerable>(itemsModelFieldName, tv, Avalonia.Controls.TableView.ItemsSourceProperty, 
                 isTwoWayDataBinding: false);
-            AddRowToHost(dg, rowAutoHeight: false);
+            AddRowToHost(tv, rowAutoHeight: false);
 
             return this;
         }
 
-    private static TableViewColumn CreateMinimumTableViewColumn(Column colModel, Style style)
+    private static TableViewColumn TableView_CreateMinimalColumn(Column colModel, Style style, int columnCount)
     {
         var dgCol = new Avalonia.Controls.TableViewColumn();
         dgCol.Header = colModel.Header;
-        //dgCol.Width = new GridLength(1.0, GridUnitType.Pixel);
+
+        if (style.width.IsSet == true)
+        {
+            double colWidth = (double)style.width.Value / (double)columnCount;
+            dgCol.Width = new GridLength( colWidth, GridUnitType.Pixel);
+        }
+        
         return dgCol;
     }
-
-    private static void MonitorForUIReady_TableView_ThenMakeAlterationsBasedOnStyle(Style style, TableView dg)
-    {
-        // The old DataGrid showed a horizontal scrollbar, and had all the columns just be the size they needed
-        //   If the person chooses to set a width in style we are going to turn on horizontal scroll
-        dg.AttachedToVisualTree += (_, _) =>
-        {
-            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-            {
-                var sv = dg.FindDescendantOfType<ScrollViewer>();
-                sv.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
-
-                string debugText = $@"
-                    sv.Extent.Width = {sv.Extent.Width}
-                    sv.Viewport.Width = {sv.Viewport.Width}
-                    dg.Bounds.Width = {dg.Bounds.Width}
-                    dg.Columns.Sum(x => x.ActualWidth) = {dg.Columns.Sum(x => x.ActualWidth)}
-                ";
-
-                if (style.width.IsSet)
-                {
-                    sv.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
-                }
-            }, Avalonia.Threading.DispatcherPriority.Render);
-
-        };
-    }
+    
 
     
     
