@@ -6,6 +6,7 @@ using Avalonia.Controls.Templates;
 using Avalonia.Media;
 using nac.Forms.lib.Extensions;
 using nac.Forms.model;
+using FontWeight = nac.CSSParsing.model.Styling.FontWeight;
 
 namespace nac.Forms.lib
 {
@@ -35,6 +36,16 @@ namespace nac.Forms.lib
             {
                 textCtrl.Background = new SolidColorBrush(style.backgroundColor.Value);
             }
+
+            if (style?.fontWeight.IsSet == true)
+            {
+                textCtrl.FontWeight = style.fontWeight.Value;
+            }
+
+            if (style?.fontSize.IsSet == true)
+            {
+                textCtrl.FontSize = style.fontSize.Value;
+            }
         }
 
         private static void styleTemplated(Avalonia.Controls.Primitives.TemplatedControl ctrl, Style style)
@@ -47,6 +58,16 @@ namespace nac.Forms.lib
             if (style?.backgroundColor.IsSet == true)
             {
                 ctrl.Background = new SolidColorBrush(style.backgroundColor.Value);
+            }
+
+            if (style?.fontWeight.IsSet == true)
+            {
+                ctrl.FontWeight = style.fontWeight.Value;
+            }
+
+            if (style?.fontSize.IsSet == true)
+            {
+                ctrl.FontSize = style.fontSize.Value;
             }
         }
 
@@ -144,6 +165,11 @@ namespace nac.Forms.lib
                 style.foregroundColor = Avalonia.Media.Color.Parse(cssStyle.fontColor.Value);
             }
 
+            if (cssStyle.backgroundColor.IsSet)
+            {
+                style.backgroundColor = Avalonia.Media.Color.Parse(cssStyle.backgroundColor.Value);
+            }
+
             if(cssStyle.height.IsSet)
             {
                 style.height = cssStyle.height.Value.ValueI;
@@ -154,7 +180,32 @@ namespace nac.Forms.lib
                 style.width = cssStyle.width.Value.ValueI;
             }
 
+            if (cssStyle.fontWeight.IsSet)
+            {
+                style.fontWeight = cssStyle.fontWeight.Value switch
+                {
+                    FontWeight.bold => Avalonia.Media.FontWeight.Bold,
+                    _ => Avalonia.Media.FontWeight.Normal
+                };
+            }
+
+            if (cssStyle.fontSize.IsSet)
+            {
+                // assume size is in font points
+                int pixelSize = convertPointsToPixels(cssStyle.fontSize.Value);
+                style.fontSize = pixelSize;
+            }
+
             return style;
+        }
+
+
+
+        private static int convertPointsToPixels(int points)
+        {
+            decimal pixels = ((decimal)points * 96.0M) / 72.0M;
+
+            return (int)pixels;
         }
         
     }
