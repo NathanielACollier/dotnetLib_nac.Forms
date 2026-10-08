@@ -129,6 +129,42 @@ form.Autocomplete(
 );
 ```
 
+### Path Navigator (generic folder/tree path builder)
+
+A generic hierarchical-path navigator (the Avalonia equivalent of the WPF `FolderPathControl`).
+It is **not** tied to the disk — what a "path" means is up to your populator function.
+
+`PathNavigatorFor(string pathFieldName, Func<string, string, Task<IEnumerable<string>>> populateSubFolders, string pathSeparator = "\\", string initialPath = null, Func<string,Task> onPathChanged = null, Style style = null)`
+
+- **pathSeparator** — the string between segments. Default is `\`, but can be `/`, `::`, `:` … anything. This is what makes the control generic (file paths, namespaced/virtual paths, DB trees, etc).
+- **populateSubFolders `Func<string,string,Task<IEnumerable<string>>>`** — your function. It receives
+    1. the already-committed path, and
+    2. the partial text the user has typed for the *next* segment name.
+  It returns the list of candidate segment names for that level (you do the filtering).
+- **pathFieldName** — the model field that stores the full committed path (two-way bound; the model is always the source of truth).
+- **onPathChanged `Func<string,Task>`** — notified whenever the committed path changes (user picks a segment, goes up, or the model changed elsewhere).
+
+The control layout is `[ committed path ] [ next-segment autocomplete ] [ Up ]`:
+the user types/picks the next segment (append the separator + segment), or clicks **Up** to pop the last segment.
+
+```csharp
+f.PathNavigatorFor("myServerPath",
+    populateSubFolders: async (committedPath, partialText) =>
+    {
+        var children = await myClient.GetChildren(committedPath);   // your source (folders, API, DB…)
+        if (string.IsNullOrWhiteSpace(partialText)) return children;
+        return children.Where(n => n.StartsWith(partialText, System.StringComparison.OrdinalIgnoreCase));
+    },
+    pathSeparator: "\\",
+    initialPath: "Root\\Projects",
+    onPathChanged: async newServerPath => { await DoSomething(newServerPath); })
+    .Text("Committed path: ")
+    .TextFor("myServerPath");
+```
+
+> Pure string logic is exposed + unit-tested headless: `PathNavigator.JoinPath(committed, segment, separator)` and
+> `PathNavigator.PopTopSegment(committed, separator)`.
+
 ### Buttons
 
 ```csharp
