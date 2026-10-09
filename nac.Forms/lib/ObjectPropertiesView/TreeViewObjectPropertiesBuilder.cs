@@ -68,13 +68,23 @@ public static class TreeViewObjectPropertiesBuilder
     {
         if (entryObj != null)
         {
-            TreeViewItem arrayParentItem = new TreeViewItem
-                { Header = entryObj.GetType().Name, FontWeight = FontWeight.Bold };
+            if (IsKeyValuePair(entryObj))
+            {
+                // KeyValuePair entries (Dictionary lookups) - render them as a single 
+                //    "property name" node with the value underneath.  
+                //    do not wrap them in a "KeyValuePair`2" type-name node
+                BuildDictionaryEntry(parentTreeNode, entryObj, expandSettings);
+            }
+            else
+            {
+                TreeViewItem arrayParentItem = new TreeViewItem
+                    { Header = entryObj.GetType().Name, FontWeight = FontWeight.Bold };
 
-            BuildTree(arrayParentItem, entryObj, expandSettings);
+                BuildTree(arrayParentItem, entryObj, expandSettings);
 
-            arrayParentItem.IsExpanded = expandSettings.ExpandCollections;
-            addItemToTreeItem(parentTreeNode, arrayParentItem);
+                arrayParentItem.IsExpanded = expandSettings.ExpandCollections;
+                addItemToTreeItem(parentTreeNode, arrayParentItem);
+            }
         }
         else
         {
@@ -195,6 +205,27 @@ public static class TreeViewObjectPropertiesBuilder
     }
 
 
+    private static void BuildDictionaryEntry(TreeViewItem parentItem, object entryObj, NodeExpandSettings expandSettings)
+    {
+        var key = GetNamedPropValue(entryObj, "Key");
+        var val = GetNamedPropValue(entryObj, "Value");
+
+        var dictEntryNode = new TreeViewItem
+        {
+            Header = key == null ? "NULL" : key.ToString(),
+            FontWeight = FontWeight.Bold,
+            IsExpanded = expandSettings.ExpandPropertyName
+        };
+
+        if (val != null)
+        {
+            BuildTree(dictEntryNode, val, expandSettings);
+        }
+
+        addItemToTreeItem(parentItem, dictEntryNode);
+    }
+
+
     private static object GetNamedPropValue(object sourceObject, string propertyName)
     {
         var properties = sourceObject.GetType().GetProperties();
@@ -234,12 +265,7 @@ public static class TreeViewObjectPropertiesBuilder
 
         if (IsKeyValuePair(sourceObject))
         {
-            var key = GetNamedPropValue(sourceObject, "Key");
-            var val = GetNamedPropValue(sourceObject, "Value");
-            var dictEntryNode = new TreeViewItem
-                { Header = key, FontWeight = FontWeight.Bold, IsExpanded = expandSettings.ExpandPropertyName };
-            BuildTree(dictEntryNode, val, expandSettings);
-            addItemToTreeItem(parentItem, dictEntryNode);
+            BuildDictionaryEntry(parentItem, sourceObject, expandSettings);
             return;
         }
 

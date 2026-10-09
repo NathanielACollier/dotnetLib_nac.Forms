@@ -164,6 +164,65 @@ f.PathNavigatorFor("myServerPath",
 
 > Pure string logic is exposed + unit-tested headless: `PathNavigator.JoinPath(committed, segment, separator)` and
 > `PathNavigator.PopTopSegment(committed, separator)`.
+> (The PathNavigator TestApp group ends with `.ObjectViewer(tree)` to inspect the fake folder tree as you navigate.)
+
+### ObjectViewer (object inspector tree)
+
+A read-only inspector that renders any object as an expandable `TreeView`.
+Useful in TestApp / dev screens for inspecting models, config objects, or intermediate data.
+
+`ObjectViewer<T>(T initialItemValue = null, ObjectViewerFunctions<T> functions = null)  where T : class`
+
+- **initialItemValue** — the object to render on load. May be `null` if you plan to supply one later via the update function.
+- **functions** — an `ObjectViewerFunctions<T>` with a single delegate, `updateValue`. The ObjectViewer **assigns** this delegate as it is created; call it later (with a new object) to fully rebuild the tree.
+
+```csharp
+public class ObjectViewerFunctions<T>
+{
+    public Func<T,Task> updateValue;   // assigned by ObjectViewer once the tree is built
+}
+```
+
+#### What it renders
+
+Rendering is done by `nac.Forms.lib.ObjectPropertiesView.TreeViewObjectPropertiesBuilder.BuildTree(...)`, which walks the object's graph. For each node it checks, in order:
+
+1. **Primitives** (`int`, `bool`, `string`, other non-generic value types) — the value is rendered as plain node text.
+2. **KeyValuePair entries** (what `Dictionary`s, `SortedDictionary`s, etc. enumerate over) — rendered as **one bold node showing the key**, with the value rendered underneath. There is **no `KeyValuePair\`2` type-name wrapper node**.
+3. **Collections** (`List<T>`, arrays, dictionaries…) — a single "Collection" node. Each entry is then rendered using rule 2 for KeyValuePairs, rule 1 for primitives, a type-name node for other objects, or a red `Index[n]=NULL` node for null entries.
+4. **XML LINQ objects** (`XDocument` / `XElement` / `XAttribute`) — an "XML" node; elements by tag name, attributes by name, element text under a "Value" node.
+5. **Any other object** — every auto-implemented **property**, then every public **field**, becomes a bold node with the value's subtree attached (recurse into rules 1–4 for each value).
+
+Safety behavior:
+
+- **Cycle guard** — object identity is tracked per build; a class instance is rendered at most once, so self-referencing / recursive object graphs cannot infinite-loop.
+- The whole tree is rebuilt from scratch on every `BuildTree` call (the old tree is cleared first).
+
+Expansion of nodes is controlled by `NodeExpandSettings` (booleans: `ExpandRoot`, `ExpandCollections`, `ExpandPropertyName`, `ExpandPrimativeValues`, `ExpandXML`, `ExpandNullItem`). All `true` expands everything, all `false` leaves the tree collapsed. `ObjectViewer` itself builds with everything expanded.
+
+#### Example
+
+```csharp
+// Simple inspector of an object
+await f.ObjectViewer(initialItemValue: new
+{
+    A = "Dinosaur",
+    B = "Penguin",
+    Nested = new Dictionary<string, string> { ["One"] = "Uno" }
+});
+
+// Object viewer refreshed by a running counter
+var ops = new nac.Forms.Form.ObjectViewerFunctions<object>();
+var model = new { Message = "Initial", Counter = 0 };
+
+f.Button("Increment", async () =>
+{
+    model = new { Message = "Incremented", Counter = model.Counter + 1 };
+    await ops.updateValue(model);   // rebuilds the tree with the new object
+});
+
+await f.ObjectViewer<object>(initialItemValue: model, functions: ops);
+```
 
 ### Buttons
 
