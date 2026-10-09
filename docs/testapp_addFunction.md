@@ -256,8 +256,12 @@ public static void ChildObjectBinding(Form child)
 
 ## Important Notes
 
-1. **Static Methods Only**: Test functions must be `public static void` methods
-2. **No return values**: These are void operations for UI construction
+1. **Static Methods Only**: Test functions must be `public static` methods
+2. **Two allowed signatures** (both must take the `Form` as their only parameter):
+   - `void TestName(Form f)` — synchronous (legacy)
+   - `Task TestName(Form f)` — **async is now supported** (use `private static async Task TestName(Form f)` and `await` anything you need, e.g. `f.ObjectViewer(...)`). Exceptions in async tests are captured and written to the Log tab.
+   - (Prefer `async Task` over `async void` — `async void` still works but its exceptions escape to the Avalonia dispatcher and bypass the test log)
+3. **No other return values**: Only `void` or `Task` return types are discovered
 3. **Async Operations**: Use `async` when awaiting tasks (e.g., dialogs, progress)
 4. **Logger**: Use `log.Info()`, `log.Fatal()` to report actions/events
 5. **Model Initialization**: Initialize model properties before binding

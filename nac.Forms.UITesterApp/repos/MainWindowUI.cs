@@ -66,7 +66,23 @@ public static class MainWindowUI
             {
                 parentForm.DisplayChildForm(childForm =>
                     {
-                        test.CodeToRun(childForm);
+                        if (test.CodeToRunAsync != null)
+                        {
+                            // DisplayChildForm takes a synchronous setup delegate (Action<Form>),
+                            //    so we cannot await the async test function inside it.
+                            //    Start it, and if it throws, log it out
+                            test.CodeToRunAsync(childForm).ContinueWith(t =>
+                            {
+                                if (t.Exception != null)
+                                {
+                                    logException(test, t.Exception);
+                                }
+                            }, TaskContinuationOptions.OnlyOnFaulted);
+                        }
+                        else
+                        {
+                            test.CodeToRun(childForm);
+                        }
                     }, useIsolatedModelForThisChildForm: true)
                     .ContinueWith(t =>
                     {
@@ -81,15 +97,31 @@ public static class MainWindowUI
             else
             {
                 // just run it directly
-                test.CodeToRun(parentForm);
+                if (test.CodeToRunAsync != null)
+                {
+                    test.CodeToRunAsync(parentForm).ContinueWith(t =>
+                    {
+                        if (t.Exception != null)
+                        {
+                            logException(test, t.Exception);
+                        }
+                        else
+                        {
+                            log.Info($"Test: [name={test.Name}] is complete");
+                        }
+                    });
+                }
+                else
+                {
+                    test.CodeToRun(parentForm);
+                }
             }
         }
         catch (Exception ex)
         {
             logException(test, ex);
         }
-            
-
+     
     }
 
 

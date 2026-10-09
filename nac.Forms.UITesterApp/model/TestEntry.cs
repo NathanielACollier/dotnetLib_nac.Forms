@@ -12,6 +12,7 @@ public class TestEntry : nac.ViewModelBase.ViewModelBase
     }
     
    public Action<Form> CodeToRun { get; set; }
+   public Func<Form, Task> CodeToRunAsync { get; set; }
    public bool SetupChildForm { get; set; }
 
    public override string ToString()

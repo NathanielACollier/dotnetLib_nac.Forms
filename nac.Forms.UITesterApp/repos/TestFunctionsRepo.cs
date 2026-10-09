@@ -44,25 +44,47 @@ public static class TestFunctionsRepo
     private static List<model.TestEntry> QuickGenerationTestEntries(Type functionClass)
     {
         string formClassFullName = typeof(Form).FullName;
+        // both delegate shapes are discovered:
+        //   sync  => void   TestName(Form f)   => System.Action`1[nac.Forms.Form]
+        //   async => Task   TestName(Form f)   => System.Func`2[nac.Forms.Form,System.Threading.Tasks.Task]
+        string syncDelegateTypeString = $"System.Action`1[{formClassFullName}]";
+        string asyncDelegateTypeString = $"System.Func`2[{formClassFullName},System.Threading.Tasks.Task]";
         var methodList = functionClass.GetMethods(BindingFlags.Static | 
                                                   BindingFlags.NonPublic |
                                                   BindingFlags.Public
                                                   );
         
-        var functions = from f in methodList
-            let fDelegateType = GetDelegateType(f)
-            where string.Equals($"System.Action`1[{formClassFullName}]", fDelegateType.ToString())
-            select f.CreateDelegate<Action<Form>>();
-        
-        var entries = from f in functions
-            select new model.TestEntry
-            {
-                Name = functionClass.Name + "_" + f.Method.Name,
-                CodeToRun = f,
-                SetupChildForm = true
-            };
+        var entries = new List<model.TestEntry>();
 
-        return entries.ToList();
+        foreach (MethodInfo f in methodList)
+        {
+            var fDelegateType = GetDelegateType(f).ToString();
+
+            if (string.Equals(syncDelegateTypeString, fDelegateType))
+            {
+                entries.Add(
+                    new model.TestEntry
+                    {
+                        Name = functionClass.Name + "_" + f.Name,
+                        CodeToRun = f.CreateDelegate<Action<Form>>(),
+                        SetupChildForm = true
+                    });
+            }
+            else if (string.Equals(asyncDelegateTypeString, fDelegateType))
+            {
+                // async test function - we can await it and capture exceptions
+                entries.Add(
+                    new model.TestEntry
+                    {
+                        Name = functionClass.Name + "_" + f.Name,
+                        CodeToRunAsync = f.CreateDelegate<Func<Form, Task>>(),
+                        SetupChildForm = true
+                    });
+            }
+            // anything else (other param/return combos) is ignored
+        }
+
+        return entries;
     }
 
 
