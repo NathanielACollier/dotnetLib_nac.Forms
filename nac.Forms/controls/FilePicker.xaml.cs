@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
@@ -55,7 +56,32 @@ namespace nac.Forms.controls
             get { return GetValue(FileMustExistProperty); }
             set { SetValue(FileMustExistProperty, value); }
         }
-        
+
+        public static readonly StyledProperty<string> FileFilterProperty =
+            AvaloniaProperty.Register<FilePicker, string>(nameof(FileFilter));
+
+        /*
+         Filter of the form "name|(*.ext;*.ext2)" (multiple filters separated by "||"),
+         applied to the file dialog's FileTypeChoices.
+         */
+        public string FileFilter
+        {
+            get { return GetValue(FileFilterProperty); }
+            set { SetValue(FileFilterProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> InitialFileNameProperty =
+            AvaloniaProperty.Register<FilePicker, string>(nameof(InitialFileName));
+
+        /*
+         The file name to suggest when the file dialog opens.
+         */
+        public string InitialFileName
+        {
+            get { return GetValue(InitialFileNameProperty); }
+            set { SetValue(InitialFileNameProperty, value); }
+        }
+
         /*
          -----
          Constructor
@@ -119,6 +145,26 @@ namespace nac.Forms.controls
             return workingDirectory;
         }
         
+        /*
+         A null filter means no restriction, so return null instead of an empty array.
+         The result feeds FilePickerOpenOptions.FileTypeFilter and
+         FilePickerSaveOptions.FileTypeChoices.
+         */
+        private IReadOnlyList<FilePickerFileType> getFileTypeChoices()
+        {
+            if (string.IsNullOrWhiteSpace(FileFilter))
+            {
+                return null;
+            }
+
+            return nac.Forms.lib.FileFilterParser.Parse(FileFilter)
+                .Select(entry => new FilePickerFileType(entry.Name)
+                {
+                    Patterns = new List<string>(entry.Patterns)
+                })
+                .ToArray();
+        }
+
         private async Task<IStorageFolder> GetInitialFolder(IStorageProvider storage)
         {
             Avalonia.Platform.Storage.IStorageFolder folder;
@@ -141,6 +187,7 @@ namespace nac.Forms.controls
             var fileOpenOptions = new Avalonia.Platform.Storage.FilePickerOpenOptions
             {
                 AllowMultiple = false,
+                FileTypeFilter = getFileTypeChoices(),
             };
 
             fileOpenOptions.SuggestedStartLocation = await GetInitialFolder(storage);
@@ -161,14 +208,18 @@ namespace nac.Forms.controls
 
             var fileSaveOptions = new Avalonia.Platform.Storage.FilePickerSaveOptions
             {
-                
+                FileTypeChoices = getFileTypeChoices(),
             };
 
             fileSaveOptions.SuggestedStartLocation = await GetInitialFolder(storage);
-            
+
             if (!string.IsNullOrWhiteSpace(FilePath))
             {
                 fileSaveOptions.SuggestedFileName = System.IO.Path.GetFileName(FilePath);
+            }
+            else if (!string.IsNullOrWhiteSpace(InitialFileName))
+            {
+                fileSaveOptions.SuggestedFileName = InitialFileName;
             }
 
             var file = await storage.SaveFilePickerAsync(fileSaveOptions);

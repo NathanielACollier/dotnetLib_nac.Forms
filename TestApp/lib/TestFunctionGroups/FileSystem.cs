@@ -90,7 +90,29 @@ public class FileSystem
                     .TextFor("myPath");
             });
     }
-    
+
+
+
+    public static void FilePicker_LimitedExtenionArgs(Form f)
+    {
+        f.FilePathFor("Path1", fileFilter: "Word (*.docx)|*.docx||All (*.*)|*.*",
+                initialFileName: "test.docx",
+                fileMustExist: false,
+                onFilePathChanged: async (newFIleName) =>
+                {
+                    string newLine = $"File Picked: {newFIleName}{Environment.NewLine}";
+                    string existingText = f.Model["info"] as string;
+                    if (string.IsNullOrWhiteSpace(existingText))
+                    {
+                        f.Model["info"] = newLine;
+                        return;
+                    }
+
+                    f.Model["info"] = existingText + newLine;
+                })
+            .TextBoxFor("info", multiline: true,
+                style: "height:200px");
+    }
     
     
     
