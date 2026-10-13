@@ -110,6 +110,25 @@ public class List
 
         nac.Forms.UITesterApp.repos.UIElementsUtility.logViewer(f, "logEntriesList");
     }
+
+
+    public static void JustStrings_TemplateTextBox(Form f)
+    {
+        var items = new ObservableCollection<model.BindableString>();
+        new[] {"Walnut", "Peanut", "Cashew"}.ToList().ForEach(x=> items.Add(new model.BindableString(x)));
+        f.Model["myList"] = items;
+
+        f.Text("This is a list of strings")
+            .List<model.BindableString>(itemSourcePropertyName: "myList",
+                populateItemRow: row =>
+                {
+                    row.TextBoxFor(modelFieldName: nameof(model.BindableString.Value));
+                },
+                onSelectionChanged: (selectedItems) =>
+                {
+                    log.Info("You selected: " + string.Join(";", selectedItems));
+                });
+    }
     
     
     

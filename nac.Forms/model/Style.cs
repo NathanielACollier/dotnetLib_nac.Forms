@@ -25,6 +25,9 @@ public class Style
     public Optional<string> TooltipText { get; set; } = new Optional<string>();
 
 
+    public Optional<Avalonia.Media.FontWeight> fontWeight { get; set; } = new Optional<FontWeight>();
+    public Optional<int> fontSize { get; set; } = new Optional<int>();
+    
     public static implicit operator Style(string cssText)
     {
         return lib.styleUtil.fromCSS(cssText);

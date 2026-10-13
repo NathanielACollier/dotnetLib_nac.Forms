@@ -14,6 +14,13 @@ public class Text
         child.TextFor("txt2", "Type here")
             .TextBoxFor("txt2");
     }
+
+
+    public static void StyleTest_HexColorCodes(Form child)
+    {
+        child.Text("THis is a sample text.   Should be orange background and white foreground",
+            style: "background-color: #FFBA00; color: #dde9e7");
+    }
     
     
     public static void DisplayWhatIsTypedDataContext(Form f)
