@@ -30,34 +30,39 @@ dotnet add package nac.Forms --prerelease
 
 ### 2. Basic App Structure
 
+The easiest path is `Form.NewForm()`, which creates the Avalonia app and a main `Form` together:
+
 ```csharp
-// Step 1: Create and configure Avalonia app (optional if using NewForm)
-var app = Form.SetupAvaloniaApp()
-    // .LogToDebug(LogEventLevel.Verbose) // optional logging
-    ;
+// Creates the Avalonia app + a main form for you:
+var form = Form.NewForm();
 
-// Step 2: Create a form and model
+// Or supply a ConfigureAppBuilder delegate to tweak the app builder before it starts:
+var app = Form.NewForm(app =>
+{
+    app.LogToDebug(Avalonia.Logging.LogEventLevel.Verbose); // optional logging
+});
+```
+
+> `SetupAvaloniaApp(...)` exists in `Form.cs` but is **internal** — external consumers should use
+> `Form.NewForm(...)`. If you build the form yourself instead, the public constructor is
+> `Form(Application app, BindableDynamicDictionary model = null)`.
+
+#### Creating a form and model manually
+
+```csharp
 var model = new BindableDynamicDictionary();
-model.Set(nameof(model.MyProperty), "initial value");
+model.Set("myValue", "initial value");
 
-var form = new Form(app, model);
+// The main form's window title is a string PROPERTY (assignment, not a fluent call):
+form.Title = "My Form";
 
-// Step 3: Wire up controls
 form
-    .Title("My Form")
-    .TextFor(nameof(MyValue))
-    .TextBoxFor(nameof(MyEditField), isPassword: true)
-    .Button("Click me", _ => LogInfo());
+    .TextFor("myValue")
+    .TextBoxFor("myEditField", isPassword: true)
+    .Button("Click me", async () => { /* async handler required */ });
 
-// Step 4: Display the form
-// For main (top-level) forms:
+// For the main (top-level) form, Display() starts the app:
 form.Display(width: 800, height: 600);
-
-// OR using NewForm helper (creates app + form automatically):
-var newForm = Form.NewForm(); // returns ready-to-use Form with app
-newForm
-    .TextFor(nameof(MyName))
-    .Display();
 ```
 
 ### 3. The Model Pattern
@@ -107,25 +112,37 @@ form.TextFor("Name").TextBoxFor(nameof(viewModel.MyValue));
 
 | Method | Purpose | Key Options |
 |--------|---------|--------------|
-| `TextBoxFor(string prop, multiline=false, style, onTextChanged=null, isPassword=false, isReadOnly=false, watermarkText=null, onKeyPress=null)` | Text input | **Two-way binding by default**. Converters via `convertFromModelToUI` / `convertFromUIToModel`. Key press events supported. Multiline sets `AcceptsReturn/Tab`, wraps text. |
-| `TextBoxFor(... onTextChanged: Action<string>)` | Change notifications | Uses Observable subscription (Avalonia issue workaround) |
+| `TextBoxFor(string modelFieldName, bool multiline=false, Style style=null, Action<string> onTextChanged=null, bool isPassword=false, bool isReadOnly=false, string watermarkText=null, Func<string,object> convertFromUIToModel=null, Func<KeyEventArgs,Task> onKeyPress=null)` | Text input | **Two-way binding by default**. UI→model conversion via `convertFromUIToModel` (e.g. parse `int`). `onKeyPress` fires on `KeyUp`. Multiline sets `AcceptsReturn/Tab` and wraps text. |
+| `TextBoxFor(... onTextChanged: Action<string>)` | Change notifications | Uses Observable subscription (Avalonia issue workaround). |
+
+> `TextBoxFor` exposes only `convertFromUIToModel` on its public signature (direction UI→model).
+> The model→UI direction (`convertFromModelToUI`) exists only inside the internal `AddBinding<T>`
+> mechanism, not as a `TextBoxFor` parameter.  For numeric fields, use `convertFromUIToModel`,
+> e.g. `convertFromUIToModel: (text) => int.TryParse(text, out int n) ? n : 0`.
 
 ### Selection Controls
 
 | Method | Purpose | Key Options |
 |--------|---------|--------------|
-| `DropDown<T>(string itemsSourceProp, string selectedItemProp, style)` | ComboBox dropdown | `itemsSourceProp` = list of T; `selectedItemProp` = selected item (two-way bind). Supports FuncDataTemplate for custom row rendering. OnSelectionChanged fires on selection. |
-| `List<T>(string itemsSourceProp, populateItemRow=null, style, onSelectionChanged, wrapContent=false)` | ListBox multi-select | Binds ItemsSource to IEnumerable<T>. Selection supports multiple; wraps content if enabled. |
-| `SimpleDropDown<List<T>>(items, onItemSelected)` | Simple dropdown (no model) | Non-model binding version for quick lists |
+| `DropDown<T>(string itemSourceModelName, string selectedItemModelName, Action<T> onSelectionChanged=null, Action<Form> populateItemRow=null, Style style=null)` | ComboBox dropdown | `itemSourceModelName` = list of T (model field); `selectedItemModelName` = selected item (two-way bind). `populateItemRow` supplies a `FuncDataTemplate` for custom row rendering. `onSelectionChanged` fires on selection. |
+| `List<T>(string itemSourcePropertyName, Action<Form> populateItemRow=null, Style style=null, Action<IEnumerable<T>> onSelectionChanged=null, bool wrapContent=false)` | ListBox multi-select | Binds ItemsSource to `IEnumerable<T>`. Selection is `SelectionMode.Multiple`; `onSelectionChanged` gives `IEnumerable<T>`. `wrapContent` wraps items in a `WrapPanel`. |
+| `SimpleDropDown<T>(List<T> items, Action<T> onItemSelected=null)` | Simple dropdown (no model) | Non-model binding version for quick lists. |
+| `Autocomplete<T>(string selectedItemModelName, string itemSourceModelName=null, string selectedTextModelName=null, Action<T> onSelectionChanged=null, Action<Form> populateItemRow=null, Style style=null, Func<string,Task<IEnumerable<T>>> populateItemsOnTextChange=null)` | AutoCompleteBox | Exactly one of `itemSourceModelName` or `populateItemsOnTextChange` is required (not both). `selectedTextModelName` sets the `ItemSelector` used to render the chosen item's text. |
 
-Autocomplete Box:
+Autocomplete Box (exactly one of `itemSourceModelName` or `populateItemsOnTextChange`):
 ```csharp
-form.Autocomplete(
-    selectedItemProp: nameof(Model.SelectedItem),
-    itemSourceModelName: nameof(Model.Items), // optional - use AsyncPopulator instead
-    selectedTextModelName: nameof(Model.SelectedText), // maps to ItemSelector text extraction
-    populateItemsOnTextChange: async (text) => FilteredItems, // dynamic autocomplete
-    onSelectionChanged: ...
+// Bind to an existing list on the model:
+form.Autocomplete<string>(
+    itemSourceModelName: nameof(Model.Items),
+    selectedItemModelName: nameof(Model.SelectedItem),
+    onSelectionChanged: (item) => { /* ... */ }
+);
+
+// Or supply items dynamically as the user types (AsyncPopulator):
+form.Autocomplete<string>(
+    selectedItemModelName: nameof(Model.SelectedItem),
+    populateItemsOnTextChange: async (text) => FilteredItems,
+    onSelectionChanged: (item) => { /* ... */ }
 );
 ```
 
@@ -171,7 +188,7 @@ f.PathNavigatorFor("myServerPath",
 A read-only inspector that renders any object as an expandable `TreeView`.
 Useful in TestApp / dev screens for inspecting models, config objects, or intermediate data.
 
-`ObjectViewer<T>(T initialItemValue = null, ObjectViewerFunctions<T> functions = null)  where T : class`
+`async Task<Form> ObjectViewer<T>(T initialItemValue = null, ObjectViewerFunctions<T> functions = null)  where T : class`
 
 - **initialItemValue** — the object to render on load. May be `null` if you plan to supply one later via the update function.
 - **functions** — an `ObjectViewerFunctions<T>` with a single delegate, `updateValue`. The ObjectViewer **assigns** this delegate as it is created; call it later (with a new object) to fully rebuild the tree.
@@ -227,35 +244,58 @@ await f.ObjectViewer<object>(initialItemValue: model, functions: ops);
 ### Buttons
 
 ```csharp
+// Simple button; onClick MUST return a Task (Avalonia runs on the UI thread),
+// so use `async () => ...`:
 form.Button("Click me", async () => { await SomeWork(); });
 
-// With custom content:
-form.Button(displayText: "", 
-            populateButtonContent: bf => form.TextFor("BtnLabel"), // adds bound control as button content
-            onClick: async () => ...);
+// Custom button content via a populate delegate (this overload takes the delegate first):
+form.Button(populateButtonContent: bf => bf.TextFor("BtnLabel"), onClick: async () =>
+{
+    /* ... */
+});
 
-// Async click handler is required (Avalonia runs on UI thread)
+// Runtime style mutation via ButtonFunctions:
+var fns = new nac.Forms.Form.ButtonFunctions();
+form.Button("Incriment", async () => { }, functions: fns);
+// ...later:
+fns.setStyle?.Invoke(new Style { backgroundColor = Colors.Purple });
 ```
 
-### Tables (DataGrid)
+### Tables (DataGrid) and TableView
+
+`Table<T>` is the Avalonia `DataGrid`; `TableView<T>` is the Avalonia `TableView`.
+Both are generic and require the model field to hold an `IEnumerable<T>`.
 
 ```csharp
-form.Table(
-    itemsModelFieldName: nameof(Model.Items),         // must be IEnumerable<T>
+form.Table<Model.Row>(
+    itemsModelFieldName: nameof(Model.Items),     // must be IEnumerable<T>
     columns: new[] {
         new Column { Header="Name", modelBindingPropertyName="Name" },
         new Column { Header="Age", modelBindingPropertyName="Age" }
     },
-    autoGenerateColumns: false,                        // if you provide column definitions
-    onVisibleRowsChanged: rows => Console.WriteLine(rows.Count)
+    autoGenerateColumns: false,                   // only when you pass explicit columns
+    onVisibleRowsChanged: rows => Console.WriteLine(rows.Count)  // rows is List<DataGridRow>
 );
 
-// Without explicit columns, specify a list first and let it generate:
-var colDefs = new List<Column> 
-{ 
-    new() { Header="Name", modelBindingPropertyName="FullName" } 
-};
-form.Table(nameof(Model.Rows), columns: colDefs);
+// Without explicit columns, let it auto-generate from the model (autoGenerateColumns = true by default).
+form.Table<Model.Row>(nameof(Model.Rows));
+
+// A column can also carry a template (custom cell UI) instead of a binding:
+form.Table<Model.Alphabet>("list", columns: new[]
+{
+    new Column { Header="My Counter",
+        template = row => row.Button("Incriment", async () => { /* ... */ }) }
+});
+```
+
+#### TableView
+
+```csharp
+form.TableView<Model.Alphabet>(
+    itemsModelFieldName: "list",
+    columns: new[] { new Column { Header="Duplicate of X", modelBindingPropertyName="X" } },
+    style: "width:1600px;"
+);
 ```
 
 ### Layout Containers
@@ -282,28 +322,163 @@ form.VerticalDock(vertForm =>
 
 ### Panels (Dynamic Content)
 
+`Panel<T>` binds a model field to a `ContentControl`. The field's current value must already be
+of type `T` (it throws otherwise). The populate delegate builds the content from that item.
+
 ```csharp
 // Binds a model field to the panel's content
-form.Panel<T>(modelFieldName: nameof(Model.Page), pageForm => 
+form.Panel<Model.Page>(
+    modelFieldName: nameof(Model.Page),
+    populatePanel: pageForm =>
+    {
+        // This form displays whatever is bound to Page
+        pageForm.TextFor(nameof(Model.Page.Title))
+             .TextBoxFor(nameof(Model.Page.Content));
+    });
+```
+
+### File System Controls
+
+| Method | Purpose |
+|--------|---------|
+| `FilePathFor(string fieldName, string fileFilter=null, string initialFileName=null, bool fileMustExist=true, Func<string,Task> onFilePathChanged=null, FilePathFor_Functions functions=null)` | File open/save picker; two-way binds the path string to a model field. `fileMustExist: false` allows typing/creating a new path. `fileFilter` is an Avalonia-style filter like `"Word (*.docx)\|*.docx\|\|All (*.*)\|*.*"`. |
+| `DirectoryPathFor(string fieldName, Func<string,Task> onDirectoryPathChanged=null)` | Folder picker; two-way binds the directory path to a model field. |
+| `ShowOpenFolderDialog()` | Returns `Task<string>` via the Avalonia storage API (no UI control added). Returns `""` if the user cancels. Use it from a button: `f.Model["path"] = await f.ShowOpenFolderDialog();` |
+
+```csharp
+f.FilePathFor("myPath",
+        fileFilter: "Word (*.docx)|*.docx||All (*.*)|*.*",
+        initialFileName: "test.docx",
+        fileMustExist: false,
+        onFilePathChanged: async (newFileName) => { /* ... */ })
+    .TextFor("myPath");
+
+f.DirectoryPathFor("myDir",
+        onDirectoryPathChanged: async (newDir) => { /* ... */ });
+```
+
+### Menu
+
+```csharp
+f.Menu(new[]
+    {
+        new MenuItem
+        {
+            Header = "File",
+            Items = new[]
+            {
+                new MenuItem { Header = "Save", Action = () => { f.Model["last"] = "Save"; } },
+                new MenuItem { Header = "Open", Action = () => { f.Model["last"] = "Open"; } }
+            }
+        }
+    })
+    .TextFor(nameof(Model.Last));
+```
+
+> `MenuItem` is `nac.Forms.model.MenuItem` with `Header`, `Action`, and a nested `Items`
+> collection.  A context menu can also be attached to any control through
+> `Style.contextMenu` / `Style.contextMenuItems`.
+
+### Loading Indicators
+
+| Method | Purpose |
+|--------|---------|
+| `LoadingTextAnimation(Style style=null)` | Animated "loading…" text control. Usually paired with `Style.isVisibleModelName` / `Style.isHiddenModelName`. |
+| `SpinningElipse(Style style=null)` | Spinning-ellipse spinner (note the spelling). |
+
+```csharp
+f.HorizontalStack(h =>
 {
-    // This form displays whatever is bound to Page
-    pageForm.TextFor("PageTitle")
-          .TextBoxFor(nameof(Content));
-}, style);
+    h.Text("Loading").LoadingTextAnimation(style: new Style { width = 20 });
+}, style: new Style { isVisibleModelName = "InProgress" });
+```
+
+### Image
+
+`Image(string modelFieldName, Style style=null)` binds a model field holding a `byte[]` to an
+Avalonia `Image` (the bytes are decoded to a `Bitmap`, with an empty bitmap placeholder if null).
+You can assign image bytes to the model field from a download, a file, or an embedded resource.
+
+```csharp
+f.Model["img"] = someBytes;     // byte[]
+f.Image("img", style: new Style { width = 30 });
+```
+
+### Date
+
+`DateFor(string modelFieldName, Style style=null)` renders a `DatePicker`. The model field may be a
+`DateTime`, `DateTimeOffset?`, or a parseable `string` (two-way bound).
+
+```csharp
+f.Model["currentDate"] = DateTime.Now;
+f.DateFor("currentDate");
+```
+
+### Closing the Window / Child Forms
+
+| Method | Purpose |
+|--------|---------|
+| `Close()` | Closes the current form's window. |
+| `DisplayChildForm(Action<Form> setup, int height=600, int width=800, Func<Form,Task<bool?>> onClosing=null, Func<Form,Task> onDisplay=null, bool useIsolatedModelForThisChildForm=false, bool isDialog=false)` | Opens a child form. `isDialog: true` makes it modal (`ShowDialog`); `false` shows a separate window. `onClosing` returning `true` cancels the close. |
+### Closing the Window / Child Forms
+
+| Method | Purpose |
+|--------|---------|
+| `Close()` | Closes the current form's window. |
+| `DisplayChildForm(Action<Form> setup, int height=600, int width=800, Func<Form,Task<bool?>> onClosing=null, Func<Form,Task> onDisplay=null, bool useIsolatedModelForThisChildForm=false, bool isDialog=false)` | Opens a child form. `isDialog: true` makes it modal (`ShowDialog`); `false` shows a separate window. `onClosing` returning `true` cancels the close. |
+| `DebugAvalonia()` | No-op in Avalonia 12 (dev tools were removed), kept for API compatibility. |
+
+```csharp
+f.Button("Show", async () =>
+{
+    await f.DisplayChildForm(child => child.Text("I'm show"), isDialog: false);
+});
 ```
 
 ---
 
 ## Styling
 
-Controls support a `Style` parameter (type `nac.Forms.model.Style`). Available properties:
+Every builder control accepts a `Style` parameter (type `nac.Forms.model.Style`).
 
-| Property | Avalonia Property | Example Usage |
-|----------|------------------|---------------|
-| `width`, `height` | Control.Width/Height | `.Style(w: 200, h: 50)` |
-| `marginTop`, etc. | Margin properties | `.Style(mTop: 10)` |
-| `fontSize`, `fontColor`, etc. | TextBlock.FontSize/FontColor | Style for labels |
-| `isDisabled` | IsEnabled=false | `.Style(isDisabled: true)` |
+### Two ways to create a Style
+
+1. **Implicit CSS string** — `Style` has an implicit operator from `string`, so a CSS-like text
+   (`nac.CSSParsing`) is accepted anywhere a `Style` is expected:
+   ```csharp
+   f.Text("Colorful", style: "background-color: #FFBA00; color: #dde9e7");
+   ```
+2. **Object initializer** — set the individual properties:
+   ```csharp
+   f.Text("Hi", style: new Style
+   {
+       foregroundColor = Colors.Green,
+       backgroundColor = Colors.Black,
+       width = 100,
+       height = 50,
+       fontSize = 16
+   });
+   ```
+
+### Style properties (from `model/Style.cs`)
+
+| Property | Type | Purpose |
+|----------|------|---------|
+| `width` | `Optional<int>` | Control width in pixels |
+| `height` | `Optional<int>` | Control height in pixels |
+| `foregroundColor` | `Optional<Color>` | Text / foreground color |
+| `backgroundColor` | `Optional<Color>` | Background color |
+| `fontSize` | `Optional<int>` | Text font size |
+| `fontWeight` | `Optional<FontWeight>` | Text font weight |
+| `isVisibleModelName` | `Optional<string>` | Model field; when true the control is shown |
+| `isHiddenModelName` | `Optional<string>` | Model field; when true the control is hidden |
+| `contextMenu` | `Action<Form>` | Build a right-click context menu via a Form |
+| `contextMenuItems` | `Optional<IEnumerable<MenuItem>>` | Declarative context menu items |
+| `Tooltip` | `Action<Form>` | Build a complex tooltip via a Form |
+| `TooltipText` | `Optional<string>` | Simple text tooltip |
+
+> Note: each `Optional<>` tracks whether it was set (`.IsSet`), so a property that is not
+> assigned does not force the underlying Avalonia property to a default value.
 
 ---
 
@@ -314,13 +489,15 @@ Controls support a `Style` parameter (type `nac.Forms.model.Style`). Available p
 | Key | Purpose |
 |-----|---------|
 | `model.SpecialModelKeys.DataContext` | The ViewModel object itself (INotifyPropertyChanged source) |
-| `model.SpecialModelKeys.ModelContext` | Internal - avoid using |
+
+> `SpecialModelKeys` only defines `DataContext` (a string constant `"datacontext"`).
+> There is no `ModelContext` key.
 
 Example to set typed context:
 ```csharp
-model.Set(nameof(SpecialModelKeys.DataContext), new MyViewModel());
-form.DataContext = model[SpecialModelKeys.DataContext]; 
-// or simply: form.DataContext = viewModel;
+model.Set(SpecialModelKeys.DataContext, new MyViewModel());
+// or simply assign the DataContext property directly:
+form.DataContext = viewModel;
 ```
 
 ---
@@ -329,11 +506,26 @@ form.DataContext = model[SpecialModelKeys.DataContext];
 
 | Method | Purpose |
 |--------|---------|
-| `getBindingSource()` | Returns the INotifyPropertyChanged source (returns model, or DataContext if set) |
-| `getModelValue(string prop)` | Retrieves value from model for a property (respects DataContext paths) |
+| `getModelValue(string prop)` | Retrieves value from model for a property (respects DataContext paths). Returns `DataContextValueResult` (has `.Value`, `.invalid`, `.DataContext`). |
 | `setModelValue(string prop, val)` | Sets property on model |
 | `setModelIfNull(string prop, val)` | Only sets if the current value is null |
 | `InvokeAsync(Func<Task>)` | Executes action on Avalonia GUI thread |
+
+> `getBindingSource()` is **private** (it exists in `Form.DataContext.cs` but is not part of the
+> public API). It resolves to the `INotifyPropertyChanged` source: the `DataContext` if one is
+> set on the model, otherwise the `BindableDynamicDictionary` model itself.
+
+### Extension Hooks (`_Extend_` prefix)
+
+`Form.ExposeInternals.cs` exposes the public building blocks that extension libraries use to add
+their own controls to a `Form`. By convention these are prefixed `_Extend_`:
+
+| Method | Purpose |
+|--------|---------|
+| `_Extend_AddRowToHost(Control ctrl, AddRowToHostFunctions functions=null, bool rowAutoHeight=true)` | Adds a raw Avalonia `Control` to the form. `functions.show` / `functions.hide` toggle its `IsVisible`. |
+| `_Extend_AddBinding<T>(string modelFieldName, AvaloniaObject control, AvaloniaProperty<T> property, bool isTwoWayDataBinding=false)` | Wires a model field to an Avalonia control's property (the public entry point to the binding engine). |
+| `_Extend_AccessApp(Action<Application>)` | Access the underlying `Avalonia.Application`. |
+| `_Extend_AccessHost(Action<Grid>)` | Access the form's root `Grid` host. |
 
 ---
 
@@ -375,8 +567,8 @@ var main = Form.NewForm(ConfigureAppBuilder: app =>
     // app.LogToDebug(...)// enable if needed
 });
 
-main.Title("Simple App")
-   .TextFor(nameof(UserName))
+main.Title = "Simple App";
+   main.TextFor(nameof(UserName))
    .TextBoxFor(nameof(UserEmail))
    .Button("Register", async () => { return await Register(user); })
    .Display();
@@ -388,7 +580,7 @@ model.Set(nameof(UserName), "alice@example.com");
 var form = Form.NewForm();
 form.TextFor(nameof(Subject))
      .TextBoxFor(nameof(MyNotes));
-form.Title("My Notes App");
+form.Title = "My Notes App";
 ```
 
 ---

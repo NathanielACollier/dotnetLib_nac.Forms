@@ -77,8 +77,9 @@ public static void ModelBindingTest(Form child)
     var model = new model.TestModel();
     child.DataContext = model;
     
-    child.TextBound("Enter Number:")
-        .TextBox(modelFieldName: "Number", numeric: true)
+    child.TextFor("Enter Number:")
+        .TextBoxFor(modelFieldName: "Number",
+            convertFromUIToModel: (text) => int.TryParse(text, out int n) ? n : 0)
         .Button("Calculate", async () => 
         { 
             log.Info($"Calculated: {model.Number}")  ; 
@@ -110,15 +111,22 @@ public static void LoadingIndicatorTest(Form child)
 
 ### 4. Common Properties and Methods Available on `Form`
 
-- `.Text(string)` - Add text label
-- `.Button(string, Func<Task>)` - Add button with action
-- `.TextBox(modelFieldName, options...)` - Bind to model property
-- `.DropDown<T>(itemSourceModelName, selectedItemModelName, populateItemRow)` - Populate dropdown
-- `.Table()` - Create table component
-- `.LoadingIndicator()` - Show loading animation
-- `.VerticalGroup(delegate)` / `.HorizontalGroup(delegate)` - Layout containers
-- `.Panel<>()` - Panel-based UI construction
-- `.DataContext = model` - Set data context for Two-Way Binding
+- `.Text(string)` - Static text label
+- `.TextFor(modelFieldName)` - Display a model property (bound label)
+- `.TextBoxFor(modelFieldName, ...)` - Two-way bind a model property to a text box. For numeric
+  fields pass `convertFromUIToModel: (text) => int.TryParse(text, out int n) ? n : 0`
+  (there is no `numeric:` argument).
+- `.Button(string, Func<Task>)` - Add button with action (the handler MUST return `Task`).
+  There is also an overload `Button(Action<Form> populateButtonContent, Func<Task> onClick, ...)`.
+- `.DropDown<T>(itemSourceModelName, selectedItemModelName, ...)` - Populate dropdown
+- `.List<T>(itemSourcePropertyName, ...)` - Multi-select list
+- `.Table<T>(...)` / `.TableView<T>(...)` - Table / DataGrid components
+- `.LoadingTextAnimation(Style)` / `.SpinningElipse(Style)` - Loading animations
+- `.VerticalGroup(delegate)` / `.HorizontalGroup(delegate)` / `.VerticalDock` / `.HorizontalStack` /
+  `.VerticalStack` - Layout containers (each takes an `Action<Form>`)
+- `.Panel<T>(modelFieldName, Action<Form>)` - Panel-based UI construction
+- `f.Title = "..."` - Window title (a string PROPERTY, set by assignment, not a fluent call)
+- `child.DataContext = model` - Set data context for Two-Way Binding
 
 ### 5. Using Data Context (Two-Way Binding)
 
@@ -130,7 +138,8 @@ public static void DataContextTest(Form child)
     child.DataContext = model;  // Enable automatic binding
     
     child.Text("Age:")
-        .TextBox("MyModel_Age", numeric: true);
+        .TextBoxFor("Age",
+            convertFromUIToModel: (text) => int.TryParse(text, out int n) ? n : 0);
 }
 ```
 
@@ -235,46 +244,73 @@ public static void ChildObjectBinding(Form child)
 {
     var model = new model.ContactWindowMainModel();
     child.DataContext = model;
-    
-    child.Panel<model.Contact>(modelFieldName: "Contact", builder =>
-    {
-        builder.HorizontalGroup(h =>
+
+    // Panel<T>: the model field's value must already be of type T.
+    // The populate delegate is an Action<Form> (no return value); its DataContext is the item.
+    child.Text("Contact Editor")
+        .Panel<model.Contact>(modelFieldName: "Contact", _f =>
         {
-            h.Text("Name:")
-                .TextBoxFor(h, "DisplayName");
-            
-            h.Text("Email:")
-                .TextBoxFor(h, "Email");
-        });
-        
-        return builder;
-    }).TextBound("Saved Contacts: ")
-       .DropDown<model.Contact>(...)
-       .TextBound("Result:");
+            _f.HorizontalGroup(h =>
+            {
+                h.Text("Name: ")
+                    .TextBoxFor("DisplayName");   // row DataContext is the item, so no "h," prefix
+            })
+            .HorizontalGroup(h =>
+            {
+                h.Text("Email: ")
+                    .TextBoxFor("Email");
+            });
+        })
+        .TextFor("Results");
 }
 ```
 
+> Note: when inside a `Panel<T>` / `List<T>` / `DropDown populateItemRow` delegate, the row's
+> `DataContext` is the item itself, so you bind by property name directly: `h.TextBoxFor("Email")`.
+> There is no overload that takes a `Form` as the first argument of `TextBoxFor`.
+
 ## Important Notes
 
-1. **Static Methods Only**: Test functions must be `public static` methods
-2. **Two allowed signatures** (both must take the `Form` as their only parameter):
+1. **Static Methods Only**: Test functions must be `static`. Discovered via
+   `BindingFlags.Static | NonPublic | Public`, so `public`, `private`, or `internal` static methods
+   all work (the examples below use `public static`).
+2. **Two discovered signatures** (both take `Form` as their only parameter):
    - `void TestName(Form f)` — synchronous (legacy)
-   - `Task TestName(Form f)` — **async is now supported** (use `private static async Task TestName(Form f)` and `await` anything you need, e.g. `f.ObjectViewer(...)`). Exceptions in async tests are captured and written to the Log tab.
-   - (Prefer `async Task` over `async void` — `async void` still works but its exceptions escape to the Avalonia dispatcher and bypass the test log)
-3. **No other return values**: Only `void` or `Task` return types are discovered
-3. **Async Operations**: Use `async` when awaiting tasks (e.g., dialogs, progress)
-4. **Logger**: Use `log.Info()`, `log.Fatal()` to report actions/events
-5. **Model Initialization**: Initialize model properties before binding
-6. **Namespaces**: Keep using `TestApp.lib.TestFunctionGroups` namespace
+   - `Task TestName(Form f)` — **async is now supported** (use `static async Task TestName(Form f)`
+     and `await` what you need, e.g. `await f.ObjectViewer(...)`). Exceptions in async tests are
+     captured and written to the Log tab.
+   - Prefer `async Task` over `async void` — `async void` does not match either delegate, so it is
+     NOT discovered as a test, and its exceptions escape to the Avalonia dispatcher.
+3. **No other return values**: Only `void TestName(Form)` or `Task TestName(Form)` are discovered.
+   Every discovered test (both kinds) runs **as a child form** (`SetupChildForm = true`).
+4. **Async Operations**: Use `async` when awaiting tasks (e.g., dialogs, progress)
+5. **Logger**: Use `log.Info()`, `log.Fatal()` to report actions/events
+6. **Model Initialization**: Initialize model properties before binding
+7. **Namespaces**: Keep using `TestApp.lib.TestFunctionGroups` namespace
 
 ## File Organization
 
+Each test function group lives in its own file under `TestApp/lib/TestFunctionGroups/`:
+
 ```
 TestApp/lib/TestFunctionGroups/
-├── AGroup.cs            # General utility tests, edge cases
-├── Button.cs            # Button-specific tests
-├── Table.cs             # Table component tests
-├── List.cs              # ListView tests
+├── AGroup.cs            # General/uncategorized tests, edge cases
+├── Button.cs            # Button + ButtonFunctions / runtime style
+├── Text.cs              # Text/TextFor/TextBoxFor/DateFor/keypress
+├── List.cs              # List<T> (multi-select)
+├── DropDown.cs          # DropDown<T>
+├── Autocomplete.cs      # Autocomplete<T> (item source + async populator)
+├── Table.cs             # Table<T> (DataGrid)
+├── TableView.cs         # TableView<T>
+├── TreeView.cs          # (tree-related tests)
+├── ObjectViewer.cs      # ObjectViewer<T>
+├── PathNavigator.cs     # PathNavigatorFor
+├── FileSystem.cs        # FilePathFor / DirectoryPathFor / ShowOpenFolderDialog
+├── Image.cs             # Image
+├── Layout.cs            # Horizontal/Vertical Group/Stack/Dock + Tabs
+├── ContextMenu.cs       # Style.contextMenu / contextMenuItems
+├── Tooltip.cs           # Style.Tooltip / TooltipText
+├── Events.cs            # onDisplay / onClosing child-form events
 └── ...
 ```
 

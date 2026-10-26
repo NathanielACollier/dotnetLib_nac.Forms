@@ -21,11 +21,11 @@ Provides a quick way to create a GUI application for Linux, macOS, and Windows. 
 	```c#
 	var f = nac.Forms.Form.NewForm();
 	f.TextFor("txt1", "When you click button I'll change to count!")
-	.Button("Click Me!", arg =>
+	.Button("Click Me!", async () =>
 	{
-		var current = child.Model.GetOrDefault<int>("txt1", 0);
+		var current = f.Model.GetOrDefault<int>("txt1", 0);
 		++current;
-		child.Model["txt1"] = current;
+		f.Model["txt1"] = current;
 	})
 	.Display();
 	```
@@ -39,9 +39,9 @@ Provides a quick way to create a GUI application for Linux, macOS, and Windows. 
 	{
 		hori.Text("Click Count: ")
 			.TextBoxFor("clickCount")
-			.Button("Click Me!", arg =>
+			.Button("Click Me!", async () =>
 			{
-				var current = child.Model.GetOrDefault<int>("clickCount", 0);
+				var current = hori.Model.GetOrDefault<int>("clickCount", 0);
 				++current;
 				hori.Model["clickCount"] = current;
 			});
