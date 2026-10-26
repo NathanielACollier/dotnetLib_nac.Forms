@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 
 namespace nac.Forms.controls
 {
@@ -146,15 +147,34 @@ namespace nac.Forms.controls
                 }
             };
 
+            /*
+             * Arrowing through the popup only *highlights* a candidate.  It does not commit.
+             * We record the highlighted candidate here and let an explicit Enter (below) commit it.
+             * (Before this, SelectionChanged committed immediately, so a single Down arrow
+             *  would grab the first candidate.)
+             */
+            string pendingSegment = null;
             _nextSegmentBox.SelectionChanged += (_s, _args) =>
             {
                 var chosen = _args.AddedItems.OfType<string>().FirstOrDefault();
-                if (string.IsNullOrWhiteSpace(chosen))
+                pendingSegment = string.IsNullOrWhiteSpace(chosen) ? null : chosen;
+            };
+
+            // Enter accepts the highlighted candidate and commits it as the next segment.
+            _nextSegmentBox.KeyDown += (_s, e) =>
+            {
+                if (e.Key != Key.Enter && e.Key != Key.Return)
                 {
                     return;
                 }
 
-                CommitSegment(chosen);
+                if (string.IsNullOrWhiteSpace(pendingSegment))
+                {
+                    return;
+                }
+
+                CommitSegment(pendingSegment);
+                pendingSegment = null;
                 // reset the box for the next segment
                 _nextSegmentBox.SelectedItem = null;
                 _nextSegmentBox.Text = string.Empty;
