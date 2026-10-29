@@ -148,8 +148,8 @@ namespace nac.Forms.controls
             };
 
             /*
-             * Arrowing through the popup only *highlights* a candidate.  It does not commit.
-             * We record the highlighted candidate here and let an explicit Enter (below) commit it.
+             * Arrowing through the popup only *highlights* a candidate; it does not commit.
+             * We record the highlighted candidate as a fallback source for the segment.
              * (Before this, SelectionChanged committed immediately, so a single Down arrow
              *  would grab the first candidate.)
              */
@@ -157,28 +157,48 @@ namespace nac.Forms.controls
             _nextSegmentBox.SelectionChanged += (_s, _args) =>
             {
                 var chosen = _args.AddedItems.OfType<string>().FirstOrDefault();
-                pendingSegment = string.IsNullOrWhiteSpace(chosen) ? null : chosen;
+                if (!string.IsNullOrWhiteSpace(chosen))
+                {
+                    pendingSegment = chosen;
+                }
             };
 
-            // Enter accepts the highlighted candidate and commits it as the next segment.
-            _nextSegmentBox.KeyDown += (_s, e) =>
-            {
-                if (e.Key != Key.Enter && e.Key != Key.Return)
+            /*
+             * One Enter commits the chosen segment.
+             *
+             * The plain "KeyDown += " syntax registers with handledEventsToo:false.  The inner
+             * control marks Enter as handled, so on the first press that plain handler is skipped
+             * entirely and only the second (now unhandled) Enter commits.  Attach instead with
+             * handledEventsToo:true so the very first Enter fires.  Arrowing has already written
+             * the highlighted folder into SelectedItem / Text, so we can read it synchronously and
+             * commit it; no second press is needed.
+             */
+            _nextSegmentBox.AddHandler(
+                Avalonia.Input.InputElement.KeyDownEvent,
+                (_s, e) =>
                 {
-                    return;
-                }
+                    if (e.Key != Key.Enter && e.Key != Key.Return)
+                    {
+                        return;
+                    }
 
-                if (string.IsNullOrWhiteSpace(pendingSegment))
-                {
-                    return;
-                }
+                    var segment =
+                        _nextSegmentBox.SelectedItem as string ??
+                        _nextSegmentBox.Text ??
+                        pendingSegment;
 
-                CommitSegment(pendingSegment);
-                pendingSegment = null;
-                // reset the box for the next segment
-                _nextSegmentBox.SelectedItem = null;
-                _nextSegmentBox.Text = string.Empty;
-            };
+                    if (string.IsNullOrWhiteSpace(segment))
+                    {
+                        return;
+                    }
+
+                    CommitSegment(segment);
+                    pendingSegment = null;
+                    // reset the box for the next segment
+                    _nextSegmentBox.SelectedItem = null;
+                    _nextSegmentBox.Text = string.Empty;
+                },
+                handledEventsToo: true);
 
             var upButton = new Button
             {
