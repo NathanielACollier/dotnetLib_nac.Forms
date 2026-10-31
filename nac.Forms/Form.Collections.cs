@@ -63,7 +63,14 @@ namespace nac.Forms
                 });
             }
             
-            if( !(getModelValue(itemSourcePropertyName)?.Value is IEnumerable<T>))
+            /*
+             Validate the item-source only when we have a resolved, non-null value.
+             A nested path whose parent is not yet set legitimately resolves to null
+             and heals later, so a null value here is not an error (the binding set
+             up below pushes the real collection through when it heals).
+             */
+            var listItemsValidation = getModelValue(itemSourcePropertyName);
+            if (listItemsValidation.Value != null && !(listItemsValidation.Value is IEnumerable<T>))
             {
                 throw new Exception($"Model items source property specified by name [{itemSourcePropertyName}] must be a IEnumerable<T>");
             }

@@ -48,69 +48,139 @@ public partial class Form
         WatchPathForModelChanges(modelFieldName, valueResult, codeToRunOnModelChange);
     }
 
-    private void WatchPathForModelChanges(string modelFieldName, 
+    private void WatchPathForModelChanges(string modelFieldName,
                                     DataContextValueResult valueResult,
                                     CodeToRunOnModelChange codeToRunOnModelChange)
     {
-        if (valueResult.ParentContext == null)
-        {
-            log.Info($"WatchPath - {valueResult.CurrentFieldName} - new value: {valueResult.Value}");
-            notifyOnModelChange(context: valueResult,
-                codeToRunOnChange: codeToRunOnModelChange);
-            return; // get out
-        }
-
-        // there was a parent context so it has to be watched for model changes
-        
         /*
-         We need to mnitor for changes on every part of the parent tree
+         valueResult is the resolution of modelFieldName.  It may currently be
+         invalid -- a parent somewhere in the path is null, eg. a nested bind like
+         "SelectedBackup.BackupLocations" when SelectedBackup has not been set yet,
+         or the DataContext is not INotifyPropertyChanged -- but that is NOT a
+         permanent error: the parent can be set later, which heals the whole
+         remaining path.  So always (re)watch this frame instead of giving up.
+         notifyOnModelChange handles flat and nested paths uniformly by watching
+         the frame's CurrentFieldName and re-resolving any remaining
+         RelativeBindingPath under the new value.
          */
-        var parentContext = valueResult.ParentContext;
-        
-        notifyOnModelChange(context: parentContext,
-            codeToRunOnChange: (context, value) =>
-            {
-                log.Info(
-                    $"WatchPath - Parent of root path [{modelFieldName}] with target path [{context.RelativeBindingPath}] and current field [{context.CurrentFieldName}] has value change to: [{value}]");
-
-                var childContext = getDataContextValue(parentContext: null,
-                    datacontext: value as INotifyPropertyChanged,
-                    modelFieldName: context.RelativeBindingPath);
-                WatchPathForModelChanges(context.RelativeBindingPath, childContext, codeToRunOnModelChange);
-            });
+        notifyOnModelChange(context: valueResult,
+            codeToRunOnChange: codeToRunOnModelChange);
     }
 
     private delegate void CodeToRunOnModelChange(model.DataContextValueResult bindingSource, object value);
 
     private void notifyOnModelChange(model.DataContextValueResult context, CodeToRunOnModelChange codeToRunOnChange)
     {
+        /*
+         A binding path like "SelectedBackup.BackupLocations" resolves, at build
+         time, into a chain of single frames (context is the DEEPEST / terminal
+         frame, reached via getDataContextValue which links each frame to the one
+         above it with ParentContext):
+           frame A: CurrentFieldName="SelectedBackup",  RelativeBindingPath="BackupLocations" (parentContext == null)
+           frame B (terminal): CurrentFieldName="BackupLocations", RelativeBindingPath=""  (parentContext == A)
+         When a parent is null at build time (SelectedBackup == null), frame B has
+         DataContext == null -- nothing to watch -- and frame A is still
+         un-subscribed, so the original code (which only watched the terminal
+         frame and bailed on null, with a dead "RelativeBindingPath carry-over")
+         never observed "SelectedBackup" changing.  That is why a binding whose
+         parent starts null never healed.
+
+         The fix: walk UP from the terminal frame.  For each frame whose
+         DataContext is non-null, subscribe a PropertyChanged handler on that
+         frame's object for its own CurrentFieldName.  When that property
+         changes, re-resolve the whole remaining path to a fresh terminal frame,
+         re-subscribe the newly built sub-chain, and push the new terminal value
+         through codeToRunOnChange.  Walking up means an ancestor (e.g. the
+         "SelectedBackup" frame, whose object is the binding source) is always
+         subscribed, so a parent healing from null re-resolves the deeper
+         (previously null) frames and keeps them watched.
+         */
+
         log.Info($"AddBinding-Initial value [property: {context.RelativeBindingPath}; value: {context.Value}]");
         codeToRunOnChange(context, context.Value);
 
-        context.DataContext.PropertyChanged += (_s, args) =>
-        {
-            if (!string.Equals(context.CurrentFieldName, args.PropertyName))
-            {
-                return; // ignore this
-            }
-
-            var changedValue = getDataContextValue(parentContext: null,
-                datacontext: context.DataContext,
-                modelFieldName: args.PropertyName);
-
-            if (changedValue.invalid)
-            {
-                log.Warn($"PropertyChanged: Field: [{args.PropertyName}] is not valid for datacontext");
-                return;
-            }
-            
-            // save the path that we are trying to get to, this is for properties that change in a path we want to be able to keep monitoring for sub properties
-            changedValue.RelativeBindingPath = context.RelativeBindingPath;
-
-            log.Debug($"AddBinding-Model Value Change [Field: {context.RelativeBindingPath}; FieldName: {context.CurrentFieldName}; New Value: {changedValue.Value}]");
-            codeToRunOnChange(changedValue, changedValue.Value);
-        };
+        /*
+         Subscribe every frame of the chain that currently has an object, deepest
+         first.  For "SelectedBackup.BackupLocations" with the parent null at
+         build time the terminal frame has DataContext == null, so only
+         "SelectedBackup" (whose object is the binding source) gets subscribed.
+         When it later heals the handler below re-resolves the path and subscribes
+         the newly built frames (including the new terminal one) so the control
+         and every deeper property keep updating.
+         */
+        var seenForThisBinding = new System.Collections.Generic.HashSet<object>();
+        subscribeChain(context, codeToRunOnChange, seenForThisBinding);
     }
+
+    /*
+     Subscribes a PropertyChanged handler on each frame of the chain starting at
+     [frame] (deepest) and walking up via ParentContext, for every frame whose
+     DataContext is non-null.  Each subscription, when that frame's own
+     CurrentFieldName changes, (1) re-resolves the remaining path to a fresh
+     terminal frame, (2) re-subscribes that whole sub-chain, and (3) pushes the
+     new terminal value through [codeToRunOnChange].
+
+     [seen] dedupes subscriptions per binding so an object that sits in the chain
+     more than once (or is otherwise re-encountered during a heal) is only
+     subscribed once -- this prevents duplicate update callbacks and runaway
+     resubscription when nested properties fire.
+     */
+    private void subscribeChain(model.DataContextValueResult frame,
+        CodeToRunOnModelChange codeToRunOnChange,
+        System.Collections.Generic.HashSet<object> seen)
+    {
+        while (frame != null)
+        {
+            if (frame.DataContext != null)
+            {
+                // dedupe: only subscribe this object once for this binding
+                if (seen.Add(frame.DataContext))
+                {
+                    var thisFrame = frame;
+
+                    thisFrame.DataContext.PropertyChanged += (_s, args) =>
+                    {
+                        // a frame only reacts to its own property changing
+                        if (!string.Equals(thisFrame.CurrentFieldName, args.PropertyName))
+                        {
+                            return;
+                        }
+
+                        /*
+                         This frame's property changed.  Re-resolve the remaining
+                         path -- the property that just changed plus whatever is
+                         still left on this frame -- from this frame's object down
+                         to a fresh terminal frame.  This rebuilds every deeper
+                         frame (including ones that were null at build time), so
+                         the chain "heals".
+                         */
+                        var remainingPath = string.IsNullOrEmpty(thisFrame.RelativeBindingPath)
+                                ? args.PropertyName
+                                : $"{args.PropertyName}.{thisFrame.RelativeBindingPath}";
+
+                        var newChain = getDataContextValue(parentContext: null,
+                            datacontext: thisFrame.DataContext,
+                            modelFieldName: remainingPath);
+
+                        // Re-subscribe the freshly built sub-chain, including its
+                        // terminal frame, so a later change to the newly healed
+                        // value also propagates.  Share [seen] so we never
+                        // resubscribe objects we already have a handler for.
+                        subscribeChain(newChain, codeToRunOnChange, seen);
+
+                        log.Debug(
+                            $"AddBinding-Model Value Change [Field: {remainingPath}; FieldName: {thisFrame.CurrentFieldName}; New Value: {newChain.Value}]");
+
+                        // push the freshly resolved terminal value to the control.
+                        codeToRunOnChange(newChain, newChain.Value);
+                    };
+                }
+            }
+
+            frame = frame.ParentContext; // move to the next frame up the chain
+        }
+    }
+
 
 
     private model.DataContextValueResult getDataContextValue(model.DataContextValueResult parentContext,
@@ -165,14 +235,24 @@ public partial class Form
 
         if (fieldPath.ChildPath.Length > 0)
         {
-            if (result.Value == null)
-            {
-                result.invalid = true;
-                // warn that we have a child path but a parent is null
-                log.Warn(
-                    $"DataContext warning.  Child Path found [FullPath: {modelFieldName}] but current [Path: {fieldPath.Current}] is null.  Would not be able to find [child path: {fieldPath.ChildPath}] while parent is null.");
-                return result;
-            }
+        if (result.Value == null)
+        {
+            result.invalid = true;
+
+            /*
+             The parent of the remaining child path is null.  This is not a
+             permanent error -- a parent such as "SelectedBackup" can be null for
+             a while and then become non-null.  Link to the parent so that the
+             watcher can re-resolve this path (and heal it) once the parent comes
+             back, instead of treating the whole subtree as dead.
+             */
+            result.ParentContext = parentContext;
+
+            // warn that we have a child path but a parent is null
+            log.Warn(
+                $"DataContext warning.  Child Path found [FullPath: {modelFieldName}] but current [Path: {fieldPath.Current}] is null.  Would not be able to find [child path: {fieldPath.ChildPath}] while parent is null.  Path will be re-resolved when the parent changes.");
+            return result;
+        }
 
             return getDataContextValue(parentContext: result,
                 datacontext: result.Value as INotifyPropertyChanged,

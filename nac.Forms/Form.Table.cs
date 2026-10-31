@@ -78,7 +78,16 @@ public partial class Form
             }
         }
 
-        if (!(getModelValue(itemsModelFieldName)?.Value is IEnumerable<T>))
+        /*
+         Validate the item-source only when we actually have a resolved, non-null
+         value.  A nested path like "SelectedBackup.BackupLocations" legitimately
+         resolves to null while its parent (SelectedBackup) is not yet set, and it
+         heals later -- so a null value here is NOT an error, and throwing would
+         stop the form from finishing building.  The binding set up below watches
+         the path and pushes the real collection through when it heals.
+         */
+        var itemsValidation = getModelValue(itemsModelFieldName);
+        if (itemsValidation.Value != null && !(itemsValidation.Value is IEnumerable<T>))
         {
             throw new Exception(
                 $"Model Items source property specified by name [{itemsModelFieldName}] must be IEnumerable<T>");
