@@ -1,7 +1,8 @@
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Avalonia.Controls;
 using nac.Forms;
 using nac.Forms.model;
 using Tests.Testing;
@@ -79,7 +80,11 @@ namespace Tests
                     });
             }, dataContext: parent);
 
-            Assert.AreEqual(2, headless.VisibleRowCount(),
+            // Inspect via the generic tree query: search the rendered visuals for
+            // the materialized DataGridRows (the same thing the product's
+            // DataGridVisibleRowsObserverRepo observes, but on the visual tree).
+            int rows = headless.On(v => v.OfType<Avalonia.Controls.DataGridRow>().Count());
+            Assert.AreEqual(2, rows,
                 "a table whose parent is non-null at build should materialize its 2 rows");
         }
 
@@ -101,7 +106,8 @@ namespace Tests
             }, dataContext: parent);
 
             // parent is still null -> no rows yet
-            Assert.AreEqual(0, headless.VisibleRowCount(),
+            int rowsBefore = headless.On(v => v.OfType<Avalonia.Controls.DataGridRow>().Count());
+            Assert.AreEqual(0, rowsBefore,
                 "before the parent heals, the table should materialize 0 rows");
 
             // heal: parent now points at a child with 3 locations
@@ -116,7 +122,8 @@ namespace Tests
             });
             headless.Pump();
 
-            Assert.AreEqual(3, headless.VisibleRowCount(),
+            int rowsAfter = headless.On(v => v.OfType<Avalonia.Controls.DataGridRow>().Count());
+            Assert.AreEqual(3, rowsAfter,
                 "after the parent heals, the table should materialize the child's 3 rows");
         }
     }

@@ -18,12 +18,25 @@ tests).
 
 - The **binding fix is DONE + green** (7/7 `NestedPathBindingTests`). See
   `AGENTS_nacFormsChildBindingTodo.md` §6/§9.
-- **HEADLESS RENDER NOW WORKS.** `Tests/Testing/HeadlessHealTests.cs` passes
-  (run filtered — see §6 CONTAMINATION): a real `nac.Forms.Form` is built, shown
-  in a headless window, and its `DataGrid` is asserted on the actual
-  `DataGridRowsPresenter` visual tree.  The heal scenario asserts **0 rows → 3
-  rows** when the nested-parent binding heals.  A generic harness
-  (`Tests/Testing/HeadlessForm.cs`) wraps the session + pump + row count.
+- **HEADLESS RENDER NOW WORKS.** `Tests/Testing/` has 3 passing headless tests
+  (run filtered — see §6 CONTAMINATION).  They use the **generic** inspection API:
+  search the visual tree with a `Visuals` query handed to `headless.On(v => …)`,
+  and trigger buttons with `headless.Click("…")`.  No per-type helpers.
+  - `HeadlessHealTests` — a `DataGrid` on a nested path asserts `0 → 3 rows` when
+    the null parent heals, counted via `On(v => v.OfType<DataGridRow>().Count())`.
+  - `HeadlessTextHealTests` — the smallest test: a `TextFor("MyChildProperty.
+    TextContent")` label with the parent null; `Click("Set Parent")` heals it and
+    the nested path renders the child's text, read via
+    `On(v => v.LastChild<TextBlock>().Text)`.
+- The harness (`Tests/Testing/HeadlessForm.cs`) exposes `Create`/`Build`/`Run`/
+  `Pump`/`On`/`Click`/`VisibleRowCount`.  `On(v => …)` is the generic primitive:
+  it runs your search+read on the UI thread and returns the value, so a test
+  inspects any control by walking the tree.
+- **The "Children vs Descendants" subtlety (§6/§6b):** a `Button`'s content is
+  itself a `TextBlock`, so `Descendants().OfType<TextBlock>()` matches buttons'
+  content too.  Use top-level `Children`/`LastChild<T>()` for the controls the
+  test *built* (labels, buttons, the grid); use deep `Descendants()` for the
+  materialized `DataGridRow`s.
 - **The single most important fact** (§6 "ROOT CAUSE"): the headless platform
   (`IWindowingPlatform`) is registered *only inside the `Dispatch` scope*. So
   `Win.Show()` + reading the visual tree **must happen inside**
@@ -208,7 +221,9 @@ in-app mechanism; the harness is the test-side equivalent.
 - NEW: `Tests/Testing/HeadlessTestApp.cs` — the bare `Application` the session
   starts (loads `SimpleTheme` + the DataGrid style).
 - NEW: `Tests/Testing/HeadlessHealTests.cs` — the heal-scenario row-count test
-  (the nacBackup scenario, asserted on the visual tree).
+      (the nacBackup scenario, asserted on the visual tree).
+- NEW: `Tests/Testing/HeadlessTextHealTests.cs` — the smallest headless test:
+      a `TextFor("MyChildProperty.TextContent")` label heals via a button click.
 - `docs/AGENTS_nacFormsHeadlessTestSetup.md` — this file.
 
 NOTE: the old `Tests/Probe/` spike files (`HeadlessSpikeTests`, `HeadlessProbeTests`,
@@ -232,9 +247,20 @@ and its `Show()` outside `Dispatch` form was the source of the "IWindowingPlatfo
 - [x] Rewrote the probe to the working pattern and verified a bare `DataGrid`
       materializes rows headless (3 rows for a 3-item source, explicit column).
 - [x] Built the generic harness `Tests/Testing/HeadlessForm.cs`
-      (`Create`/`Build`/`Pump`/`Run`/`VisibleRowCount`) + `HeadlessTestApp`.
+      (`Create`/`Build`/`Pump`/`Run`/`On`/`Click`/`VisibleRowCount`) +
+      `Visuals` query + `HeadlessTestApp`.
 - [x] Wrote the heal-scenario row-count test `HeadlessHealTests.cs`
-      (parent null → 0 rows → heal → 3 rows).  **PASSES when run filtered.**
+      (parent null → 0 rows → heal → 3 rows), inspected via the generic
+      `On(v => v.OfType<DataGridRow>().Count())`.  **PASSES when run filtered.**
+- [x] Added the smallest test `HeadlessTextHealTests.cs` (a `TextFor` nested
+      path that heals when a button sets the parent), inspected via
+      `On(v => v.LastChild<TextBlock>().Text)` and the button clicked by
+      `Click("Set Parent")`.  **PASSES.**
+- [x] Redid the API to be generic: a `Visuals` tree query you drive with
+      `headless.On(v => ...)`, instead of per-type helpers (`RenderedText`,
+      `ClickButton`).  Discovered + documented the template-part trap (a
+      `Button`'s content is itself a `TextBlock`, so deep `Descendants()`
+      matches it — use top-level `Children` for the controls built).
 - [x] Established that no product change to `nac.Forms` is needed (§3.2).
 - [x] Discovered + documented the 3 gotchas: theme+style required, reads are
       UI-thread-owned, no nested Dispatch (§3.4 / §6).
@@ -279,10 +305,38 @@ and its `Show()` outside `Dispatch` form was the source of the "IWindowingPlatfo
   - `HeadlessWindowExtensions`: `CaptureRenderedFrame(TopLevel)`,
     `GetLastRenderedFrame(TopLevel)`, plus `KeyPress*` / `MouseDown*` /
     `KeyTextInput` — the input/inspect surface.
-  - `AvaloniaHeadlessPlatform.ForceRenderTimerTick(int count = 1)`: forces the
-    (headless) render timer ticks — this is what materializes `DataGrid` rows.
-    With `ShouldRenderOnUIThread=true` the tick runs on the UI thread; call a
-    few times (e.g. 3) for DataGrid which can defer a render pass.
+   - `AvaloniaHeadlessPlatform.ForceRenderTimerTick(int count = 1)`: forces the
+     (headless) render timer ticks — this is what materializes `DataGrid` rows.
+     With `ShouldRenderOnUIThread=true` the tick runs on the UI thread; call a
+     few times (e.g. 3) for DataGrid which can defer a render pass.
+   - **Triggering a Button click (the generic `Click` helper):**
+     `Button.ClickEvent` is a *public static* field of
+     `Avalonia.Interactivity.RoutedEvent<RoutedEventArgs>`, and the event-args
+     type is **`Avalonia.Interactivity.RoutedEventArgs`** — NOT `Avalonia.Input.*`
+     (there is no such type in 12.1.2; `RoutedEventArgs` lives in
+     `Avalonia.Interactivity` in the `Avalonia.Base` assembly).  So a click is
+     raised with `btn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent, btn))`.
+     (Searched hard this session — the wrong namespace cost a build cycle.)
+     `HeadlessForm.Click(string content)` finds the top-level button by its
+     content, raises this, then `Pump()`s.
+   - **Read a control's value (via `On`, NOT a per-type helper):** reading a
+     control's `.Text`/`.ItemsSource`/visual tree from the *test* thread throws
+     "The calling thread cannot access this object" (UI-thread ownership — see
+     §3.4 gotcha #2).  So the harness exposes a *generic* inspection:
+     `headless.On(v => v.<query>.Text)` runs the search+read on the UI thread and
+     returns the value.  The old per-type helpers `RenderedText()`/`ClickButton()`
+     were removed in favor of this; the API is now the `Visuals` query below.
+   - **The template-part trap (why `Children` vs `Descendants` matters):** the
+     visual tree is flat/deep.  A `Button`'s *content* is itself a `TextBlock`,
+     and a `DataGrid`'s materialized `DataGridRow`s live deep inside its
+     `DataGridRowsPresenter`.  So `v.Descendants().OfType<TextBlock>()` returns
+     BOTH the form's labels AND every button's content TextBlock — a search for
+     "the label" grabs the wrong one (got a button's content "Set Parent" back
+     instead of the label's text).  ⇒ `Visuals` offers two roots:
+     `Children()` (direct children of the host grid = the controls the test *built*;
+     use for labels/buttons) and `Descendants()` (deep; use for `DataGridRow`s).
+     The convenience `ChildrenOfType<T>()` / `LastChild<T>()` / `FindChild<T>()`
+     are the top-level variants.
 - **PROBE A result (FAILS this way; the WRONG path):** `UseHeadless() +
   SetupWithoutStarting()` gives an app whose `ApplicationLifetime` is **NULL** —
   `SetupWithoutStarting` does *not* create the headless lifetime.  Manual
@@ -422,37 +476,79 @@ The working, repeatable shape (all discovered this session — see §6):
    ```
    `Build` does the window/`Show()`/pump **inline** (NOT via the public `Pump`,
    which would be a nested `Dispatch` → deadlock).
-3. Read the rows via `VisibleRowCount()` (which dispatches its own read — a read
-   from the test thread throws the "different thread owns it" error):
-   ```csharp
-   Assert.AreEqual(0, headless.VisibleRowCount());        // parent null yet
-   headless.Run(() => parent.Selected = childWith3Rows);  // heal on the UI thread
-   headless.Pump();                                       // re-layout
-   Assert.AreEqual(3, headless.VisibleRowCount());        // rows materialized
-   ```
-4. Run the headless tests **filtered / in their own process** so the desktop
-   `UsePlatformDetect()` path has not run first (CONTAMINATION, §6):
-   ```
-   dotnet test Tests/Tests.csproj --filter "FullyQualifiedName~HeadlessHealTests"
-   ```
-   (or any `...~Headless` filter that excludes `FormTests`/`NestedPathBindingTests`.)
+ 3. Read the rows via the GENERIC tree query `On(v => …)` (the read runs on the
+    UI thread — a read from the test thread throws the "different thread owns it"
+    error).  `DataGridRow` lives *deep* in the tree, so use `Descendants()`:
+    ```csharp
+    int rows = headless.On(v => v.OfType<Avalonia.Controls.DataGridRow>().Count());
+    Assert.AreEqual(0, rows);                            // parent null yet
+    headless.Run(() => parent.Selected = childWith3Rows); // heal on the UI thread
+    headless.Pump();                                    // re-layout
+    Assert.AreEqual(3, headless.On(v =>
+        v.OfType<Avalonia.Controls.DataGridRow>().Count())); // rows materialized
+    ```
+    (`headless.VisibleRowCount()` is kept as a convenience shortcut for the common
+    "count the first table's rows" case.)
+ 4. Run the headless tests **filtered / in their own process** so the desktop
+    `UsePlatformDetect()` path has not run first (CONTAMINATION, §6):
+    ```
+    dotnet test Tests/Tests.csproj --filter "FullyQualifiedName~HeadlessHealTests"
+    ```
+    (or any `...~Headless` filter that excludes `FormTests`/`NestedPathBindingTests`.)
 
-The `HeadlessForm` API that emerged (differs from the original §6b sketch — no
-`Table(string)` wrapper needed, because you build the form directly so any
-`Form` builder call works):
-```csharp
-sealed class HeadlessForm : IDisposable
-{
-    static HeadlessForm Create();                    // StartNew(HeadlessTestApp)
-    Form Build(Action<Form> build, INotifyPropertyChanged dataContext = null,
-               double width = 600, double height = 600, int pumpTicks = 3);
-    void Run(Action uiWork);                         // model heal / mutation
-    void Pump(int ticks = 3);                        // render passes (UI-thread only)
-    int VisibleRowCount();                           // first DataGrid's presenter rows
-    int VisibleRowCount(Avalonia.Controls.DataGrid dg);
-    Form Form { get; }
-    void Dispose();                                  // session.Dispose()
-}
-```
+ The `HeadlessForm` + `Visuals` API that emerged.  The heart of it is the generic
+ `On(v => …)` / `Click(…)` pair — per-type helpers (`RenderedText`,
+ `ClickButton`) were deliberately *removed* in favor of searching the visual tree:
+ ```csharp
+ // HeadlessForm -- open session, build+show, mutate, inspect
+ sealed class HeadlessForm : IDisposable
+ {
+     static HeadlessForm Create();                    // StartNew(HeadlessTestApp)
+     Form Build(Action<Form> build, INotifyPropertyChanged dataContext = null,
+                double width = 600, double height = 600, int pumpTicks = 3);
+     void Run(Action uiWork);                         // model mutate / heal on UI thread
+     void Pump(int ticks = 3);                        // render passes (UI-thread only)
+     T On<T>(Func<Visuals, T> inspect);               // GENERIC: search+read on UI thread
+     void On(Action<Visuals> inspect);                // void overload
+     void Click(string contentText);                  // find button by content, click, pump
+     void Click<T>() where T : Button;                // find first button of type T, click, pump
+     int VisibleRowCount();                           // convenience: first table's rows
+     Form Form { get; }
+     void Dispose();
+ }
+
+ // Visuals -- the tree query On hands you (rooted at the form's host grid)
+ sealed class Visuals
+ {
+     IEnumerable<Visual> Descendants();    // DEEP: template parts too (use for DataGridRow)
+     IEnumerable<Visual> Children();       // TOP-LEVEL controls the test built
+     IReadOnlyList<T> OfType<T>();         // deep, filtered
+     T Find<T>();  T Last<T>();  T Find<T>(Func<T,bool> pred);
+     IReadOnlyList<T> ChildrenOfType<T>();
+     T LastChild<T>();  T FindChild<T>(Func<T,bool> pred);
+ }
+ ```
+
+ The smallest test (the one this session added last — `HeadlessTextHealTests`):
+ ```csharp
+ using var headless = HeadlessForm.Create();
+ headless.Build(f =>
+ {
+     f.TextFor("MyChildProperty.TextContent");                 // nested path
+     f.Button("Set Parent", async () =>
+         parent.MyChildProperty = new Child { TextContent = "Hello!" });
+ }, dataContext: parent);                                       // MyChildProperty null at build
+
+ // generic tree search + read, on the UI thread.  Use LastChild (TOP-LEVEL) not
+ // Last/Descendants, because a button's content is ITSELF a TextBlock deep in the
+ // tree and would otherwise be what gets found.
+ string before = headless.On(v => v.LastChild<TextBlock>()?.Text);
+ Assert.IsFalse((before ?? "").StartsWith("Hello!"));
+
+ headless.Click("Set Parent");                                 // find+click+pump (heal)
+
+ string after = headless.On(v => v.LastChild<TextBlock>()?.Text);
+ StringAssert.StartsWith("Hello!", after ?? "");
+ ```
 
 ---

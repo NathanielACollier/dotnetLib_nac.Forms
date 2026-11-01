@@ -1,11 +1,13 @@
 using System;
 using System.ComponentModel;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Headless;
+using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using nac.Forms;
@@ -14,29 +16,43 @@ namespace Tests.Testing
 {
     /**
      * HeadlessForm — a thin, generic harness for rendering a REAL nac.Forms.Form
-     * without a screen and asserting on its visual tree.  This is the first half
-     * of the design in docs/AGENTS_nacFormsHeadlessTestSetup.md (§6b).  It lives
-     * in the Tests project for now; the doc's plan is to promote it to its own
-     * nac.Forms.Testing project once the shape is settled.
+     * without a screen and asserting on its visual tree.  Design lives in
+     * docs/AGENTS_nacFormsHeadlessTestSetup.md (§6b).  Lives in the Tests project
+     * for now; the plan is to promote it to its own nac.Forms.Testing project.
      *
      * WHY THIS EXISTS
      *  DataGridRow / TableViewRow visuals only exist after a window is attached to
      *  a visual tree and runs a layout + render pass.  A headless session can do
      *  that without a real screen, so tests can assert "the table actually shows
-     *  N rows" instead of just "grid.ItemsSource has N items".
+     *  N rows" / "this label shows X" instead of just "grid.ItemsSource has N
+     *  items".
      *
-     * THE ONE RULE THAT MATTERS
-     *  The headless platform (IWindowingPlatform) is registered ONLY inside the
-     *  AvaloniaLocator scope that HeadlessUnitTestSession opens during a Dispatch,
-     *  and that scope is disposed when the Dispatch returns.  So EVERY UI call —
-     *  building the form, showing the window, pumping the render timer, and
-     *  reading the visual tree — must run INSIDE a Dispatch.  This class hides
-     *  that: every public method dispatches its own UI work, so callers never
-     *  touch the platform scope directly.
+     * THE TWO RULES THAT SHAPE THE API
+     *  1. The headless platform (IWindowingPlatform) is registered ONLY inside the
+     *     AvaloniaLocator scope that HeadlessUnitTestSession opens during a
+     *     Dispatch, and that scope is disposed when the Dispatch returns.  So
+     *     EVERY UI call — build, Show, pump, and inspect — must run INSIDE a
+     *     Dispatch.
+     *  2. Avalonia controls are UI-thread-owned: reading a control's property
+     *     (eg. TextBlock.Text) or walking its visual tree from ANY other thread
+     *     throws "The calling thread cannot access this object".  So an
+     *     inspection must also run inside a Dispatch.
      *
-     *  See §6 ROOT CAUSE in the doc for the "Unable to locate
-     *  IWindowingPlatform" error that happens when a UI call leaks outside a
-     *  Dispatch.
+ *  Because of (2), you do NOT pull a control out and read it on the test
+ *  thread.  Instead you run your search+read through On(...) / On<T>(...),
+ *  which opens a Dispatch, hands you a Visuals query rooted at the rendered
+ *  tree, and returns whatever value you compute on the UI thread.  A test
+ *  reads the world like this:
+ *      string text = headless.On(v => v.LastChild<TextBlock>().Text);
+ *      headless.Click("Set Parent");      // find the button, click, re-render
+ *      int rows     = headless.On(v => v.OfType<DataGridRow>().Count());
+ *  Note LastChild (TOP-LEVEL children of the host) not Last/Descendants for
+ *  labels/buttons: a Button's content is itself a TextBlock deep in the tree,
+ *  so Descendants().OfType<TextBlock>() would match it too.  DataGridRow lives
+ *  deep, so use Descendants() (via OfType<T>) for those.  See §6 / §6b.
+ *
+ *  See §6 ROOT CAUSE for the "Unable to locate IWindowingPlatform" / "calling
+ *  thread cannot access" errors that happen when a call leaks the scope.
      */
     public sealed class HeadlessForm : IDisposable
     {
@@ -48,11 +64,6 @@ namespace Tests.Testing
 
         public Form Form => _form;
 
-        /**
-         * Open a headless session.  Each created HeadlessForm runs its own
-         * session, so one test can have several forms and they never fight over a
-         * shared one-shot Application.
-         */
         public static HeadlessForm Create()
             => new(HeadlessUnitTestSession.StartNew(typeof(HeadlessTestApp)));
 
@@ -61,9 +72,6 @@ namespace Tests.Testing
          * show the window, and pump render ticks so the first layout/render pass
          * happens.  [dataContext] is the object the form's bindings read/write
          * (the same thing a real app sets as the form's DataContext).
-         *
-         * Use this for the common "build once, then mutate + pump" pattern; a
-         * subsequent Pump() drives later render passes after a model heal.
          */
         public Form Build(Action<Form> build,
             INotifyPropertyChanged dataContext = null,
@@ -71,10 +79,10 @@ namespace Tests.Testing
             double height = 600,
             int pumpTicks = 3)
         {
-            // One Dispatch.  We are already ON the UI thread inside it, so the
-            // pump must be INLINE here -- calling the public Pump() (which
-            // dispatches again) would post a job to the UI thread that is busy
-            // running this one and deadlock.
+            // One Dispatch.  We are ON the UI thread inside it, so the pump must
+            // be INLINE here -- calling the public Pump() (which dispatches again)
+            // would post a job to the UI thread that is busy running this one and
+            // deadlock (see §6).
             Run(() =>
             {
                 var app = Application.Current;
@@ -97,6 +105,7 @@ namespace Tests.Testing
                 PumpInline(pumpTicks);
 
                 _form = f;
+                _host = host;
             });
             return _form;
         }
@@ -116,6 +125,36 @@ namespace Tests.Testing
         }
 
         /**
+         * The generic inspection entry: open a Dispatch, hand the lambda a Visuals
+         * query over the rendered tree, and run the lambda ON THE UI THREAD so the
+         * search and any property reads are thread-safe.  Returns whatever the
+         * lambda computed.  This is the single high-level primitive a test builds
+         * its asserts on; the concrete helpers below are just special cases.
+         */
+        public T On<T>(Func<Visuals, T> inspect)
+        {
+            T result = default;
+            Run(() =>
+            {
+                result = inspect(VisualsFor(_host));
+            });
+            return result;
+        }
+
+        /**
+         * Void overload of On -- when the test only needs to perform an action on
+         * the UI thread (eg. assert inside is not possible, so use this to mutate
+         * or to call sub-helpers), call with no return.
+         */
+        public void On(Action<Visuals> inspect)
+        {
+            Run(() =>
+            {
+                inspect(VisualsFor(_host));
+            });
+        }
+
+        /**
          * Force render timer ticks on the UI thread.  A DataGrid virtualizes its
          * rows into DataGridRowsPresenter.Children, which only fills during the
          * measure/arrange/render pass — so a render tick is what makes rows
@@ -127,12 +166,6 @@ namespace Tests.Testing
             Run(() => PumpInline(ticks));
         }
 
-        /**
-         * The raw tick loop, run on the thread the caller is already on (the UI
-         * thread, inside a Dispatch).  Do NOT wrap this in another Dispatch --
-         * that nested Dispatch deadlocks.  Both Build and Pump funnel through
-         * it so the tick logic lives in one place.
-         */
         private void PumpInline(int ticks)
         {
             for (int i = 0; i < ticks; i++)
@@ -143,14 +176,53 @@ namespace Tests.Testing
         }
 
         /**
+         * Find the first form Button (a top-level control the test built) whose
+         * content is [contentText], raise its Click event (on the UI thread), then
+         * pump so any model heal the click triggers is re-rendered.  The search is
+         * over top-level children so a control's own template parts (which can
+         * themselves be buttons) are not matched.  The raise and the pump are two
+         * SEPARATE, FLAT Dispatches -- NOT nested -- because a Dispatch posted from
+         * inside the raise's Dispatch would deadlock (§6).
+         */
+        public void Click(string contentText)
+        {
+            Avalonia.Controls.Button btn = null;
+            Run(() =>
+            {
+                btn = _host?.GetVisualChildren()
+                    .OfType<Avalonia.Controls.Button>()
+                    .FirstOrDefault(b => string.Equals(b.Content as string, contentText,
+                        StringComparison.Ordinal));
+                btn?.RaiseEvent(new RoutedEventArgs(
+                    Avalonia.Controls.Button.ClickEvent, btn));
+            });
+            Pump();
+        }
+
+        /**
+         * Find the first top-level form Button of type [T] and "click" it, then
+         * pump.  [T] is a Button (or subclass) since that is the thing that
+         * carries a Click.  Same flat Dispatch/pump rule as Click(string).
+         */
+        public void Click<T>() where T : Avalonia.Controls.Button
+        {
+            T btn = null;
+            Run(() =>
+            {
+                btn = _host?.GetVisualChildren().OfType<T>().FirstOrDefault();
+                btn?.RaiseEvent(new RoutedEventArgs(
+                    Avalonia.Controls.Button.ClickEvent, btn));
+            });
+            Pump();
+        }
+
+        /**
          * Count the materialized (visible) DataGridRows of the first DataGrid the
          * built form added.  This is the same observation nac.Forms itself makes
          * (repos.DataGridVisibleRowsObserverRepo), asserted here on the real
-         * visual tree.  Returns 0 if there is no DataGrid yet.
+         * visual tree.  Returns 0 if there is no DataGrid / no rows yet.
          *
-         * The read runs inside a Dispatch: Avalonia controls are owned by the
-         * session's UI thread, and reading their properties / visual tree from any
-         * other thread throws "The calling thread cannot access this object".
+         * It is On(...) specialized:  On(v => first DataGrid's presenter rows).
          */
         public int VisibleRowCount()
         {
@@ -159,28 +231,15 @@ namespace Tests.Testing
             return count;
         }
 
-        /**
-         * Count the materialized (visible) DataGridRows of a specific DataGrid.
-         */
-        public int VisibleRowCount(Avalonia.Controls.DataGrid dg)
-        {
-            int count = 0;
-            Run(() => { count = PresenterRowCount(dg); });
-            return count;
-        }
-
         private Avalonia.Controls.DataGrid FindDataGrid()
         {
             Avalonia.Controls.DataGrid found = null;
-            if (_form != null)
+            _form?._Extend_AccessHost(host =>
             {
-                _form._Extend_AccessHost(host =>
-                {
-                    found = host.Children
-                        .OfType<Avalonia.Controls.DataGrid>()
-                        .FirstOrDefault();
-                });
-            }
+                found = host.Children
+                    .OfType<Avalonia.Controls.DataGrid>()
+                    .FirstOrDefault();
+            });
             return found;
         }
 
@@ -200,9 +259,114 @@ namespace Tests.Testing
                 .Count() ?? 0;
         }
 
+        // the form's host grid, set during Build; the root of the Visuals query
+        // and of Click's tree search.
+        private Avalonia.Controls.Grid _host;
+
+        private static Visuals VisualsFor(Avalonia.Controls.Grid host)
+            => new(host);
+
         public void Dispose()
         {
             _session.Dispose();
         }
+    }
+
+    /**
+     * A generic, UI-thread query over the rendered visual tree.  Obtained only
+     * from HeadlessForm.On(...) (which runs the body on the UI thread), so every
+     * control it hands back is valid to walk and to read properties from --
+     * because you are already on the owning thread.  It is intentionally a thin
+     * wrapper over Avalonia's GetVisualDescendants / GetVisualChildren + OfType<T>:
+     * a test searches the tree, grabs the control, and reads it -- eg.
+     *      headless.On(v => v.LastChild<TextBlock>().Text)
+     */
+    public sealed class Visuals
+    {
+        /**
+         * [host] is the form's host Grid (the root of the rendered controls).  It
+         * may be null before Build has run.
+         */
+        internal Visuals(Avalonia.Controls.Grid host)
+        {
+            Root = host;
+        }
+
+        /// The form's host grid (the tree root).  Null before Build.
+        public Avalonia.Controls.Grid Root { get; }
+
+        /**
+         * Every visual descendant of the tree root (the host grid), in tree order.
+         * This is the DEEP search -- use it for things that live inside a control's
+         * template, e.g. the materialized DataGridRow / TableViewRow of a table
+         * (they are deep inside the DataGrid's DataGridRowsPresenter).
+         */
+        public IEnumerable<Avalonia.Visual> Descendants()
+            => Root?.GetVisualDescendants() ?? Enumerable.Empty<Avalonia.Visual>();
+
+        /**
+         * The form's TOP-LEVEL controls -- the direct visual children of the host
+         * grid, i.e. the controls the test actually built (a TextFor's TextBlock,
+         * a Button, the table's DataGrid, ...).  Use this when you want "the
+         * controls", avoiding the TextBlocks/controls that a control's own template
+         * generates (eg. a Button's content is itself a TextBlock, which
+         * Descendants() would also return but Children() does not).
+         */
+        public IEnumerable<Avalonia.Visual> Children()
+            => Root?.GetVisualChildren() ?? Enumerable.Empty<Avalonia.Visual>();
+
+        /**
+         * Descendants filtered to [T].  Returns real controls, valid to read
+         * because you are on the UI thread (On ran you there).
+         */
+        public IReadOnlyList<T> OfType<T>()
+            where T : class
+            => Descendants().OfType<T>().ToList();
+
+        /**
+         * The first descendant of type [T], or null.
+         */
+        public T Find<T>()
+            where T : class
+            => Descendants().OfType<T>().FirstOrDefault();
+
+        /**
+         * The last descendant of type [T], or null.
+         */
+        public T Last<T>()
+            where T : class
+            => Descendants().OfType<T>().LastOrDefault();
+
+        /**
+         * The first descendant of type [T] satisfying [predicate], or null.
+         */
+        public T Find<T>(Func<T, bool> predicate)
+            where T : class
+            => Descendants().OfType<T>().FirstOrDefault(predicate);
+
+        // ---- top-level variants (the controls the test built, no template parts)
+
+        /**
+         * Top-level controls (direct children of the host) filtered to [T].  Like
+         * OfType<T> but skips the deep template internals, so "the TextBlocks"
+         * means the form's labels, not the TextBlocks inside a Button's content.
+         */
+        public IReadOnlyList<T> ChildrenOfType<T>()
+            where T : class
+            => Children().OfType<T>().ToList();
+
+        /**
+         * The last top-level control of type [T], or null.
+         */
+        public T LastChild<T>()
+            where T : class
+            => Children().OfType<T>().LastOrDefault();
+
+        /**
+         * The first top-level control of type [T] satisfying [predicate], or null.
+         */
+        public T FindChild<T>(Func<T, bool> predicate)
+            where T : class
+            => Children().OfType<T>().FirstOrDefault(predicate);
     }
 }
