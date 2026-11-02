@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using Avalonia.Headless;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
@@ -37,23 +36,23 @@ namespace Tests.Testing
      *     (eg. TextBlock.Text) or walking its visual tree from ANY other thread
      *     throws "The calling thread cannot access this object".  So an
      *     inspection must also run inside a Dispatch.
-     *
- *  Because of (2), you do NOT pull a control out and read it on the test
- *  thread.  Instead you run your search+read through On(...) / On<T>(...),
- *  which opens a Dispatch, hands you a Visuals query rooted at the rendered
- *  tree, and returns whatever value you compute on the UI thread.  A test
- *  reads the world like this:
- *      string text = headless.On(v => v.LastChild<TextBlock>().Text);
- *      headless.Click("Set Parent");      // find the button, click, re-render
- *      int rows     = headless.On(v => v.OfType<DataGridRow>().Count());
- *  Note LastChild (TOP-LEVEL children of the host) not Last/Descendants for
- *  labels/buttons: a Button's content is itself a TextBlock deep in the tree,
- *  so Descendants().OfType<TextBlock>() would match it too.  DataGridRow lives
- *  deep, so use Descendants() (via OfType<T>) for those.  See §6 / §6b.
- *
- *  See §6 ROOT CAUSE for the "Unable to locate IWindowingPlatform" / "calling
- *  thread cannot access" errors that happen when a call leaks the scope.
-     */
+      *
+      * Because of (2), you do NOT pull a control out and read it on the test
+      * thread.  Instead you run your search+read through On(...) / On<T>(...),
+      * which opens a Dispatch, hands you a Visuals query rooted at the rendered
+      * tree, and returns whatever value you compute on the UI thread.  A test
+      * reads the world like this:
+      *      string text = headless.On(v => v.LastChild<TextBlock>().Text);
+      *      headless.Click("Set Parent");      // find the button, click, re-render
+      *      int rows     = headless.On(v => v.OfType<DataGridRow>().Count());
+      *  Note LastChild (TOP-LEVEL children of the host) not Last/Descendants for
+      *  labels/buttons: a Button's content is itself a TextBlock deep in the tree,
+      *  so Descendants().OfType<TextBlock>() would match it too.  DataGridRow lives
+      *  deep, so use Descendants() (via OfType<T>) for those.  See §6 / §6b.
+      *
+      *  See §6 ROOT CAUSE for the "Unable to locate IWindowingPlatform" / "calling
+      *  thread cannot access" errors that happen when a call leaks the scope.
+      */
     public sealed class HeadlessForm : IDisposable
     {
         private readonly HeadlessUnitTestSession _session;
@@ -214,49 +213,6 @@ namespace Tests.Testing
                     Avalonia.Controls.Button.ClickEvent, btn));
             });
             Pump();
-        }
-
-        /**
-         * Count the materialized (visible) DataGridRows of the first DataGrid the
-         * built form added.  This is the same observation nac.Forms itself makes
-         * (repos.DataGridVisibleRowsObserverRepo), asserted here on the real
-         * visual tree.  Returns 0 if there is no DataGrid / no rows yet.
-         *
-         * It is On(...) specialized:  On(v => first DataGrid's presenter rows).
-         */
-        public int VisibleRowCount()
-        {
-            int count = 0;
-            Run(() => { count = PresenterRowCount(FindDataGrid()); });
-            return count;
-        }
-
-        private Avalonia.Controls.DataGrid FindDataGrid()
-        {
-            Avalonia.Controls.DataGrid found = null;
-            _form?._Extend_AccessHost(host =>
-            {
-                found = host.Children
-                    .OfType<Avalonia.Controls.DataGrid>()
-                    .FirstOrDefault();
-            });
-            return found;
-        }
-
-        private static int PresenterRowCount(Avalonia.Controls.DataGrid dg)
-        {
-            if (dg == null)
-            {
-                return 0;
-            }
-
-            var presenter = dg.GetVisualDescendants()
-                .OfType<DataGridRowsPresenter>()
-                .FirstOrDefault();
-
-            return presenter?.Children
-                .OfType<Avalonia.Controls.DataGridRow>()
-                .Count() ?? 0;
         }
 
         // the form's host grid, set during Build; the root of the Visuals query

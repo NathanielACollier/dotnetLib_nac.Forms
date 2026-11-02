@@ -29,9 +29,11 @@ tests).
     the nested path renders the child's text, read via
     `On(v => v.LastChild<TextBlock>().Text)`.
 - The harness (`Tests/Testing/HeadlessForm.cs`) exposes `Create`/`Build`/`Run`/
-  `Pump`/`On`/`Click`/`VisibleRowCount`.  `On(v => …)` is the generic primitive:
-  it runs your search+read on the UI thread and returns the value, so a test
-  inspects any control by walking the tree.
+  `Pump`/`On`/`Click`.  `On(v => …)` is THE primitive: it runs your search+read on
+  the UI thread and returns the value, so a test inspects *any* control by walking
+  the tree — including counting rows (`On(v => v.OfType<DataGridRow>().Count())`).
+  There is deliberately *no* row-count helper: it would just re-derive the same
+  deep-tree query.
 - **The "Children vs Descendants" subtlety (§6/§6b):** a `Button`'s content is
   itself a `TextBlock`, so `Descendants().OfType<TextBlock>()` matches buttons'
   content too.  Use top-level `Children`/`LastChild<T>()` for the controls the
@@ -178,26 +180,28 @@ back to the `ControlledAppLifetime`/manual-`Post` approach.
      (`Form.Table.cs` `addDataGridStyleToApp`), and `nac.Forms.App.xaml` loads
      `SimpleTheme` — so when the harness builds a *real* `Form`, both are present.
      The harness's own `HeadlessTestApp` loads both too (see that file).
-  2. **Every read is UI-thread-owned.** Reading `dg.ItemsSource` *or* walking the
-     visual tree from the test (non-UI) thread throws
-     `InvalidOperationException: The calling thread cannot access this object`.
-     So `VisibleRowCount()` *dispatches its read*; it is not a plain getter.
-  3. **No nested Dispatch.** A `Dispatch` posted from *inside* a `Dispatch` runs
-     on the UI thread that is already busy in the outer `Dispatch`.
-     `.Wait()` on the outer one then deadlocks.  So `Build` (which is already
-     inside a `Dispatch`) pumps *inline*; only the public `Pump()`/`Run()`/
-     `VisibleRowCount()` — called from the *test* thread — do the outer
-     `Dispatch`.  Keep the tick loop in one private `PumpInline` used by both.
+   2. **Every read is UI-thread-owned.** Reading `dg.ItemsSource` *or* walking the
+      visual tree from the test (non-UI) thread throws
+      `InvalidOperationException: The calling thread cannot access this object`.
+      So `On(v => …)` *dispatches its whole search+read*; it is not a plain
+      getter that pulls a control out for the test thread to read.
+   3. **No nested Dispatch.** A `Dispatch` posted from *inside* a `Dispatch` runs
+      on the UI thread that is already busy in the outer `Dispatch`.
+      `.Wait()` on the outer one then deadlocks.  So `Build` (which is already
+      inside a `Dispatch`) pumps *inline* via `PumpInline`; only the public
+       `Pump()`/`Run()`/`On()` — called from the *test* thread — do the outer
+       `Dispatch`.  Keep the tick loop in one private `PumpInline` used by both.
 
 ### 3.5 What a test asserts
 Same observation nac.Forms itself uses:
 `dataGrid.GetVisualDescendants().OfType<DataGridRowsPresenter>().Children
-.OfType<DataGridRow>()` → count.  `HeadlessForm.VisibleRowCount()` does exactly
-this inline (it does **not** wrap `DataGridVisibleRowsObserverRepo` — that
-observer needs the window to reach the Loaded stage via a posted job, which is
-harder to drive deterministically headless; counting the presenter directly is
-simpler and is what the test asserts).  The product observer remains the
-in-app mechanism; the harness is the test-side equivalent.
+.OfType<DataGridRow>()` → count.  In the harness this is just a `Visuals`
+query: `headless.On(v => v.OfType<Avalonia.Controls.DataGridRow>().Count())`.
+(It does **not** wrap `DataGridVisibleRowsObserverRepo` — that observer needs the
+window to reach the Loaded stage via a posted job, which is harder to drive
+deterministically headless; counting the tree directly is simpler and is what the
+test asserts.)  The product observer remains the in-app mechanism; the harness is
+the test-side equivalent.
 
 ---
 
@@ -217,7 +221,7 @@ in-app mechanism; the harness is the test-side equivalent.
 - `Tests/NestedPathBindingTests.cs` — the binding regression guard
   (logic-only, must stay green).
 - NEW: `Tests/Testing/HeadlessForm.cs` — the generic harness
-  (`Create` / `Build` / `Pump` / `Run` / `VisibleRowCount`).
+  (`Create` / `Build` / `Pump` / `Run` / `On` / `Click`).
 - NEW: `Tests/Testing/HeadlessTestApp.cs` — the bare `Application` the session
   starts (loads `SimpleTheme` + the DataGrid style).
 - NEW: `Tests/Testing/HeadlessHealTests.cs` — the heal-scenario row-count test
@@ -247,7 +251,7 @@ and its `Show()` outside `Dispatch` form was the source of the "IWindowingPlatfo
 - [x] Rewrote the probe to the working pattern and verified a bare `DataGrid`
       materializes rows headless (3 rows for a 3-item source, explicit column).
 - [x] Built the generic harness `Tests/Testing/HeadlessForm.cs`
-      (`Create`/`Build`/`Pump`/`Run`/`On`/`Click`/`VisibleRowCount`) +
+       (`Create`/`Build`/`Pump`/`Run`/`On`/`Click`) +
       `Visuals` query + `HeadlessTestApp`.
 - [x] Wrote the heal-scenario row-count test `HeadlessHealTests.cs`
       (parent null → 0 rows → heal → 3 rows), inspected via the generic
@@ -424,17 +428,17 @@ and its `Show()` outside `Dispatch` form was the source of the "IWindowingPlatfo
   `dg.ItemsSource` *or* walking `GetVisualDescendants()` from the test thread
   (outside a `Dispatch`) throws
   `InvalidOperationException: The calling thread cannot access this object`.
-  ⇒ `HeadlessForm.VisibleRowCount()` runs its read *inside* a `Dispatch`; it is
-  not a plain getter.  (This bug passed in isolation by luck and only failed when
-  another test class ran first — see CONTAMINATION.)
+   ⇒ `HeadlessForm.On(v => …)` runs its read *inside* a `Dispatch`; it is
+   not a plain getter.  (This bug passed in isolation by luck and only failed when
+   another test class ran first — see CONTAMINATION.)
 - **No nested Dispatch or the session deadlocks.** A `Dispatch` posted from
   *inside* a `Dispatch` runs on the UI thread that is already busy in the outer
   `Dispatch`; `.Wait()`ing on the outer one then hangs forever (the test process
   burns 100% CPU and times out).  ⇒ `HeadlessForm.Build` (already inside a
   `Dispatch`) must pump *inline* — it calls a private `PumpInline`, NOT the
   public `Pump()` (which does its own outer `Dispatch`).  Only the public
-  `Pump()`/`Run()`/`VisibleRowCount()`, called from the *test* thread, do the
-  outer `Dispatch`.
+   `Pump()`/`Run()`/`On()`, called from the *test* thread, do the
+   outer `Dispatch`.
 - **CONTAMINATION — the one remaining trap (why we run filtered):** the
   real-app path (`Form.NewForm()` → `SetupAvaloniaApp` → `UsePlatformDetect()` +
   `SetupWithoutStarting()`, used in `FormTests` and `NestedPathBindingTests`)
@@ -489,12 +493,10 @@ The working, repeatable shape (all discovered this session — see §6):
     Assert.AreEqual(0, rows);                            // parent null yet
     headless.Run(() => parent.Selected = childWith3Rows); // heal on the UI thread
     headless.Pump();                                    // re-layout
-    Assert.AreEqual(3, headless.On(v =>
-        v.OfType<Avalonia.Controls.DataGridRow>().Count())); // rows materialized
-    ```
-    (`headless.VisibleRowCount()` is kept as a convenience shortcut for the common
-    "count the first table's rows" case.)
- 4. Run the headless tests **filtered / in their own process** so the desktop
+     Assert.AreEqual(3, headless.On(v =>
+         v.OfType<Avalonia.Controls.DataGridRow>().Count())); // rows materialized
+     ```
+  4. Run the headless tests **filtered / in their own process** so the desktop
     `UsePlatformDetect()` path has not run first (CONTAMINATION, §6):
     ```
     dotnet test Tests/Tests.csproj --filter "FullyQualifiedName~HeadlessHealTests"
@@ -516,10 +518,9 @@ The working, repeatable shape (all discovered this session — see §6):
      T On<T>(Func<Visuals, T> inspect);               // GENERIC: search+read on UI thread
      void On(Action<Visuals> inspect);                // void overload
      void Click(string contentText);                  // find button by content, click, pump
-     void Click<T>() where T : Button;                // find first button of type T, click, pump
-     int VisibleRowCount();                           // convenience: first table's rows
-     Form Form { get; }
-     void Dispose();
+      void Click<T>() where T : Button;                // find first button of type T, click, pump
+      Form Form { get; }
+      void Dispose();
  }
 
  // Visuals -- the tree query On hands you (rooted at the form's host grid)
