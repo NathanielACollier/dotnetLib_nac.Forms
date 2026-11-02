@@ -1,8 +1,8 @@
-using System.ComponentModel;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Avalonia.Controls;
 using nac.Forms;
+using nac.ViewModelBase;
 using Tests.Testing;
 
 namespace Tests
@@ -15,6 +15,9 @@ namespace Tests
      * searching the rendered visual tree for the TextBlock and reading its .Text,
      * and by finding the button in the tree and clicking it -- no per-type
      * helpers.
+     *
+     * The parent model is a nac.ViewModelBase, so "heal the parent" is a one-line
+     * SetValue(() => MyChildProperty, ...) -- no INotifyPropertyChanged boilerplate.
      */
     [TestClass]
     public class HeadlessTextHealTests
@@ -24,19 +27,13 @@ namespace Tests
             public string TextContent { get; set; }
         }
 
-        private class Parent : INotifyPropertyChanged
+        private class Parent : ViewModelBase
         {
-            public event PropertyChangedEventHandler PropertyChanged;
-
-            private Child _myChildProperty;
             public Child MyChildProperty
             {
-                get => _myChildProperty;
-                set { _myChildProperty = value; OnPropertyChanged(nameof(MyChildProperty)); }
+                get => GetValue(() => MyChildProperty);
+                set => SetValue(() => MyChildProperty, value);
             }
-
-            private void OnPropertyChanged(string name)
-                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
         [TestMethod]

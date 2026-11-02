@@ -261,6 +261,11 @@ and its `Show()` outside `Dispatch` form was the source of the "IWindowingPlatfo
       `ClickButton`).  Discovered + documented the template-part trap (a
       `Button`'s content is itself a `TextBlock`, so deep `Descendants()`
       matches it — use top-level `Children` for the controls built).
+- [x] Switched the test models off hand-rolled `INotifyPropertyChanged` onto
+      `nac.ViewModelBase` (a `nac.viewmodelbase` package ref added to `Tests`):
+      `GetValue(() => Prop)`/`SetValue(() => Prop, value)` — no `event`/backing
+      field/`OnPropertyChanged` boilerplate.  Caveat recorded in §6b: a settable
+      property's getter is `null` until set, so seed collections by assignment.
 - [x] Established that no product change to `nac.Forms` is needed (§3.2).
 - [x] Discovered + documented the 3 gotchas: theme+style required, reads are
       UI-thread-owned, no nested Dispatch (§3.4 / §6).
@@ -529,15 +534,32 @@ The working, repeatable shape (all discovered this session — see §6):
  }
  ```
 
- The smallest test (the one this session added last — `HeadlessTextHealTests`):
+ The smallest test (the one this session added last — `HeadlessTextHealTests`),
+ models as `nac.ViewModelBase` (no `INotifyPropertyChanged` boilerplate):
  ```csharp
+ using nac.ViewModelBase;
+
+ // A settable ViewModelBase property notifies only on actual change, and its
+ // getter returns null until set (auto-create is for read-only props only),
+ // so "heal the parent" is a plain "MyChildProperty = ..." assignment.
+ class Child  { public string TextContent { get; set; } }
+ class Parent : ViewModelBase
+ {
+     public Child MyChildProperty
+     {
+         get => GetValue(() => MyChildProperty);
+         set => SetValue(() => MyChildProperty, value);
+     }
+ }
+
  using var headless = HeadlessForm.Create();
+ var parent = new Parent();                                // MyChildProperty null at build
  headless.Build(f =>
  {
-     f.TextFor("MyChildProperty.TextContent");                 // nested path
+     f.TextFor("MyChildProperty.TextContent");             // nested path
      f.Button("Set Parent", async () =>
          parent.MyChildProperty = new Child { TextContent = "Hello!" });
- }, dataContext: parent);                                       // MyChildProperty null at build
+ }, dataContext: parent);
 
  // generic tree search + read, on the UI thread.  Use LastChild (TOP-LEVEL) not
  // Last/Descendants, because a button's content is ITSELF a TextBlock deep in the
@@ -545,10 +567,31 @@ The working, repeatable shape (all discovered this session — see §6):
  string before = headless.On(v => v.LastChild<TextBlock>()?.Text);
  Assert.IsFalse((before ?? "").StartsWith("Hello!"));
 
- headless.Click("Set Parent");                                 // find+click+pump (heal)
+ headless.Click("Set Parent");                             // find+click+pump (heal)
 
  string after = headless.On(v => v.LastChild<TextBlock>()?.Text);
  StringAssert.StartsWith("Hello!", after ?? "");
  ```
+
+ NOTE on the data model.  `headless.Build(action, dataContext: …)` takes `dataContext`
+ as `INotifyPropertyChanged`, and any `nac.ViewModelBase` subclass is one, so a
+ test model is just:
+ ```csharp
+ class ParentModel : ViewModelBase
+ {
+     public ChildModel Selected {
+         get => GetValue(() => Selected);
+         set => SetValue(() => Selected, value);
+     }
+ }
+ ```
+ A `nac.ViewModelBase` settable property auto-creates a backing store and raises
+ `PropertyChanged` (only when the value actually changes), so you no longer write
+ `event PropertyChanged` / a `_field` / `OnPropertyChanged(nameof(...))` yourself.
+ Caveat hit this session: a *settable* property's getter returns `null` until it is
+ set (the auto-create `GetValue` is only for read-only `IEnumerable`/`ObservableCollection`
+ properties), so seed a collection by *assigning* it (`Locations = new
+ ObservableCollection<…>{ … }`) rather than calling `.Add(...)` on a not-yet-set
+ getter.
 
 ---

@@ -1,10 +1,10 @@
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Avalonia.Controls;
 using nac.Forms;
 using nac.Forms.model;
+using nac.ViewModelBase;
 using Tests.Testing;
 
 namespace Tests
@@ -15,6 +15,9 @@ namespace Tests
      * "Selected.Locations" whose parent (Selected) is null at build time, then
      * heals.  We assert the table shows 0 rows before the heal and the child's
      * rows after, on the rendered visuals rather than on grid.ItemsSource.
+     *
+     * The models are nac.ViewModelBase, so healing a parent is a one-line
+     * SetValue(() => Selected, ...) -- no INotifyPropertyChanged boilerplate.
      *
      * ISOLATION: the headless session and the real UsePlatformDetect() path
      * (Form.NewForm in FormTests / NestedPathBindingTests) both set Avalonia's
@@ -30,42 +33,35 @@ namespace Tests
     {
         private class Location { public string Label { get; set; } }
 
-        private class ChildModel : INotifyPropertyChanged
+        private class ChildModel : ViewModelBase
         {
-            public event PropertyChangedEventHandler PropertyChanged;
-
-            private ObservableCollection<Location> _locations = new();
             public ObservableCollection<Location> Locations
             {
-                get => _locations;
-                set { _locations = value; OnPropertyChanged(nameof(Locations)); }
+                get => GetValue(() => Locations);
+                set => SetValue(() => Locations, value);
             }
-
-            private void OnPropertyChanged(string name)
-                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        private class ParentModel : INotifyPropertyChanged
+        private class ParentModel : ViewModelBase
         {
-            public event PropertyChangedEventHandler PropertyChanged;
-
-            private ChildModel _selected;
             public ChildModel Selected
             {
-                get => _selected;
-                set { _selected = value; OnPropertyChanged(nameof(Selected)); }
+                get => GetValue(() => Selected);
+                set => SetValue(() => Selected, value);
             }
-
-            private void OnPropertyChanged(string name)
-                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
         [TestMethod]
         public void Table_ParentNonNullAtBuild_MaterializesRows()
         {
-            var child = new ChildModel();
-            child.Locations.Add(new Location { Label = "A" });
-            child.Locations.Add(new Location { Label = "B" });
+            var child = new ChildModel
+            {
+                Locations = new ObservableCollection<Location>
+                {
+                    new Location { Label = "A" },
+                    new Location { Label = "B" },
+                },
+            };
             var parent = new ParentModel { Selected = child };
 
             using var headless = HeadlessForm.Create();
@@ -111,14 +107,19 @@ namespace Tests
                 "before the parent heals, the table should materialize 0 rows");
 
             // heal: parent now points at a child with 3 locations
-            var child = new ChildModel();
-            child.Locations.Add(new Location { Label = "X" });
-            child.Locations.Add(new Location { Label = "Y" });
-            child.Locations.Add(new Location { Label = "Z" });
+            var child = new ChildModel
+            {
+                Locations = new ObservableCollection<Location>
+                {
+                    new Location { Label = "X" },
+                    new Location { Label = "Y" },
+                    new Location { Label = "Z" },
+                },
+            };
 
             headless.Run(() =>
             {
-                parent.Selected = child; // fires PropertyChanged("Selected")
+                parent.Selected = child; // SetValue fires PropertyChanged("Selected")
             });
             headless.Pump();
 

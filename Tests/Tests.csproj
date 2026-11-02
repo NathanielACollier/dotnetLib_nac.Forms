@@ -19,4 +19,8 @@
     <ProjectReference Include="..\nac.Forms\nac.Forms.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="nac.viewmodelbase" Version="1.0.1" />
+  </ItemGroup>
+
 </Project>
