@@ -2,8 +2,8 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Avalonia.Controls;
 using nac.Forms;
-using nac.ViewModelBase;
-using Tests.Testing;
+using Tests.HeadlessTesting;
+using Tests.HeadlessTesting.models;
 
 namespace Tests
 {
@@ -22,20 +22,6 @@ namespace Tests
     [TestClass]
     public class HeadlessTextHealTests
     {
-        private class Child
-        {
-            public string TextContent { get; set; }
-        }
-
-        private class Parent : ViewModelBase
-        {
-            public Child MyChildProperty
-            {
-                get => GetValue(() => MyChildProperty);
-                set => SetValue(() => MyChildProperty, value);
-            }
-        }
-
         [TestMethod]
         public void NestedTextBinding_HealsWhenButtonSetsParent()
         {

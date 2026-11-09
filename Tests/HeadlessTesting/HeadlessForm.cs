@@ -11,7 +11,7 @@ using Avalonia.Threading;
 using Avalonia.VisualTree;
 using nac.Forms;
 
-namespace Tests.Testing
+namespace Tests.HeadlessTesting
 {
     /**
      * HeadlessForm — a thin, generic harness for rendering a REAL nac.Forms.Form

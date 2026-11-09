@@ -4,8 +4,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Avalonia.Controls;
 using nac.Forms;
 using nac.Forms.model;
-using nac.ViewModelBase;
-using Tests.Testing;
+using Tests.HeadlessTesting;
+using Tests.HeadlessTesting.models;
+using Location = Tests.HeadlessTesting.models.Location;
 
 namespace Tests
 {
@@ -31,26 +32,6 @@ namespace Tests
     [TestClass]
     public class HeadlessHealTests
     {
-        private class Location { public string Label { get; set; } }
-
-        private class ChildModel : ViewModelBase
-        {
-            public ObservableCollection<Location> Locations
-            {
-                get => GetValue(() => Locations);
-                set => SetValue(() => Locations, value);
-            }
-        }
-
-        private class ParentModel : ViewModelBase
-        {
-            public ChildModel Selected
-            {
-                get => GetValue(() => Selected);
-                set => SetValue(() => Selected, value);
-            }
-        }
-
         [TestMethod]
         public void Table_ParentNonNullAtBuild_MaterializesRows()
         {

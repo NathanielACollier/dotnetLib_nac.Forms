@@ -4,7 +4,7 @@ using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Styling;
 using Avalonia.Themes.Simple;
 
-namespace Tests.Testing
+namespace Tests.HeadlessTesting
 {
     // Minimal Application the headless test session starts.
     //

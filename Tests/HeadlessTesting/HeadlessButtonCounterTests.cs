@@ -2,8 +2,8 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Avalonia.Controls;
 using nac.Forms;
-using nac.ViewModelBase;
-using Tests.Testing;
+using Tests.HeadlessTesting;
+using Tests.HeadlessTesting.models;
 
 namespace Tests
 {
@@ -21,15 +21,6 @@ namespace Tests
     [TestClass]
     public class HeadlessButtonCounterTests
     {
-        private class CounterModel : ViewModelBase
-        {
-            public int Counter
-            {
-                get => GetValue(() => Counter);
-                set => SetValue(() => Counter, value);
-            }
-        }
-
         [TestMethod]
         public void Button_Click_IncrementsDisplayByOne_EachTime()
         {
