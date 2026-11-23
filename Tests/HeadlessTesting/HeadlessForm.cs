@@ -215,6 +215,50 @@ namespace Tests.HeadlessTesting
             Pump();
         }
 
+        /**
+         * Raise the ClickEvent on a SPECIFIC, already-located Button (passed in by
+         * the test, e.g. one a test found deep in a DataGridRow via On(...)), then
+         * pump.  Unlike Click(string)/Click<T>() -- which search only the host's
+         * TOP-LEVEL children -- this clicks a control the test already holds.  The
+         * reference MUST have been obtained on the UI thread (e.g. as the return of
+         * On(...)), since reading a control off the test thread throws; holding the
+         * reference and raising on the UI thread stays thread-safe.  Same
+         * flat-Dispatch-then-pump rule as the other Clicks (no nesting).
+         */
+        public void ClickButton(Avalonia.Controls.Button btn)
+        {
+            Run(() =>
+            {
+                btn?.RaiseEvent(new RoutedEventArgs(
+                    Avalonia.Controls.Button.ClickEvent, btn));
+            });
+            Pump();
+        }
+
+        /**
+         * Scroll the rendered DataGrid so the row for [item] is materialized,
+         * then pump.  A DataGrid VIRTUALIZES its rows, so a row only exists in the
+         * visual tree (its button, its row DataContext) while it is realized in the
+         * viewport.  Avalonia's DataGrid exposes ScrollIntoView(item, column); we
+         * call it with the first column to force the row for [item] to realize,
+         * which makes a button on that (previously off-screen) row hittable.  The
+         * scroll and the pump are two SEPARATE flat Dispatches (no nesting, §6).
+         */
+        public void ScrollTable(object item, int ticks = 5)
+        {
+            Run(() =>
+            {
+                var grid = _host?.GetVisualDescendants()
+                    .OfType<Avalonia.Controls.DataGrid>()
+                    .FirstOrDefault();
+                if (grid != null && grid.Columns.Count > 0)
+                {
+                    grid.ScrollIntoView(item, grid.Columns[0]);
+                }
+            });
+            Pump(ticks);
+        }
+
         // the form's host grid, set during Build; the root of the Visuals query
         // and of Click's tree search.
         private Avalonia.Controls.Grid _host;

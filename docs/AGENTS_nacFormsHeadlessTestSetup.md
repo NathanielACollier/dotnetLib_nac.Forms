@@ -18,16 +18,21 @@ tests).
 
 - The **binding fix is DONE + green** (7/7 `NestedPathBindingTests`). See
   `AGENTS_nacFormsChildBindingTodo.md` §6/§9.
-- **HEADLESS RENDER NOW WORKS.** `Tests/Testing/` has 3 passing headless tests
-  (run filtered — see §6 CONTAMINATION).  They use the **generic** inspection API:
+- **HEADLESS RENDER NOW WORKS.** `Tests/Testing/` now has 5 passing headless tests
+  (run filtered — see §6 / new `HeadlessTableScrollTests`).  They use the **generic**
+  inspection API:
   search the visual tree with a `Visuals` query handed to `headless.On(v => …)`,
-  and trigger buttons with `headless.Click("…")`.  No per-type helpers.
-  - `HeadlessHealTests` — a `DataGrid` on a nested path asserts `0 → 3 rows` when
-    the null parent heals, counted via `On(v => v.OfType<DataGridRow>().Count())`.
-  - `HeadlessTextHealTests` — the smallest test: a `TextFor("MyChildProperty.
-    TextContent")` label with the parent null; `Click("Set Parent")` heals it and
-    the nested path renders the child's text, read via
-    `On(v => v.LastChild<TextBlock>().Text)`.
+  and trigger buttons with `headless.Click("…")` / `headless.ClickButton(btn)`.
+  New this round: `headless.ScrollTable(item)` (drives `DataGrid.ScrollIntoView`)
+  + `ClickButton(btn)` for a button inside a virtualized table row.
+  - `HeadlessHealTests` — a `DataGrid` on a nested path asserts `0 → 3 rows`.
+  - `HeadlessTextHealTests` — a `TextFor("MyChildProperty.TextContent")` label
+    heals via a button click.
+  - `HeadlessButtonCounterTests` — a click bumps a rendered counter by one.
+  - `HeadlessTableScrollTests` — a button-in-a-row table virtualizes; scroll to a
+    far row, then assert the TEXT RENDERED ON that row equals that row's
+    `DataContext` (the bound variable — the recycling guard), then click that
+    now-visible row's button.
 - The harness (`Tests/Testing/HeadlessForm.cs`) exposes `Create`/`Build`/`Run`/
   `Pump`/`On`/`Click`.  `On(v => …)` is THE primitive: it runs your search+read on
   the UI thread and returns the value, so a test inspects *any* control by walking
@@ -227,7 +232,15 @@ the test-side equivalent.
 - NEW: `Tests/Testing/HeadlessHealTests.cs` — the heal-scenario row-count test
       (the nacBackup scenario, asserted on the visual tree).
 - NEW: `Tests/Testing/HeadlessTextHealTests.cs` — the smallest headless test:
-      a `TextFor("MyChildProperty.TextContent")` label heals via a button click.
+       a `TextFor("MyChildProperty.TextContent")` label heals via a button click.
+- NEW: `Tests/Testing/HeadlessScrollProbeTests.cs` — DELETED (throwaway probe that
+       found `DataGrid.ScrollIntoView` is the working scroll driver; see §6).
+- NEW: `Tests/Testing/HeadlessTableScrollTests.cs` — a button-in-a-row table that
+       virtualizes; scroll to a far row via `HeadlessForm.ScrollTable(item)`
+       (`DataGrid.ScrollIntoView`), then `ClickButton` that now-realized row's
+       button and assert it acted on the on-screen row's `DataContext`.
+- NEW: `Tests/Testing/HeadlessButtonCounterTests.cs` — a button click increments a
+       counter shown in a label (3 clicks × +1).
 - `docs/AGENTS_nacFormsHeadlessTestSetup.md` — this file.
 
 NOTE: the old `Tests/Probe/` spike files (`HeadlessSpikeTests`, `HeadlessProbeTests`,
@@ -458,6 +471,75 @@ and its `Show()` outside `Dispatch` form was the source of the "IWindowingPlatfo
   on `HeadlessHealTests`.  Each `HeadlessForm` already makes its **own** session,
   so the contamination is purely about the *desktop* `UsePlatformDetect()` path
   running first, not about the headless sessions fighting each other.
+- **VERSION MISMATCH (the headless session won't start at all):**
+  `Tests/Tests.csproj` pinned `Avalonia.Headless` 12.1.2 while core `Avalonia`
+  resolved to 12.2.0 (via `nac.Forms` → `Avalonia.Desktop` 12.2.0).  At runtime
+  the headless session threw
+  `TypeLoadException: Method 'CreateStreamGeometryBuilder' in type
+  'Avalonia.Headless.HeadlessPlatformRenderInterface' ... does not have an
+  implementation` — and it took down **every** headless test (the heal tests
+  included), not just new ones.  Fix: align the `Avalonia.Headless` package to the
+  same version as core `Avalonia` (12.2.0 here).  Symptom = "all headless tests
+  fail at `HeadlessForm.Create()` with a `TypeLoadException`", NOT a test-logic
+  failure.  Check the Avalonia.* package versions line up before debugging test
+  logic.
+ - **SCROLLING a virtualized DataGrid headless (the `HeadlessTableScrollTests`
+   recipe):** a DataGrid VIRTUALIZES — `DataGridRowsPresenter.Children` holds only
+   the realized/visible rows (a few, e.g. 4, of 50).  A row that is off-screen has
+   NO presence in the tree, so its cell controls (its button) don't exist yet.
+   The GOAL is: scroll into a row that wasn't initially visible, then assert the
+   TEXT RENDERED ON that now-visible row equals that row's `DataContext` (the
+   variable the row's label is bound to) — the recycling guard.  Mechanically:
+   1. The visual tree has **no `ScrollViewer`** for the DataGrid — it renders two
+      `ScrollBar`s and a `DataGridRowsPresenter`.  Setting the `ScrollBar.Value`
+      (even to `.Maximum`) did **NOT** re-realize rows.
+   2. The working driver is **`DataGrid.ScrollIntoView(object item,
+      DataGridColumn column)`** — call it with the item + the first column
+      (`grid.Columns[0]`).  After a `ScrollIntoView(lastItem, ...)` + a few render
+      ticks, the realized rows became the bottom range (e.g. `Item-46..Item-49`)
+      and the top rows (`Item-0`) were recycled out of the tree.  It's on the
+      `DataGrid` itself (a public instance method), reachable via
+      `v.Children().OfType<DataGrid>()`.  This is `HeadlessForm.ScrollTable(item)`.
+ - **The MAIN check is "row's visible text == that row's DataContext", read per-row
+   (NOT a global match):** find the materialized `DataGridRow` whose
+   `ReferenceEquals(row.DataContext, modelItem)` (compare by REFERENCE — there is no
+   string-keyed identity, and a recycled view could otherwise be mistaken for the
+   real row), then read the text on THAT row.  In the test the layout is two
+   columns, button FIRST and a bound text label in its OWN `DataGridTextColumn`
+   (`modelBindingPropertyName = "Label"`) SECOND — the realistic case, not the
+   label stuffed into the button's cell.  Reading the row's label: take the
+   row-descendant `TextBlock` that has **no `Button` ancestor**
+   (`!tb.GetVisualAncestors().OfType<Button>().Any()`) — the button's content
+   `TextBlock` lives inside the `Button`, the bound label does not.  A pitfall:
+   comparing "some on-screen text == item" and "some row's DataContext == item"
+   SEPARATELY is too loose — it doesn't tie that row's rendered text to that
+   row's data; do both on the SAME located row.
+ - **A bound row label makes the row item require `INotifyPropertyChanged`:**
+   if a row's cell has a `Form.TextFor("Label")` (a binding), the row's
+   `DataContext` (the template's `item`) MUST be `INotifyPropertyChanged`, or
+   `FuncDataTemplate` throws at layout: "Special DataContext used in model, but
+   DataContext is not INotifyPropertyChanged.  Type given is RowItem."  ⇒ make the
+   row item a `nac.ViewModelBase` (`Label { get => GetValue(() => Label); set =>
+   SetValue(() => Label, value); }`).  A plain class works only for rows that have
+   no bindings (e.g. a button that captures the item by reference).
+- **The row's item IS its `DataContext` (Avalonia 12):** `Avalonia.Controls.
+  DataGridRow` has **no `Item` property** in 12 (`CS1061: 'DataGridRow' does not
+  contain a definition for 'Item'`).  The on-screen item you assert on is
+  `row.DataContext`.  And it's UI-thread-owned, so read it *inside* `On(v => ...)`
+  (return the label from the lambda) — pulling a `DataGridRow` reference out and
+  reading `.DataContext` on the test thread throws "The calling thread cannot
+  access this object" (the §3.4 gotcha #2, hitting the row's DataContext too).
+- **A button lives deep in a row, so the harness's top-level `Click` can't reach
+  it:** the per-row button is built by the `DataGridTemplateColumn`'s `CellTemplate`
+  (a child `Form`, `Form.Table.cs`), so it sits deep inside `DataGridRow →
+  DataGridCellsPresenter → DataGridCell → ContentPresenter`.  `Click(string)`/
+  `Click<T>()` only search the host's DIRECT children.  The added
+  `HeadlessForm.ClickButton(Button)` clicks a specific button the test located via
+  `On(v => ...)` (locate the row by its `DataContext`, walk its descendants for the
+  `Button`, hand it in).  The CellTemplate runs with `rowForm.DataContext == item`
+  BEFORE the row's controls build, so the row's button can capture its own row's
+  item and the click acts on the on-screen item's DataContext — the test's whole
+  point.
 
 ---
 
@@ -517,10 +599,12 @@ The working, repeatable shape (all discovered this session — see §6):
      void Pump(int ticks = 3);                        // render passes (UI-thread only)
      T On<T>(Func<Visuals, T> inspect);               // GENERIC: search+read on UI thread
      void On(Action<Visuals> inspect);                // void overload
-     void Click(string contentText);                  // find button by content, click, pump
-      void Click<T>() where T : Button;                // find first button of type T, click, pump
-      Form Form { get; }
-      void Dispose();
+      void Click(string contentText);                  // find button by content, click, pump
+       void Click<T>() where T : Button;                // find first button of type T, click, pump
+       void ClickButton(Button btn);                    // click a button you located via On (deep/row)
+       void ScrollTable(object item, int ticks = 5);    // DataGrid.ScrollIntoView(item) + pump
+       Form Form { get; }
+       void Dispose();
  }
 
  // Visuals -- the tree query On hands you (rooted at the form's host grid)
